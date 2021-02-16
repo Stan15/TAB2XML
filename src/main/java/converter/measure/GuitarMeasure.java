@@ -3,12 +3,51 @@ package converter.measure;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class GuitarMeasure extends Measure{
     public GuitarMeasure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
         super(lines, lineNames, linePositions, isFirstMeasure);
+        this.lineNames = this.fixNamingOfE(lineNames);
+        this.measureLineList = this.createMeasureLineList(this.lines, this.lineNames, this.positions);
+    }
+
+    private List<String>  fixNamingOfE(List<String> lineNames) {
+        int lowerEcount = 0;
+        int upperEcount = 0;
+        StringBuilder order = new StringBuilder();
+        for (String name : lineNames) {
+            order.append(name.toLowerCase());
+            if (name == "E")
+                upperEcount++;
+            else if (name == "e")
+                lowerEcount++;
+        }
+
+        //if it's not in order, we have no certainty as to what E tuning they are referring to. leave it as it is
+        if (order.toString()!="ebgdae" && order.toString()!="eadgbe") return lineNames;
+
+        //if there are not multiple Es (multiple lower case e or multiple upper case E) then there's nothing to decipher
+        if (!(lowerEcount>1 || upperEcount>1)) return lineNames;
+
+        String prevName = null;
+        for (int i=0; i<lineNames.size(); i++) {
+            String name = lineNames.get(i);
+            ArrayList<String> surroundingNames = new ArrayList<>();
+            surroundingNames.add(prevName.toLowerCase());
+            if (i+1!=lineNames.size())
+                surroundingNames.add(lineNames.get(i+1).toLowerCase());
+
+            if (surroundingNames.contains("b"))
+                lineNames.set(i,"e");
+            else lineNames.set(i,"E");  //not else if because we are guaranteed it is in either the order eadgbe or ebgdae
+
+                prevName = name;
+        }
+        return lineNames;
     }
 
     /**

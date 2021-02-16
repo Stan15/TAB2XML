@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public abstract class Measure {
-    public static int MEASURE_COUNT = 0;
+    public static int GLOBAL_MEASURE_COUNT = 0;
+    public int measureCount;
     int beats = 4;
     int beatType = 4;
     List<String> lines;
@@ -22,12 +23,12 @@ public abstract class Measure {
     boolean isFirstMeasure;
 
     public Measure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
-        Measure.MEASURE_COUNT++;
+        this.measureCount = GLOBAL_MEASURE_COUNT;
+        GLOBAL_MEASURE_COUNT++;
         this.lines = lines;
         this.lineCount = this.lines.size();
         this.lineNames = lineNames;
         this.positions = linePositions;
-        this.measureLineList = this.createMeasureLineList(this.lines, this.lineNames, this.positions);
         this.isFirstMeasure = isFirstMeasure;
     }
 
@@ -43,7 +44,7 @@ public abstract class Measure {
      * @return A list of MeasureLine objects. The concrete class type of these MeasureLine objects is determined
      * from the input String lists(lines and lineNames), and they are not guaranteed to all be of the same type.
      */
-    private List<MeasureLine> createMeasureLineList(List<String> lines, List<String> lineNames, List<Integer> linePositions) {
+    protected List<MeasureLine> createMeasureLineList(List<String> lines, List<String> lineNames, List<Integer> linePositions) {
         List<MeasureLine> measureLineList = new ArrayList<>();
         for (int i=0; i<lines.size(); i++) {
             String line = lines.get(i);
@@ -139,7 +140,7 @@ public abstract class Measure {
 
     public String toXML() {
         StringBuilder measureXML = new StringBuilder();
-        measureXML.append("<measure number=\""+Measure.MEASURE_COUNT+"\">\n");
+        measureXML.append("<measure number=\""+this.measureCount+"\">\n");
         // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
         if (this.isFirstMeasure)
             this.addAttributesXML(measureXML);

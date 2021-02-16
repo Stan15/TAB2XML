@@ -128,7 +128,7 @@ public abstract class MeasureLine {
     // e------------ or |e---------------- or |e|-------------------- when it is the first measure of the measure group (start of line, SOL)
     public static String PATTERN_SOL = createMeasureNameSOLPattern() + createInsidesPattern();
     //|--------------------- when it is in between other measures (middle of line, MIDL)
-    public static String PATTERN_MIDL = "("+"(\\|)+" + createInsidesPattern()+")";
+    public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
     public static Set<String> NAME_SET = createLineNameSet();
     public static String COMPONENT_PATTERN = createLineComponentPattern();
 
@@ -153,20 +153,21 @@ public abstract class MeasureLine {
         // vague, so that it captures even erroneous component, as long as it generally "looks like" a proper measure
         // component. don't worry about balanced brackets and stuff like that here. read javadoc for this method for
         // explanation on why we are delaying failure
-        String component = "[0-9./\\\\(\\)]";
+        String component = "[0-9./\\\\(\\)~]";
 
         //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
         //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+createMeasureNamePattern()+")|"+"\\|)"        +                   "(([ ]*-)|("+component+"[ ]*-))"                         +                  "([ -]*"+component+")*"                                      +             "[ -]*" + ")";
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+createMeasureNamePattern()+")|"+Patterns.DIVIDER+")"        +       "(([ ]*-)|("+component+"[ ]*-))"                         +                  "([ -]*"+component+")*"                                      +             "[ -]*" + ")";
         return measureInsides;
     }
 
     private static String createMeasureNameExtractPattern() {
         StringBuilder pattern = new StringBuilder();
-        pattern.append("(?<=^\\|*)");
+        pattern.append("(?<=^"+Patterns.DIVIDER+"*"+")");
         pattern.append(Patterns.WHITESPACE+"*");
         pattern.append(createMeasureNamePattern());
-        pattern.append("(?=-|\\|)");
+        pattern.append(Patterns.WHITESPACE+"*");
+        pattern.append("(?="+"-" + "|" +Patterns.DIVIDER+")");  // what's ahead is a dash or a divider
 
         return pattern.toString();
     }
@@ -174,11 +175,11 @@ public abstract class MeasureLine {
     private static String createMeasureNameSOLPattern() {
         StringBuilder pattern = new StringBuilder();
         pattern.append("(");
-        pattern.append("(?<=(^|\\n))"+Patterns.WHITESPACE+"*\\|*");
+        pattern.append("(?<=(^|\\n))"+Patterns.WHITESPACE+"*"+Patterns.DIVIDER+"*");
         pattern.append(Patterns.WHITESPACE+"*");
         pattern.append(createMeasureNamePattern());
         pattern.append(Patterns.WHITESPACE+"*");
-        pattern.append("((?=-)|(\\|+))");
+        pattern.append("((?=-)|("+Patterns.DIVIDER+"+))");
         pattern.append(")");
 
         return pattern.toString();

@@ -10,6 +10,7 @@ public class DrumMeasure extends Measure {
 
     public DrumMeasure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
         super(lines, lineNames, linePositions, isFirstMeasure);
+        this.measureLineList = this.createMeasureLineList(this.lines, this.lineNames, this.positions);
     }
     /**
      * Validates that all MeasureLine objects in this GuitarMeasure are GuitarMeasureLine objects, and validates its
