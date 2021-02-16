@@ -14,9 +14,9 @@ public class Note implements Comparable<Note>{
     public int duration;
     public int fret;
 
-    public Note(String line, String name, int distanceFromMeasureStart, int position) {
+    public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
-        this.name = name;
+        this.name = lineName;
         this.position = position;
         this.fret = Integer.parseInt(line);
         int stringNumber = this.convertNameToNumber(this.name);
@@ -29,15 +29,15 @@ public class Note implements Comparable<Note>{
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY
      * @param line
-     * @param name
+     * @param lineName
      * @param distanceFromMeasureStart
      * @param position
      * @return
      */
-    public static List<Note> from(String line, String name, int distanceFromMeasureStart, int position) {
+    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
         List<Note> noteList = new ArrayList<>();
         try {
-            noteList.add(new Note(line, name, distanceFromMeasureStart, position));
+            noteList.add(new Note(line, lineName, distanceFromMeasureStart, position));
         }catch (Exception e) {
             e.printStackTrace();
         }

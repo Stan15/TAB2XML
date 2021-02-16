@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GuitarMeasureLineTest {
-
+/*
     @Test
     void test1(){
         String s1 = ("---12---6-4-");
@@ -38,6 +38,6 @@ public class GuitarMeasureLineTest {
             assertEquals(note.fret, expected[i]);
         }
     }
-
+*/
 
 }

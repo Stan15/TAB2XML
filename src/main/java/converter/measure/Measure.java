@@ -22,11 +22,13 @@ public abstract class Measure {
     boolean isFirstMeasure;
 
     public Measure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
+        Measure.MEASURE_COUNT++;
         this.lines = lines;
         this.lineCount = this.lines.size();
         this.lineNames = lineNames;
         this.positions = linePositions;
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNames, this.positions);
+        this.isFirstMeasure = isFirstMeasure;
     }
 
     /**
@@ -136,7 +138,6 @@ public abstract class Measure {
     //-----------------------------XML stuff------------------------------------
 
     public String toXML() {
-        Measure.MEASURE_COUNT++;
         StringBuilder measureXML = new StringBuilder();
         measureXML.append("<measure number=\""+Measure.MEASURE_COUNT+"\">\n");
         // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
@@ -202,12 +203,11 @@ public abstract class Measure {
                 currentChord.add(note);
                 previousNote = note;
             }while(!noteQueue.isEmpty() && noteQueue.peek().distance==previousNote.distance);
-
             //adding all chord notes to the measureXML
             for(int i=0; i<currentChord.size(); i++) {
                 Note note = currentChord.get(i);
                 boolean startWithPrevious = false;
-                if (i>1)
+                if (i>0)
                     startWithPrevious = true;
                 measureXML.append(note.toXML(startWithPrevious));
             }
