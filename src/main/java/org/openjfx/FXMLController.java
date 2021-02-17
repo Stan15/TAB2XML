@@ -23,6 +23,13 @@ public class FXMLController {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fc.getExtensionFilters().add(extFilter);
 
+        String userDirectoryString = System.getProperty("user.home");
+        File userDirectory = new File(userDirectoryString);
+        if(!userDirectory.canRead()) {
+            userDirectory = new File("c:/");
+        }
+        fc.setInitialDirectory(userDirectory);
+
 
         File file = fc.showSaveDialog( anchorPane.getScene().getWindow() );
 

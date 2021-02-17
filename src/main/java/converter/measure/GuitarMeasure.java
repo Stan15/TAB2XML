@@ -21,14 +21,14 @@ public class GuitarMeasure extends Measure{
         StringBuilder order = new StringBuilder();
         for (String name : lineNames) {
             order.append(name.toLowerCase());
-            if (name == "E")
+            if (name.equals("E"))
                 upperEcount++;
-            else if (name == "e")
+            else if (name.equals("e"))
                 lowerEcount++;
         }
 
         //if it's not in order, we have no certainty as to what E tuning they are referring to. leave it as it is
-        if (order.toString()!="ebgdae" && order.toString()!="eadgbe") return lineNames;
+        if (!order.toString().equals("ebgdae") && !order.toString().equals("eadgbe")) return lineNames;
 
         //if there are not multiple Es (multiple lower case e or multiple upper case E) then there's nothing to decipher
         if (!(lowerEcount>1 || upperEcount>1)) return lineNames;
@@ -36,14 +36,16 @@ public class GuitarMeasure extends Measure{
         String prevName = null;
         for (int i=0; i<lineNames.size(); i++) {
             String name = lineNames.get(i);
+            if (!name.toLowerCase().equals("e")) continue;
             ArrayList<String> surroundingNames = new ArrayList<>();
-            surroundingNames.add(prevName.toLowerCase());
+            if (prevName!=null)
+                surroundingNames.add(prevName.toLowerCase());
             if (i+1!=lineNames.size())
                 surroundingNames.add(lineNames.get(i+1).toLowerCase());
 
             if (surroundingNames.contains("b"))
                 lineNames.set(i,"e");
-            else lineNames.set(i,"E");  //not else if because we are guaranteed it is in either the order eadgbe or ebgdae
+            else lineNames.set(i,"E");  //not else if because we are guaranteed it is in either the order eadgbe or ebgdae (look ar the if statement outside this for loop)
 
                 prevName = name;
         }
