@@ -52,14 +52,18 @@ public class Score {
     private LinkedHashMap<Integer, String> getStringFragments(String rootStr) {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
-        Pattern textGroupPattern = Pattern.compile("([^\\n\\r]+[\\n\\r])+");
-        Matcher textLineMatcher = textGroupPattern.matcher(rootStr);
-        while(textLineMatcher.find()) {
-            String fragment = ROOT_STRING.substring(textLineMatcher.start(), textLineMatcher.end());
+        //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
+        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+");
+        Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
+
+        int previousBreakEndIdx = 0;
+        while(textBreakMatcher.find()) {
+            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
-                int position = textLineMatcher.start();
+                int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
             }
+            previousBreakEndIdx = textBreakMatcher.end();
         }
         return stringFragments;
     }
