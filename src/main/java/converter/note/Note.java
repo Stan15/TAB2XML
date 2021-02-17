@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Note implements Comparable<Note>{
+public abstract class Note implements Comparable<Note>{
+    public boolean startWithPrevious;
     String line;
     String name;
+    int stringNumber;
     public int distance;
     int position;
     private int octave;
@@ -19,7 +21,7 @@ public class Note implements Comparable<Note>{
         this.name = lineName;
         this.position = position;
         this.fret = Integer.parseInt(line);
-        int stringNumber = this.convertNameToNumber(this.name);
+        this.stringNumber = this.convertNameToNumber(this.name);
         this.octave = octave(stringNumber, fret);
         this.key = Note.key(stringNumber, fret);
         this.duration = 1;
@@ -37,7 +39,7 @@ public class Note implements Comparable<Note>{
     public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
         List<Note> noteList = new ArrayList<>();
         try {
-            noteList.add(new Note(line, lineName, distanceFromMeasureStart, position));
+            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +84,8 @@ public class Note implements Comparable<Note>{
                 + octaveString
                 + "</pitch>\n";
     }
+
+    public abstract String toXML();
 
 
     //decide octave of note
@@ -168,22 +172,6 @@ public class Note implements Comparable<Note>{
         else {
             return keys[(fret + 4) % 12];
         }
-    }
-
-    public String toXML(boolean startsWithPrevious) {
-        StringBuilder noteXML = new StringBuilder();
-        noteXML.append("<note>\n");
-
-        if (startsWithPrevious)
-            noteXML.append("<chord/>\n");
-        noteXML.append(pitchScript());
-        noteXML.append("<duration>");
-        noteXML.append(this.duration);
-        noteXML.append("</duration>\n");
-
-        noteXML.append("</note>\n");
-
-        return noteXML.toString();
     }
 
     @Override
