@@ -3,6 +3,7 @@ package converter.measure;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
+import converter.note.GuitarNote;
 import converter.note.Note;
 
 import java.util.ArrayList;
@@ -131,7 +132,11 @@ public abstract class Measure {
             int endIdx = startIdx+this.lines.get(i).length();
             if (!linePositions.isEmpty())
                 linePositions.append(";");
-            linePositions.append("["+startIdx+","+endIdx+"]");
+            linePositions.append("[");
+            linePositions.append(startIdx);
+            linePositions.append(",");
+            linePositions.append(endIdx);
+            linePositions.append("]");
         }
         return linePositions.toString();
     }
@@ -140,7 +145,9 @@ public abstract class Measure {
 
     public String toXML() {
         StringBuilder measureXML = new StringBuilder();
-        measureXML.append("<measure number=\""+this.measureCount+"\">\n");
+        measureXML.append("<measure number=\"");
+        measureXML.append(this.measureCount);
+        measureXML.append("\">\n");
         // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
         if (this.isFirstMeasure)
             this.addAttributesXML(measureXML);
@@ -209,8 +216,8 @@ public abstract class Measure {
                 Note note = currentChord.get(i);
                 boolean startWithPrevious = false;
                 if (i>0)
-                    startWithPrevious = true;
-                measureXML.append(note.toXML(startWithPrevious));
+                    note.startWithPrevious = true;
+                measureXML.append(note.toXML());
             }
         }
         return measureXML;
