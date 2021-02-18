@@ -13,4 +13,8 @@ Operating System	Windows, MacOS, any platform with gradle
 TAB2XML is built as a Gradle project and thus should work on any IDE of your choice. However, we will only go over how to run the program using the IntelliJ and Eclipse IDE.
 
 ###	IntelliJ
-We first need to clone the project from the online GitHub repository onto our local device. To do that, first open IntelliJ. At the top right, select File > New > Project from Version Control
+We first need to clone the project from the online GitHub repository onto our local device. To do that, first open IntelliJ. At the top right, select File > New > Project from Version Control <br />
+![image](https://user-images.githubusercontent.com/47716543/108306574-75215680-717a-11eb-87b2-66c5555d76ab.png)
+
+This will direct you to a window which prompts you to enter a repository URL. Enter the link https://github.com/Stan15/TAB2XML as the URL, and select a directory where the project should be saved.
+
