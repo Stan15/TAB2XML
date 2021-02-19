@@ -114,6 +114,10 @@ public class MeasureGroup {
      * validates that all its aggregate Measure objects are an instance of the same type of Measure class (i.e they're all
      * GuitarMeasure objects or all DrumMeasure objects). Finally, it validates all its aggregates i.e all Measure objects
      * and Instruction objects that it aggregates. It stops evaluation at the first aggregated object which fails validation.
+     * TODO it might be better to not have it stop when one aggregated object fails validation, but instead have it
+     *      validate all of them and return a List of all aggregated objects that failed validation, so the user knows
+     *      all what is wrong with their tablature file, instead of having to fix one problem before being able to see
+     *      what the other problems with their text file is.
      * @return a HashMap<String, String> that maps the value "success" to "true" if validation is successful and "false"
      * if not. If not successful, the HashMap also contains mappings "message" -> the error message, "priority" -> the
      * priority level of the error, and "positions" -> the indices at which each line pertaining to the error can be
@@ -200,7 +204,7 @@ public class MeasureGroup {
         for (int i=0; i<this.measureList.size(); i++) {
             Measure measure = this.measureList.get(i);
             if (measure instanceof GuitarMeasure)
-                measureGroupXML.append(((GuitarMeasure)measure).toXML());
+                measureGroupXML.append(measure.toXML());
             else
                 continue;
             // TODO handle other types
