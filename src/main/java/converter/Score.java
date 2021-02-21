@@ -70,8 +70,13 @@ public class Score {
 
     /**
      * Ensures that all the lines of the root string (the whole tablature file) is understood as multiple measure collections,
-     * and if so, it validates all MeasureCollection objects it aggregates.
-     * TODO fix the logic. One rootString fragment could contain what is identified as multiple measures (maybe?) and another could be misunderatood so they cancel out and validation passes when it shouldn't
+     * and if so, it validates all MeasureCollection objects it aggregates. It stops evaluation at the first aggregated object which fails validation.
+     * TODO it might be better to not have it stop when one aggregated object fails validation, but instead have it
+     *      validate all of them and return a List of all aggregated objects that failed validation, so the user knows
+     *      all what is wrong with their tablature file, instead of having to fix one problem before being able to see
+     *      what the other problems with their text file is.
+     * TODO fix the logic. One rootString fragment could contain what is identified as multiple measures (maybe?) and another could be misunderstood so they cancel out and validation passes when it shouldn't
+     * TODO maybe have a low priority validation error when there are no measures detected in the Score.
      * @return a HashMap<String, String> that maps the value "success" to "true" if validation is successful and "false"
      * if not. If not successful, the HashMap also contains mappings "message" -> the error message, "priority" -> the
      * priority level of the error, and "positions" -> the indices at which each line pertaining to the error can be
@@ -98,14 +103,12 @@ public class Score {
 
             //get a list of positions to highlight red showing where the error applies.
             StringBuilder positions = new StringBuilder();
-            Iterator<Integer> uninterpretableFragmentPositions = rootStrFragmntsCopy.keySet().iterator();
 
-            while (uninterpretableFragmentPositions.hasNext()) {
-                int startIdx = uninterpretableFragmentPositions.next();
+            for (int startIdx : rootStrFragmntsCopy.keySet()) {
                 String fragment = this.rootStringFragments.get(startIdx);
                 if (positions.isEmpty())
                     positions.append(";");
-                positions.append("["+startIdx+","+startIdx+fragment.length()+"]");
+                positions.append("[" + startIdx + "," + startIdx + fragment.length() + "]");
             }
             result.put("positions", positions.toString());
             return result;
