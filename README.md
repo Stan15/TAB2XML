@@ -46,9 +46,9 @@ TAB2XML is built as a Gradle project and thus should work on any IDE of your cho
 ![image](https://user-images.githubusercontent.com/47716543/108307299-8dde3c00-717b-11eb-9a59-bf436c2db265.png)
 <br /><br />
 
-6. Specify the path of the Git project you cloned in the previous steps and click finish.
-7. Click on the “Gradle tasks” icon on the right of your screen
-8. Double click on the gradle “build” task at TAB2XML > build > build
+6. Specify the path of the Git project you cloned in the previous steps and click finish.<br />
+7. Click on the “Gradle tasks” icon on the right of your screen<br />
+8. Double click on the gradle “build” task at TAB2XML > build > build<br />
 ![image](https://user-images.githubusercontent.com/47716543/108307371-ababa100-717b-11eb-937d-b96ca4451dee.png)<br /><br />
 9.	Finally, click on the run task on TAB2XML > application > run
 
