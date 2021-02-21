@@ -59,7 +59,7 @@ Once the tablature text file is input into the text area, click the â€œConvertâ€
 ![image](https://user-images.githubusercontent.com/47716543/108307516-e6add480-717b-11eb-90f5-0ba967e9aad5.png)
 <br /><br />
 
-##Input Requirements
+## Input Requirements
 A number of sample tablature text files that meet the below requirements can be found in the project folder in the directory TAB2XML/src/test/resources/test_tab_files. The tablature file input into the program must meet the following requirements:
 1.	The tablature file must start with a vertical line after the string name (e.g E | ---------|----|) this is temporary.
 2.	Each group of measures must be separated by a blank line. e.g 
