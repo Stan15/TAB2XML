@@ -6,8 +6,8 @@ import java.util.List;
 
 public abstract class Note implements Comparable<Note>{
     public boolean startWithPrevious;
-    String line;
-    String name;
+    public String line;
+    public String name;
     int stringNumber;
     public int distance;
     int position;

@@ -16,7 +16,7 @@ public class MeasureGroup {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
     public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*"+"(?=\\n|$))"     +  ")";
-    private List<Integer> positions = new ArrayList<>();
+    public List<Integer> positions = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
     public List<Instruction> instructionList;
@@ -25,7 +25,7 @@ public class MeasureGroup {
      * Creates a MeasureGroup object from a List of Strings which represent the lines in the measure group
      * @param origin a List<String> containing the lines which are meant to represent a MeasureGroup. Each String in
      *              "origin" begins with a tag indicating the index at which it is positioned in the root string from
-     *               which it was extracted (i.e Score.ROOT_STRING).
+     *               which it was extracted (i.e Score.ROOT_STRING). (i.e "[startIdx]stringContent" )
      *               "origin" is guaranteed to be a valid **representation** of a MeasureGroup as it is only instantiated
      *               from the MeasureCollection class, which has to be made up of measure groups before it can be constructed
      *               (look at MeasureCollection.getInstance() and MeasureCollection.PATTERN). However, though it is

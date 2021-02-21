@@ -62,11 +62,12 @@ public abstract class Measure {
      * MeasureLine.isGuitar() and MeasureLine.isDrum() methods). If its features could not be deciphered or it has features
      * of both guitar and drum features, it defaults to creating a GuitarMeasure object and further error checking can
      * be done by calling GuitarMeasure().validate() on the object.
-     * @param lineList A list of the insides of each measure lines that makes up this measure
-     * @param lineNameList A list of the names of each the measure lines that makes up this measure
-     * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this
+     * @param lineList A list of the insides of each measure lines that makes up this measure (without the line names) (parallel list with the other two List parameters)
+     * @param lineNameList A list of the names of each the measure lines that makes up this measure (parallel list with the other two List parameters)
+     * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this (parallel list with the other two List parameters)
      *                         measure, where a line's position is the index at which the line is located in the root
      *                         String from which it was derived (Score.ROOT_STRING)
+     * @param isFirstMeasure specifies wether this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
      *
      * @return A Measure object which is either of type GuitarMeasure if the measure was understood to be a guitar
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
@@ -222,7 +223,7 @@ public abstract class Measure {
         return measureXML;
     }
 
-    private PriorityQueue<Note> getNoteQueue() {
+    public PriorityQueue<Note> getNoteQueue() {
         PriorityQueue<Note> noteQueue = new PriorityQueue<>();
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
