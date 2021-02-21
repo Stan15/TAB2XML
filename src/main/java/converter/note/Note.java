@@ -16,6 +16,15 @@ public abstract class Note implements Comparable<Note>{
     public int duration;
     public int fret;
 
+    // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
+    // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
+    //like a note component (e.g it should match something like e|-------h3(-----|, even though it is invalid ) this makes it so that
+    //even though incorrect, we still recognise the whole thing as a measure, and we get to the stage where we are trying to convert this
+    //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
+    // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
+    // area of hte measure (the pattern for detecting measure groups uses this pattern)
+    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)]";
+
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
         this.name = lineName;
