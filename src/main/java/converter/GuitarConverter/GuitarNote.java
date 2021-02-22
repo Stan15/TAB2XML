@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.regex.Pattern;
 
 public class GuitarNote {
+
+    private final static int DURATION = 1;
+
     public static String makeNoteScript(int stringNumber, String notation){
 
         return "<note>\n" + scripting(stringNumber, notation) + "</note>\n";
@@ -15,7 +18,7 @@ public class GuitarNote {
     public static String makeRestNoteScript(){
         return "<note>\n" +
                 "<rest/>\n" +
-                "<duration>1</duration>\n" +
+                "<duration>" + DURATION + "</duration>\n" +
                 "<voice>1</voice>\n" +
                 "<type>16th</type>\n" +
                 "</note>\n";
@@ -24,7 +27,6 @@ public class GuitarNote {
 
     public static String makeChordNoteScript(HashMap<Integer, String> notations){
 
-        Iterator<Integer> iter = notations.keySet().iterator();
         ArrayList<Integer> sortedKey = new ArrayList<>(notations.keySet());
         Collections.sort(sortedKey);
 
@@ -51,7 +53,7 @@ public class GuitarNote {
         if(Pattern.matches(("^[0-9]*$"), notation)){
             int fretNum = Integer.parseInt(notation);
             result += GuitarNote.pitchScript(octave(stringNumber, fretNum),key(stringNumber, fretNum));
-            result += "<duration>1</duration>\n" +
+            result += "<duration>" + DURATION + "</duration>\n" +
                     "<voice>1</voice>\n" +
                     "<type>16th</type>\n";
             result += "<notations>\n" +
@@ -60,13 +62,15 @@ public class GuitarNote {
                     "<fret>" + fretNum + "</fret>\n" +
                     "</technical>\n" +
                     "</notations>\n";
-        }
+        }//for notes such as 0 10 9 ..
         else if(notation.equals("x") || notation.equals("X")){
-        }
-        else if(Pattern.matches(("^[[0-9]*[phPH][0-9]]*"), notation)){
-        }
+        }//for notes such as x X (mute)
+        else if(Pattern.matches(("^[[0-9]*[phPH][0-9]*]*"), notation)){
+        }//for notes such as 5H6 1h3p2.. (hammer on, pull off)
         else if(Pattern.matches(("^[[(][0-9]*[)]]"), notation)){
-        }
+        }//for notes such as (0) (10)..
+        else if(Pattern.matches(("^[[0-9]*[/\\\\][0-9]*]*"), notation)){
+        }//for notes such as 4/5 5\3.. (slides)
         else{
         }
         return result;
@@ -154,6 +158,7 @@ public class GuitarNote {
         return octave;
     }
 
+    //decide key of note
     private static String key(int stringNumber, int fret) {
         String[] keys = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
