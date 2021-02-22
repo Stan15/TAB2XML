@@ -14,9 +14,9 @@ public class GuitarMeasureLineTest {
         String s1 = ("---12---6-4-5-8-1-----------2-");
         MeasureLine measureLine = new GuitarMeasureLine(s1, "e", 4);
         Integer[] expected = {12, 6, 4, 5, 8, 1, 2};
-        for(int i = 0; i < measureLine.noteList.size(); i++){
+        for(int i = 0; i < measureLine.noteList.size(); i++) {
             Note note = measureLine.noteList.get(i);
-            assertEquals(measureLine.validate().get("Success"), expected);
+            assertEquals(note.fret, expected[i]);
         }
     }
     @Test
@@ -41,14 +41,33 @@ public class GuitarMeasureLineTest {
     }
     @Test
     void testInvalidity1(){
-        String s4 = ("--------");
-        MeasureLine measureLine = new GuitarMeasureLine(s4, "A", 4);
-        Integer[] expected = {28};
+        String s4 = ("----------|----------");
+        MeasureLine measureLine = new GuitarMeasureLine(s4, "f", 4);
+        Integer[] expected = {};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             Note note = measureLine.noteList.get(i);
             assertEquals(note.fret, expected[i]);
         }
     }
-
+    @Test
+    void testInvalidity2(){
+        String s5 = ("----2----|---4----8-");
+        MeasureLine measureLine = new GuitarMeasureLine(s5, "C", 4);
+        Integer[] expected = {};
+        for(int i = 0; i < measureLine.noteList.size(); i++){
+            Note note = measureLine.noteList.get(i);
+            assertEquals(note.fret, expected[i]);
+        }
+    }
+    @Test
+    void testInvalidity3(){
+        String s6 = ("----|----");
+        MeasureLine measureLine = new GuitarMeasureLine(s6, "D#", 4);
+        Integer[] expected = {};
+        for(int i = 0; i < measureLine.noteList.size(); i++){
+            Note note = measureLine.noteList.get(i);
+            assertEquals(note.fret, expected[i]);
+        }
+    }
 
 }
