@@ -70,18 +70,25 @@ public class GuitarMeasure extends GuitarConvert{
                         notesBox[stringNum][i] = notation;
                         break;
                     }
-                }
+                }// Find a proper position in 2D array(notes box) and put notation in the position
+                //e.g     fist string line information               -----0------4-----
+                //        second string line information             --3---------4-----
+                //                            first string    [ ][ ][0][ ][ ][ ][4][ ][ ]
+                //                            second string   [ ][3][ ][ ][ ][ ][4][ ][ ]
+                //                                  ...
             }
 
             StringBuilder builder = new StringBuilder(temp);
             for(int i = index; i < index + notation.length(); i++){
                 builder.setCharAt(i,'-');
-            }
+            }//replace extracted notation with '-' to extract the next notation
 
             temp = builder.toString();
         }
     }
 
+    //basic attributes of guitar tuning
+    //only for the first measure
     private String makeAttributes(){
         String attributes = "<attributes>\n" +
                 "<divisions>" + DEFAULT_DIVISION + "</divisions>\n" +
@@ -125,7 +132,8 @@ public class GuitarMeasure extends GuitarConvert{
                 "</staff-details>\n" +
                 "</attributes>\n";
         return attributes;
-    }
+    } // If capo information is extracted from parser,
+      // It should be changed.
 
     public String makeScript(){
         String script = "<measure number=\"" + measureNum + "\">\n";
