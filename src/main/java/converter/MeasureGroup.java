@@ -43,6 +43,7 @@ public class MeasureGroup {
             this.lines.add(line);
         }
         this.measureList = this.createMeasureList(this.lines, this.positions);
+        this.instructionList = new ArrayList<>();
     }
 
     /**
