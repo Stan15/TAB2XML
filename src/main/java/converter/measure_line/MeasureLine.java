@@ -203,8 +203,8 @@ public abstract class MeasureLine {
 
     private static Set<String> createLineNameSet() {
         HashSet<String> nameSet = new HashSet<>();
-        nameSet.addAll(GuitarMeasureLine.NAME_SET);
-        nameSet.addAll(DrumMeasureLine.NAME_SET);
+        nameSet.addAll(GuitarMeasureLine.createLineNameSet());
+        nameSet.addAll(DrumMeasureLine.createLineNameSet());
         return nameSet;
     }
 

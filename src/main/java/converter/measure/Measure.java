@@ -89,6 +89,8 @@ public abstract class Measure {
             return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasure); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
     }
 
+
+
     /**
      * Validates if all MeasureLine objects which this Measure object aggregates areinstances of the same concrete
      * MeasureLine Class (i.e they're all GuitarMeasureLine instances or all DrumMeasureLine objects). It does not
@@ -108,7 +110,7 @@ public abstract class Measure {
             hasGuitarMeasureLines &= measureLine instanceof GuitarMeasureLine;
             hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
         }
-        if (!(hasGuitarMeasureLines|| hasDrumMeasureLines)) {
+        if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
             result.put("success", "false");
             result.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
             result.put("positions", this.getLinePositions());

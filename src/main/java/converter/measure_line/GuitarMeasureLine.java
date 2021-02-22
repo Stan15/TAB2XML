@@ -12,7 +12,7 @@ public class GuitarMeasureLine extends MeasureLine {
         super(line, name, position);
     }
 
-    private static Set<String> createLineNameSet() {
+    protected static Set<String> createLineNameSet() {
         String[] names = {"E", "A", "D", "G", "B", "e", "a", "d", "g", "b"};
         HashSet<String> nameSet = new HashSet<>();
         nameSet.addAll(Arrays.asList(names));

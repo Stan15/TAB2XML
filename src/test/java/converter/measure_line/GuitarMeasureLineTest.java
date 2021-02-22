@@ -51,7 +51,7 @@ public class GuitarMeasureLineTest {
     }
     @Test
     void testInvalidity2(){
-        String s5 = ("----2----|---4----8-");
+        String s5 = "----2----|---4----8-";
         MeasureLine measureLine = new GuitarMeasureLine(s5, "C", 4);
         Integer[] expected = {};
         for(int i = 0; i < measureLine.noteList.size(); i++){
