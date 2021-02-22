@@ -94,7 +94,14 @@ public abstract class MeasureLine {
      */
     public HashMap<String, String> validate() {
         HashMap<String, String> result = new HashMap<>();
-        result.put("success", "true");
+        if (name==null) {
+            result.put("success", "false");
+            result.put("message", "invalid measure line name");
+            result.put("priority", "1");
+            result.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+        }else {
+            result.put("success", "true");
+        }
         return result;
     }
 
@@ -135,8 +142,10 @@ public abstract class MeasureLine {
     public static String nameOf(String measureLineStr) {
         Pattern measureLineNamePttrn = Pattern.compile(createMeasureNameExtractPattern());
         Matcher measureLineNameMatcher = measureLineNamePttrn.matcher(measureLineStr);
-        measureLineNameMatcher.find();
-        return measureLineNameMatcher.group().strip();
+        if (measureLineNameMatcher.find())
+            return measureLineNameMatcher.group().strip();
+        else
+            return null;
     }
 
     /**
