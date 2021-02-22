@@ -61,7 +61,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "false");
+        assertEquals("false", mg.validate().get("success"));
     }
 
     @Test
