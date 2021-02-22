@@ -20,6 +20,7 @@ public class GuitarMeasure extends Measure{
         int upperEcount = 0;
         StringBuilder order = new StringBuilder();
         for (String name : lineNames) {
+            if (name==null) return lineNames;
             order.append(name.toLowerCase());
             if (name.equals("E"))
                 upperEcount++;

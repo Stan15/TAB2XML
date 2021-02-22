@@ -16,7 +16,7 @@ public class GuitarMeasureLineTest {
         Integer[] expected = {12, 6, 4, 5, 8, 1, 2};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             Note note = measureLine.noteList.get(i);
-            assertEquals(measureLine.validate().get("Success"), expected);
+            assertEquals(note.fret, expected[i]);
         }
     }
     @Test
