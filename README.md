@@ -4,10 +4,12 @@
 TAB2XML is a tool designed to convert musical tablature in a text format into MusicXML, a popular open-source file format used for exchanging digital sheet music.  TAB2XML is currently a simple java-based application with more features being added every week.  
 
 ## System Requirements
-Available Disk Space	50 MB
-RAM 256 MB
-Java version Java 15
-Operating System	Windows, MacOS, any platform with gradle
+|     |           |
+|-----|-----------|
+|Available Disk Space |	50 MB|
+|RAM | 256 MB|
+|Java version | Java 15|
+|Operating System |	Windows, MacOS, any platform with gradle|
 
 ## Installation
 TAB2XML is built as a Gradle project and thus should work on any IDE of your choice. However, we will only go over how to run the program using the IntelliJ and Eclipse IDE.
@@ -46,9 +48,9 @@ TAB2XML is built as a Gradle project and thus should work on any IDE of your cho
 ![image](https://user-images.githubusercontent.com/47716543/108307299-8dde3c00-717b-11eb-9a59-bf436c2db265.png)
 <br /><br />
 
-6. Specify the path of the Git project you cloned in the previous steps and click finish.
-7. Click on the “Gradle tasks” icon on the right of your screen
-8. Double click on the gradle “build” task at TAB2XML > build > build
+6. Specify the path of the Git project you cloned in the previous steps and click finish.<br />
+7. Click on the “Gradle tasks” icon on the right of your screen<br />
+8. Double click on the gradle “build” task at TAB2XML > build > build<br />
 ![image](https://user-images.githubusercontent.com/47716543/108307371-ababa100-717b-11eb-937d-b96ca4451dee.png)<br /><br />
 9.	Finally, click on the run task on TAB2XML > application > run
 
@@ -59,9 +61,9 @@ Once the tablature text file is input into the text area, click the “Convert�
 ![image](https://user-images.githubusercontent.com/47716543/108307516-e6add480-717b-11eb-90f5-0ba967e9aad5.png)
 <br /><br />
 
-##Input Requirements
+## Input Requirements
 A number of sample tablature text files that meet the below requirements can be found in the project folder in the directory TAB2XML/src/test/resources/test_tab_files. The tablature file input into the program must meet the following requirements:
-1.	The tablature file must start with a vertical line after the string name (e.g E | ---------|----|)
+1.	The tablature file must start with a vertical line after the string name (e.g E | ---------|----|) this is temporary.
 2.	Each group of measures must be separated by a blank line. e.g 
 e|---12-----------12-11-9-----5-----5-----5-----5----|<br />
 B|------12----------------------0-----0-----0-----0--|<br />
@@ -86,6 +88,7 @@ A|---0----------------------------------------------------|<br />
 E|--------------------------------------------------------|<br />
 The x2 by the side of the G string will affect the conversion.
 4.	The line names must all be lower caps, except for the E string which can be lower caps to distinguish the lower e string from the upper E string.
+
 
 
 
