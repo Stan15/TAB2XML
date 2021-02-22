@@ -149,15 +149,10 @@ public abstract class MeasureLine {
      * @return the bracket-enclosed String regex pattern.
      */
     private static String createInsidesPattern() {
-        // stuff like (2h7) or 8s3 or 12 or 4/2, etc. All the stuff that you find inside a measure line. Make this very
-        // vague, so that it captures even erroneous component, as long as it generally "looks like" a proper measure
-        // component. don't worry about balanced brackets and stuff like that here. read javadoc for this method for
-        // explanation on why we are delaying failure
-        String component = "[0-9./\\\\(\\)~]";
 
         //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
         //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+createMeasureNamePattern()+")|"+Patterns.DIVIDER+")"        +       "(([ ]*-)|("+component+"[ ]*-))"                         +                  "([ -]*"+component+")*"                                      +             "[ -]*" + ")";
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+createMeasureNamePattern()+")|"+Patterns.DIVIDER+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
         return measureInsides;
     }
 

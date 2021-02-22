@@ -214,7 +214,6 @@ public abstract class Measure {
             //adding all chord notes to the measureXML
             for(int i=0; i<currentChord.size(); i++) {
                 Note note = currentChord.get(i);
-                boolean startWithPrevious = false;
                 if (i>0)
                     note.startWithPrevious = true;
                 measureXML.append(note.toXML());
