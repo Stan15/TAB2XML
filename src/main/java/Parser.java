@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Parser {
     public static Score SCORE;
 
-    public Parser(String rootString) {
+    public static void createScore(String rootString) {
         SCORE = new Score(rootString);
     }
 

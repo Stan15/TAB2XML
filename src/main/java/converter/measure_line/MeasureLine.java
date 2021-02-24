@@ -92,16 +92,16 @@ public abstract class MeasureLine {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
         if (name==null) {
-            result.put("success", "false");
-            result.put("message", "invalid measure line name");
-            result.put("priority", "1");
-            result.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
-        }else {
-            result.put("success", "true");
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "invalid measure line name");
+            response.put("priority", "1");
+            response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+            result.add(response);
         }
+
         return result;
     }
 

@@ -101,8 +101,8 @@ public abstract class Measure {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
 
         boolean hasGuitarMeasureLines = true;
         boolean hasDrumMeasureLines = true;
@@ -111,13 +111,13 @@ public abstract class Measure {
             hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
         }
         if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
-            result.put("success", "false");
-            result.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "1");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "1");
+            result.add(response);
         }
-        result.put("success", "true");
+
         return result;
     }
 

@@ -116,14 +116,14 @@ public class MeasureCollection {
         //extract the measure group collection
         Matcher matcher = Pattern.compile("((^|\\n)"+MeasureCollection.LINE_PATTERN+")+").matcher(origin);
         matcher.find(); // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
-        measureGroupCollctn.add("["+this.position+matcher.start()+"]"+matcher.group());
+        measureGroupCollctn.add("["+(this.position+matcher.start())+"]"+matcher.group());
         identifiedComponents.add(matcher.start());
 
         //extract the instruction
         matcher = Pattern.compile("((^|\\n)"+ Instruction.LINE_PATTERN+")+").matcher(origin);
         while(matcher.find()) {
             if (identifiedComponents.contains(matcher.start())) continue;
-            instructionList.add("["+this.position+matcher.start()+"]"+matcher.group());
+            instructionList.add("["+(this.position+matcher.start())+"]"+matcher.group());
             identifiedComponents.add(matcher.start());
         }
 
@@ -131,7 +131,7 @@ public class MeasureCollection {
         matcher = Pattern.compile("((^|\\n)"+Patterns.COMMENT+")+").matcher(origin);
         while(matcher.find()) {
             if (identifiedComponents.contains(matcher.start())) continue;
-            commentList.add("["+this.position+matcher.start()+"]"+matcher.group());
+            commentList.add("["+(this.position+matcher.start())+"]"+matcher.group());
             identifiedComponents.add(matcher.start());
         }
         return componentsMap;
@@ -150,17 +150,16 @@ public class MeasureCollection {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
 
-        //--------------Validating your aggregates-------------------
+        //--------------Validate your aggregates (only if you are valid)-------------------
+        if (!result.isEmpty()) return result;
+
         for (MeasureGroup mGroup : this.measureGroupList) {
-            HashMap<String,String> response = mGroup.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(mGroup.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 

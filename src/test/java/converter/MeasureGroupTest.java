@@ -22,7 +22,7 @@ public class MeasureGroupTest {
         origin.add("[4] b|-3-2-2-0----|");
         origin.add("[5] e|-3-2-2-0----|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "true");
+        assertTrue(mg.validate().isEmpty());
     }
 
     @Test
@@ -35,7 +35,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-3-2-2-0----|");
         origin.add("[50] e|-3-2-2-0----|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "true");
+        assertTrue(mg.validate().isEmpty());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "true");
+        assertTrue(mg.validate().isEmpty());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals("false", mg.validate().get("success"));
+        assertFalse(mg.validate().isEmpty());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "false");
+        assertFalse(mg.validate().isEmpty());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class MeasureGroupTest {
         origin.add("[4] b|-3-2-2-0---e-|");
         origin.add("[5] e|-3-2-2-0---f-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertEquals(mg.validate().get("success"), "false");
+        assertFalse(mg.validate().isEmpty());
     }
 
     @Test
