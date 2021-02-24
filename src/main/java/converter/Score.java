@@ -53,7 +53,7 @@ public class Score {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
-        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+");
+        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+|$");
         Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
 
         int previousBreakEndIdx = 0;
