@@ -100,7 +100,6 @@ public class MeasureGroupTest {
         origin.add("[40] A|-5---2-0-----2--3-2-----------------------------------------------|");
         origin.add("[50] E|-3-----------0----0-----------------------------------------------|");
         MeasureGroup mg = new MeasureGroup(origin);
-        System.out.println(mg.toXML());
         assertEquals(mg.toXML(), "");
     }
 
