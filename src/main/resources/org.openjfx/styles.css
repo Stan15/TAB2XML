@@ -1,3 +1,10 @@
 .label {
     -fx-text-fill: grey;
 }
+.styled-text-area .navigator {
+    -fx-padding: 5px;
+}
+
+.styled-text-area {
+    -fx-effect: innershadow( gaussian , #00000020 , 3 , 0 , 2 , 2 );
+}

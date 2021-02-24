@@ -7,8 +7,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import org.fxmisc.richtext.InlineCssTextArea;
 
 public class FXMLController {
+
+    @FXML public static InlineCssTextArea INPUT_FIELD;
 
     @FXML private AnchorPane anchorPane;
 
