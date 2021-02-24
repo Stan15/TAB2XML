@@ -6,5 +6,8 @@
 }
 
 .styled-text-area {
-    -fx-effect: innershadow( gaussian , #00000020 , 3 , 0 , 2 , 2 );
+    -fx-effect: innershadow( gaussian , #00000015 , 5 , 0 , 2 , 2 );
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: #ccc;
 }
