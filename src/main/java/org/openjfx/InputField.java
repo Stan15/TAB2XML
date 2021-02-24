@@ -3,6 +3,7 @@ package org.openjfx;
 import converter.Score;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import parser.Parser;
+import utility.Range;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,16 +86,3 @@ public class InputField {
     }
 }
 
-class Range {
-    private int low;
-    private int high;
-
-    public Range(int low, int high){
-        this.low = low;
-        this.high = high;
-    }
-
-    public boolean contains(int number){
-        return (number >= low && number <= high);
-    }
-}

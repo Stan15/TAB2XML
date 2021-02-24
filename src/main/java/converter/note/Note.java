@@ -22,7 +22,7 @@ public abstract class Note implements Comparable<Note>{
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)]";
+    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
 
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;

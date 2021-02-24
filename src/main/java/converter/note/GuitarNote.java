@@ -21,7 +21,7 @@ public class GuitarNote extends Note {
 
         if (line.matches("[0-9]+")) return result;
         HashMap<String, String> response = new HashMap<>();
-        response.put("message", "This note type is either unsupported or invalid");
+        response.put("message", "This annotation is either unsupported or invalid.");
         response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
         response.put("priority", "1");
         result.add(response);
