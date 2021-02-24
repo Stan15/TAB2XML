@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class InputField {
     StyleClassedTextArea TEXT_AREA;
-    protected static int HOVER_DELAY = 500;   //in milliseconds
+    protected static int HOVER_DELAY = 350;   //in milliseconds
     public static String PREV_ROOT_STRING = "";
     public static Map<Range,String> ACTIVE_ERROR_MESSAGES = new HashMap<>();
 
