@@ -5,8 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GuitarNote extends Note {
+    public int fret;
     public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int position) {
         super(line, lineName, distanceFromMeasureStart, position);
+        try {
+            this.fret = Integer.parseInt(this.line);
+        }catch (Exception E) {
+            this.fret = -1;
+        }
     }
 
     public List<HashMap<String, String>> validate() {

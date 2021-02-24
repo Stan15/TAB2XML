@@ -96,7 +96,7 @@ public abstract class MeasureLine {
         List<HashMap<String, String>> result = new ArrayList<>();
         if (name==null) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "invalid measure line name");
+            response.put("message", "invalid measure line name.");
             response.put("priority", "1");
             response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
             result.add(response);
