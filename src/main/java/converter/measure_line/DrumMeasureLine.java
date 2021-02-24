@@ -1,9 +1,8 @@
 package converter.measure_line;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import converter.note.Note;
+
+import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
@@ -12,7 +11,7 @@ public class DrumMeasureLine extends MeasureLine {
         super(line, name, position);
     }
 
-    private static Set<String> createLineNameSet() {
+    protected static Set<String> createLineNameSet() {
         String[] names = {"CC", "Ch", "C2", "HH", "Rd", "R", "SN", "T1", "T2", "FT", "BD", "Hf", "FH", "C", "H", "s", "S", "B", "Hh", "F", "F2", "Ht", "Mt", "f1", "f2", "Hhf"};
         HashSet<String> nameSet = new HashSet<>();
         nameSet.addAll(Arrays.asList(names));
@@ -30,7 +29,13 @@ public class DrumMeasureLine extends MeasureLine {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        return null;
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String,String>> result = new ArrayList<>();
+        result.addAll(super.validate());
+
+        for (Note note : this.noteList)
+            result.addAll(note.validate());
+
+        return result;
     }
 }

@@ -89,6 +89,8 @@ public abstract class Measure {
             return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasure); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
     }
 
+
+
     /**
      * Validates if all MeasureLine objects which this Measure object aggregates areinstances of the same concrete
      * MeasureLine Class (i.e they're all GuitarMeasureLine instances or all DrumMeasureLine objects). It does not
@@ -99,8 +101,8 @@ public abstract class Measure {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
 
         boolean hasGuitarMeasureLines = true;
         boolean hasDrumMeasureLines = true;
@@ -108,14 +110,14 @@ public abstract class Measure {
             hasGuitarMeasureLines &= measureLine instanceof GuitarMeasureLine;
             hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
         }
-        if (!(hasGuitarMeasureLines|| hasDrumMeasureLines)) {
-            result.put("success", "false");
-            result.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "1");
-            return result;
+        if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "1");
+            result.add(response);
         }
-        result.put("success", "true");
+
         return result;
     }
 
@@ -227,7 +229,10 @@ public abstract class Measure {
         PriorityQueue<Note> noteQueue = new PriorityQueue<>();
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
-            noteQueue.addAll(guitarMline.noteList);
+            for (Note note : guitarMline.noteList) {
+                if (note.isValid)
+                    noteQueue.add(note);
+            }
         }
         return noteQueue;
     }

@@ -2,6 +2,7 @@ package converter.note;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class Note implements Comparable<Note>{
@@ -11,10 +12,8 @@ public abstract class Note implements Comparable<Note>{
     int stringNumber;
     public int distance;
     int position;
-    private int octave;
-    private String key;
     public int duration;
-    public int fret;
+    public boolean isValid;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -23,18 +22,30 @@ public abstract class Note implements Comparable<Note>{
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)]";
+    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
 
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
         this.name = lineName;
         this.position = position;
-        this.fret = Integer.parseInt(line);
         this.stringNumber = this.convertNameToNumber(this.name);
-        this.octave = octave(stringNumber, fret);
-        this.key = Note.key(stringNumber, fret);
         this.duration = 1;
         this.distance = distanceFromMeasureStart;
+
+        this.isValid = this.isValid();
+    }
+
+    public List<HashMap<String,String>> validate() {
+        return new ArrayList<>();
+    }
+
+    public boolean isValid() {
+        int cut_off_priority_level = 2;
+        for (HashMap<String,String> response : this.validate()) {
+            if (Integer.parseInt(response.get("priority")) <= cut_off_priority_level)
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -77,6 +88,10 @@ public abstract class Note implements Comparable<Note>{
     //reference: https://theacousticguitarist.com/all-notes-on-guitar/
     //make script
     public String pitchScript() {
+        int fret = Integer.parseInt(this.line);
+        String key = Note.key(this.stringNumber, fret);
+        int octave = octave(this.stringNumber,fret);
+
         String octaveString = "<octave>" + octave + "</octave>\n";
         String stepString;
         if(!key.contains("#")) {
