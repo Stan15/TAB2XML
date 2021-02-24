@@ -1,3 +1,25 @@
 .label {
     -fx-text-fill: grey;
 }
+.styled-text-area .navigator {
+    -fx-padding: 5px;
+}
+.styled-text-area {
+    -fx-effect: innershadow( gaussian , #00000015 , 5 , 0 , 2 , 2 );
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: #ccc;
+    -fx-font-family: Monospaced;
+}
+
+.redHighlight {
+    -rtfx-background-color: #ffa6a6;
+}
+
+.blueHighlight {
+    -rtfx-background-color: #b4eaff;
+}
+
+.yellowHighlight {
+    -rtfx-background-color: #ffff76;
+}

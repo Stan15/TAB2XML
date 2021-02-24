@@ -3,21 +3,35 @@ package org.openjfx;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.time.Duration;
+import java.util.ResourceBundle;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
+import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Popup;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.event.MouseOverTextEvent;
 
-public class FXMLController {
+public class FXMLController implements Initializable {
+
+    @FXML public StyleClassedTextArea INPUT_FIELD;
 
     @FXML private AnchorPane anchorPane;
 
-    @FXML private TextArea inputField;
+    public boolean autoHighlight = true;
+    public boolean highlight;
+
+    public int errorSensitivity = 3;
 
     @FXML
     private void convertButtonHandle() {
-        parser.Parser p = new parser.Parser(inputField.getText());
-        String output = p.parse();
+        parser.Parser.createScore(INPUT_FIELD.getText());
+        String output = parser.Parser.parse();
 
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
@@ -47,5 +61,41 @@ public class FXMLController {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    @FXML
+    private void errorHighlightInputField() {
+        if (autoHighlight)
+            highlight = true;
+        if (highlight) {
+            highlight = false;
+            new InputField(INPUT_FIELD).errorHighlight(errorSensitivity);
+        }
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        INPUT_FIELD.setWrapText(true);
+        Popup popup = new Popup();
+        Label popupMsg = new Label();
+        popupMsg.setStyle(
+                "-fx-background-color: black;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 5;");
+        popup.getContent().add(popupMsg);
+
+        INPUT_FIELD.setMouseOverTextDelay(Duration.ofMillis(InputField.HOVER_DELAY));
+        INPUT_FIELD.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
+            if (InputField.ACTIVE_ERROR_MESSAGES.isEmpty()) return;
+            int chIdx = e.getCharacterIndex();
+            String message = InputField.getMessageOfCharAt(chIdx);
+            if (message.isEmpty()) return;
+            Point2D pos = e.getScreenPosition();
+            popupMsg.setText(message);
+            popup.show(INPUT_FIELD, pos.getX(), pos.getY() + 10);
+        });
+        INPUT_FIELD.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
+            popup.hide();
+        });
     }
 }

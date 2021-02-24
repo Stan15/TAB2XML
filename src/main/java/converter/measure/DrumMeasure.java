@@ -3,6 +3,7 @@ package converter.measure;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.MeasureLine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,30 +27,29 @@ public class DrumMeasure extends Measure {
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     @Override
-    public HashMap<String, String> validate() {
-        //-----------------Validate yourself-------------------------
-        HashMap<String, String> superResult = super.validate(); //this validates if all MeasureLine objects in this measure are of the same type
-        if (superResult.get("success").equals("false"))
-            return superResult;
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
 
-        HashMap<String, String> result = new HashMap<>();
+        //-----------------Validate yourself-------------------------
+        result.addAll(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+
+
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof DrumMeasureLine)) {
-            result.put("success", "false");
-            result.put("message", "All measure lines in this measure must be Guitar measure lines.");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "1");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in this measure must be Guitar measure lines.");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "1");
+            result.add(response);
         }
 
-        //-----------------Validate Aggregates------------------
+        //-----------------Validate Aggregates (only if you are valid)------------------
+        if (!result.isEmpty()) return result;
+
         for (MeasureLine measureLine : this.measureLineList) {
-            HashMap<String,String> response = measureLine.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(measureLine.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 }

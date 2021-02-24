@@ -58,13 +58,13 @@ public abstract class MeasureLine {
                 dashCounter++;
             if (line.charAt(i) == '-') { //accounts for each instance of dash
                 if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, position+i));
+                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
                     noteStrCollector.setLength(0);
                 }
                 startIdx = 0;
             } else if (line.charAt(i) == '|') { //accounts for each instance of vertical bar
                 if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, position+i));
+                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
                     noteStrCollector.setLength(0);
                 }
                 dashCounter = 0; //reset dash counter
@@ -93,9 +93,16 @@ public abstract class MeasureLine {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
-        result.put("success", "true");
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
+        if (name==null) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "invalid measure line name.");
+            response.put("priority", "1");
+            response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+            result.add(response);
+        }
+
         return result;
     }
 
@@ -136,8 +143,10 @@ public abstract class MeasureLine {
     public static String nameOf(String measureLineStr) {
         Pattern measureLineNamePttrn = Pattern.compile(createMeasureNameExtractPattern());
         Matcher measureLineNameMatcher = measureLineNamePttrn.matcher(measureLineStr);
-        measureLineNameMatcher.find();
-        return measureLineNameMatcher.group().strip();
+        if (measureLineNameMatcher.find())
+            return measureLineNameMatcher.group().strip();
+        else
+            return null;
     }
 
     /**
@@ -195,12 +204,14 @@ public abstract class MeasureLine {
 
     private static Set<String> createLineNameSet() {
         HashSet<String> nameSet = new HashSet<>();
-        nameSet.addAll(GuitarMeasureLine.NAME_SET);
-        nameSet.addAll(DrumMeasureLine.NAME_SET);
+        nameSet.addAll(GuitarMeasureLine.createLineNameSet());
+        nameSet.addAll(DrumMeasureLine.createLineNameSet());
         return nameSet;
     }
 
     private static String createLineComponentPattern() {
         return "(" + GuitarMeasureLine.COMPONENT_PATTERN + "|" + GuitarMeasureLine.COMPONENT_PATTERN + ")";
     }
+
+
 }

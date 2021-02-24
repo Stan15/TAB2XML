@@ -16,7 +16,7 @@ public class MeasureGroup {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
     public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*"+"(?=\\n|$))"     +  ")";
-    private List<Integer> positions = new ArrayList<>();
+    public List<Integer> positions = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
     public List<Instruction> instructionList;
@@ -25,7 +25,7 @@ public class MeasureGroup {
      * Creates a MeasureGroup object from a List of Strings which represent the lines in the measure group
      * @param origin a List<String> containing the lines which are meant to represent a MeasureGroup. Each String in
      *              "origin" begins with a tag indicating the index at which it is positioned in the root string from
-     *               which it was extracted (i.e Score.ROOT_STRING).
+     *               which it was extracted (i.e Score.ROOT_STRING). (i.e "[startIdx]stringContent" )
      *               "origin" is guaranteed to be a valid **representation** of a MeasureGroup as it is only instantiated
      *               from the MeasureCollection class, which has to be made up of measure groups before it can be constructed
      *               (look at MeasureCollection.getInstance() and MeasureCollection.PATTERN). However, though it is
@@ -43,6 +43,7 @@ public class MeasureGroup {
             this.lines.add(line);
         }
         this.measureList = this.createMeasureList(this.lines, this.positions);
+        this.instructionList = new ArrayList<>();
     }
 
     /**
@@ -124,8 +125,9 @@ public class MeasureGroup {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
+
         //--------------Validating yourself--------------------------
         //making sure all measures in this measure group have the same number of lines
         boolean hasEqualMeasureLineCount = true;
@@ -143,11 +145,11 @@ public class MeasureGroup {
         }
 
         if (!hasEqualMeasureLineCount) {
-            result.put("success", "false");
-            result.put("message", "All measures in a measure group must have the same number of lines");
-            result.put("positions", failPoints.toString());
-            result.put("priority", "2");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measures in a measure group must have the same number of lines");
+            response.put("positions", failPoints.toString());
+            response.put("priority", "2");
+            result.add(response);
         }
 
         boolean hasGuitarMeasures = true;
@@ -157,26 +159,23 @@ public class MeasureGroup {
             hasDrumMeasures &= measure instanceof DrumMeasure;
         }
         if (!(hasGuitarMeasures || hasDrumMeasures)) {
-            result.put("success", "false");
-            result.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "2");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "2");
+            result.add(response);
         }
 
-        //--------------Validating your aggregates-------------------
+        //--------------Validate your aggregates (only if you're valid)-------------------
+        if (!result.isEmpty()) return result;
+
         for (Measure measure : this.measureList) {
-            HashMap<String,String> response = measure.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(measure.validate());
         }
         for (Instruction instruction : this.instructionList) {
-            HashMap<String,String> response = instruction.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(instruction.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 

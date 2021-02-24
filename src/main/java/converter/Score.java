@@ -53,7 +53,7 @@ public class Score {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
-        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+");
+        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+|$");
         Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
 
         int previousBreakEndIdx = 0;
@@ -68,13 +68,9 @@ public class Score {
         return stringFragments;
     }
 
-    /**
+    /** TODO modify this javadoc to reflect the new validation paradigm
      * Ensures that all the lines of the root string (the whole tablature file) is understood as multiple measure collections,
      * and if so, it validates all MeasureCollection objects it aggregates. It stops evaluation at the first aggregated object which fails validation.
-     * TODO it might be better to not have it stop when one aggregated object fails validation, but instead have it
-     *      validate all of them and return a List of all aggregated objects that failed validation, so the user knows
-     *      all what is wrong with their tablature file, instead of having to fix one problem before being able to see
-     *      what the other problems with their text file is.
      * TODO fix the logic. One rootString fragment could contain what is identified as multiple measures (maybe?) and another could be misunderstood so they cancel out and validation passes when it shouldn't
      * TODO maybe have a low priority validation error when there are no measures detected in the Score.
      * @return a HashMap<String, String> that maps the value "success" to "true" if validation is successful and "false"
@@ -83,14 +79,15 @@ public class Score {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public Map<String,String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String,String>> validate() {
+        List<HashMap<String,String>> result = new ArrayList<>();
+
         //------------Validating yourself--------------------
         //check if all the text in the root string is converted into measure collections. If not, then there is some
         // text that wasn't understood to be a measure collection
         if (this.rootStringFragments.size()!=this.measureCollectionList.size()) {
-            result.put("success", "false");
-            result.put("message", "Some text was not understood.");
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Some text was not understood.");
 
             // we want to remove all the elements of rootStringFragments that were successfully understood to be
             // a measure collection, then we will be left with those that weren't understood. Now we can know exactly which
@@ -106,22 +103,20 @@ public class Score {
 
             for (int startIdx : rootStrFragmntsCopy.keySet()) {
                 String fragment = this.rootStringFragments.get(startIdx);
-                if (positions.isEmpty())
+                if (!positions.isEmpty())
                     positions.append(";");
-                positions.append("[" + startIdx + "," + startIdx + fragment.length() + "]");
+                positions.append("[" + startIdx + "," + (startIdx + fragment.length()) + "]");
             }
-            result.put("positions", positions.toString());
-            return result;
+            response.put("positions", positions.toString());
+            response.put("priority", "3");
+            result.add(response);
         }
 
-        //--------------Validating your aggregates-------------------
+        //--------------Validate your aggregates (regardless of if you're valid, as there is no validation performed upon yourself that preclude your aggregates from being valid)-------------------
         for (MeasureCollection colctn : this.measureCollectionList) {
-            HashMap<String,String> response = colctn.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(colctn.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 
