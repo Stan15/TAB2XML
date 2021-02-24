@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GuitarMeasureLineTest {
-//hello
+
     /* Testing individual bars for valid and invalid inputs */
     @Test
     void testValidity1(){
@@ -61,13 +61,12 @@ public class GuitarMeasureLineTest {
     @Test
     void testInvalidNaming(){
         String[] names = {"x", "z", "v", "q", "w", "u", "y", "i", "o", "p", "X", "Z", "V", "Q", "W", "U", "Y", "I", "O", "P"};
-
         String s6 = ("|----2--4--7-7----6---|");
         MeasureLine measureLine = new GuitarMeasureLine(s6, "G", 4);
         Integer[] expected = {};
-        for(int i = 0; i < names.size(); i++){
+        for(int i = 0; i < names.length; i++){
             Note note = measureLine.noteList.get(i);
-            assertEquals("false", measureLine.validate().get("success"));
+            assertEquals("false", measureLine.validate().get(Integer.parseInt("success")));
         }
     }
 
