@@ -43,31 +43,19 @@ public class GuitarMeasureLineTest {
     void testInvalidity1(){
         String s4 = ("----------|----------");
         MeasureLine measureLine = new GuitarMeasureLine(s4, "B", 4);
-        Integer[] expected = {};
-        for(int i = 0; i < measureLine.noteList.size(); i++){
-            Note note = measureLine.noteList.get(i);
-            assertEquals( "false", measureLine.validate().get("success"));
-        }
+        assertFalse(measureLine.validate().isEmpty());
     }
     @Test
     void testInvalidity2(){
         String s5 = ("----2----|---4----8--|");
         MeasureLine measureLine = new GuitarMeasureLine(s5, "g", 4);
-        Integer[] expected = {};
-        for(int i = 0; i < measureLine.noteList.size(); i++){
-            Note note = measureLine.noteList.get(i);
-            assertEquals("false", measureLine.validate().get("success"));
-        }
+        assertFalse(measureLine.validate().isEmpty());
     }
     @Test
     void testInvalidity3(){
         String s6 = ("|----2--4--7-7----6---|");
         MeasureLine measureLine = new GuitarMeasureLine(s6, "G", 4);
-        Integer[] expected = {};
-        for(int i = 0; i < measureLine.noteList.size(); i++){
-            Note note = measureLine.noteList.get(i);
-            assertEquals("false", measureLine.validate().get("success"));
-        }
+        assertFalse(measureLine.validate().isEmpty());
     }
 
 }

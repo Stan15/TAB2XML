@@ -125,8 +125,9 @@ public class MeasureGroup {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
+
         //--------------Validating yourself--------------------------
         //making sure all measures in this measure group have the same number of lines
         boolean hasEqualMeasureLineCount = true;
@@ -144,11 +145,11 @@ public class MeasureGroup {
         }
 
         if (!hasEqualMeasureLineCount) {
-            result.put("success", "false");
-            result.put("message", "All measures in a measure group must have the same number of lines");
-            result.put("positions", failPoints.toString());
-            result.put("priority", "2");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measures in a measure group must have the same number of lines");
+            response.put("positions", failPoints.toString());
+            response.put("priority", "2");
+            result.add(response);
         }
 
         boolean hasGuitarMeasures = true;
@@ -158,26 +159,23 @@ public class MeasureGroup {
             hasDrumMeasures &= measure instanceof DrumMeasure;
         }
         if (!(hasGuitarMeasures || hasDrumMeasures)) {
-            result.put("success", "false");
-            result.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "2");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "2");
+            result.add(response);
         }
 
-        //--------------Validating your aggregates-------------------
+        //--------------Validate your aggregates (only if you're valid)-------------------
+        if (!result.isEmpty()) return result;
+
         for (Measure measure : this.measureList) {
-            HashMap<String,String> response = measure.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(measure.validate());
         }
         for (Instruction instruction : this.instructionList) {
-            HashMap<String,String> response = instruction.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(instruction.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 

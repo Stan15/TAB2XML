@@ -1,9 +1,6 @@
 package converter.measure_line;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
@@ -30,7 +27,8 @@ public class DrumMeasureLine extends MeasureLine {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        return null;
+    public List<HashMap<String, String>> validate() {
+        return new ArrayList<>();
+
     }
 }

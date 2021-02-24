@@ -1,8 +1,24 @@
 package converter.note;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class GuitarNote extends Note {
     public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int position) {
         super(line, lineName, distanceFromMeasureStart, position);
+    }
+
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
+
+        if (line.matches("[0-9]+")) return result;
+        HashMap<String, String> response = new HashMap<>();
+        response.put("message", "This note type is either unsupported or invalid");
+        response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
+        response.put("priority", "2");
+        result.add(response);
+        return result;
     }
 
     @Override
