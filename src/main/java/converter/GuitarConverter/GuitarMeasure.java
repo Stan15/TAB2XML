@@ -70,18 +70,25 @@ public class GuitarMeasure extends GuitarConvert{
                         notesBox[stringNum][i] = notation;
                         break;
                     }
-                }
+                }// Find a proper position in 2D array(notes box) and put notation in the position
+                //e.g     fist string line information               -----0------4-----
+                //        second string line information             --3---------4-----
+                //                            first string    [ ][ ][0][ ]...[ ][4][ ][ ] (total column should be 16 in current situation)
+                //                            second string   [ ][3][ ][ ]...[ ][4][ ][ ]
+                //                                  ...
             }
 
             StringBuilder builder = new StringBuilder(temp);
             for(int i = index; i < index + notation.length(); i++){
                 builder.setCharAt(i,'-');
-            }
+            }//replace extracted notation with '-' to extract the next notation
 
             temp = builder.toString();
         }
     }
 
+    //basic attributes of guitar tuning
+    //only for the first measure
     private String makeAttributes(){
         String attributes = "<attributes>\n" +
                 "<divisions>" + DEFAULT_DIVISION + "</divisions>\n" +
@@ -125,42 +132,51 @@ public class GuitarMeasure extends GuitarConvert{
                 "</staff-details>\n" +
                 "</attributes>\n";
         return attributes;
-    }
+    } // If capo information is extracted from parser,
+      // It should be changed.
 
     public String makeScript(){
         String script = "<measure number=\"" + measureNum + "\">\n";
         if(measureNum == 1){
             script += makeAttributes();
-        }
+        }//If the measure is the first measure, add attributes
 
         for(int i = 0; i < totalDurationPerMeasure; i++){
             HashMap<Integer, String> notations = new HashMap<>();
             for(int j = 0; j < NUM_OF_GUITAR_STRING; j++){
                 if(notesBox[j][i] != null){
                     notations.put(j + 1, notesBox[j][i]);
-                } //string num, notation
-            }
+                }//Make a hasp map of notations(value) with string number(key) in the same position.
+                // e.g [ ][ ][ ][ ]...[0][ ]
+                //     [0][ ][ ][ ]...[1][ ]
+                //     [ ][1][ ][ ]...[2][ ]
+                //     [ ][ ][ ][ ]...[3][ ]
+                //     [ ][ ][ ][ ]...[4][ ]
+                //     [ ][ ][ ][ ]...[5][ ] (each box has 1 duration)
+            }   // notations only in one column is stored
 
             if(notations.isEmpty()){
                 script += GuitarNote.makeRestNoteScript();
-            }
-
+            } // If any notation does not exist in the column, add rest note not to play any note in that position in score
+              // In the above example, the third column
             else if(notations.size() == 1){
                 Iterator iter = notations.keySet().iterator();
                 int key = (int) iter.next();
                 script += GuitarNote.makeNoteScript(key, notations.get(key));
-            }
+            } // If notation is only one, make a normal note script
+              // In the above example, first and second column
 
             else{
                 script += GuitarNote.makeChordNoteScript(notations);
-            }
-        }
+            }// If notation is greater than 1, make chord note script to represent notations in the same position in score
+        }    // In the above example, the second last column
 
         if(measureNum == lastMeasureNumber){
             script += "<barline location=\"right\">\n" +
                     "<bar-style>light-heavy</bar-style>\n" +
                     "</barline>\n";
-        }
+        }//If the measure that making notes script is the last, add the last bar line symbol at the end.
+
         script += "</measure>\n";
         return script;
     }
