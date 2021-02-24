@@ -12,7 +12,7 @@ public class GuitarConvert {
 
     protected final int INSTRUMENT_STRING_NUM = 6;
     protected ArrayList<String> barsPerline;
-
+//bbb
     public GuitarConvert(){}
 
     public static void main(String[] args) {
