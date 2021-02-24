@@ -229,7 +229,10 @@ public abstract class Measure {
         PriorityQueue<Note> noteQueue = new PriorityQueue<>();
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
-            noteQueue.addAll(guitarMline.noteList);
+            for (Note note : guitarMline.noteList) {
+                if (note.isValid)
+                    noteQueue.add(note);
+            }
         }
         return noteQueue;
     }

@@ -1,8 +1,8 @@
 package converter.measure_line;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import converter.note.Note;
+
+import java.util.*;
 
 public class GuitarMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
@@ -23,4 +23,13 @@ public class GuitarMeasureLine extends MeasureLine {
         return "[0-9]+|h|p|/|\\";
     }
 
+    public List<HashMap<String,String>> validate() {
+        List<HashMap<String,String>> result = new ArrayList<>();
+        result.addAll(super.validate());
+
+        for (Note note : this.noteList)
+            result.addAll(note.validate());
+
+        return result;
+    }
 }
