@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GuitarMeasureLineTest {
-
+//hello
     /* Testing individual bars for valid and invalid inputs */
     @Test
     void testValidity1(){
