@@ -1,5 +1,7 @@
 package converter.measure_line;
 
+import converter.note.Note;
+
 import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
@@ -28,7 +30,12 @@ public class DrumMeasureLine extends MeasureLine {
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     public List<HashMap<String, String>> validate() {
-        return new ArrayList<>();
+        List<HashMap<String,String>> result = new ArrayList<>();
+        result.addAll(super.validate());
 
+        for (Note note : this.noteList)
+            result.addAll(note.validate());
+
+        return result;
     }
 }

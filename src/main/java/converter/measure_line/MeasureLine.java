@@ -57,13 +57,13 @@ public abstract class MeasureLine {
             dashCounter++;
             if (line.charAt(i) == '-') { //accounts for each instance of dash
                 if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, position+i));
+                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
                     noteStrCollector.setLength(0);
                 }
                 startIdx = 0;
             } else if (line.charAt(i) == '|') { //accounts for each instance of vertical bar
                 if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, position+i));
+                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
                     noteStrCollector.setLength(0);
                 }
                 dashCounter = 0; //reset dash counter
@@ -211,4 +211,6 @@ public abstract class MeasureLine {
     private static String createLineComponentPattern() {
         return "(" + GuitarMeasureLine.COMPONENT_PATTERN + "|" + GuitarMeasureLine.COMPONENT_PATTERN + ")";
     }
+
+
 }
