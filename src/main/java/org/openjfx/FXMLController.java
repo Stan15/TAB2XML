@@ -7,16 +7,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
 public class FXMLController {
 
-    @FXML private AnchorPane anchorPane;
+    @FXML public StyleClassedTextArea INPUT_FIELD;
 
-    @FXML private TextArea inputField;
+    @FXML private AnchorPane anchorPane;
 
     @FXML
     private void convertButtonHandle() {
-        parser.Parser p = new parser.Parser(inputField.getText());
+        parser.Parser p = new parser.Parser(INPUT_FIELD.getText());
         String output = p.parse();
 
         FileChooser fc = new FileChooser();
