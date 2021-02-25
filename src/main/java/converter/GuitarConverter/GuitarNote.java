@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class GuitarNote {
 
-    private final static int DURATION = 1;
+    private final static int DURATION = 2;
 
     public static String makeNoteScript(int stringNumber, String notation){
 
@@ -46,7 +46,7 @@ public class GuitarNote {
     }
 
     //https://guitargearfinder.com/lessons/how-to-read-guitar-tab/
-    private static String scripting(int stringNumber, String notation){
+    public static String scripting(int stringNumber, String notation){
 
         String result = "";
 
@@ -76,7 +76,7 @@ public class GuitarNote {
         return result;
     }
 
-    private static String pitchScript(int octave, String key) {
+    public static String pitchScript(int octave, String key) {
 
         String octaveString = "<octave>" + octave + "</octave>\n";
         String stepString;
@@ -96,7 +96,7 @@ public class GuitarNote {
     }
 
     //decide octave of note
-    private static int octave(int stringNumber, int fret) {
+    public static int octave(int stringNumber, int fret) {
         int octave;
         if(stringNumber == 6) {
             if(fret >= 0 && fret <= 7) {
@@ -159,7 +159,7 @@ public class GuitarNote {
     }
 
     //decide key of note
-    private static String key(int stringNumber, int fret) {
+    public static String key(int stringNumber, int fret) {
         String[] keys = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
         if(stringNumber == 6) {
