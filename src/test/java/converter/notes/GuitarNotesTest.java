@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GuitarNotesTest {
 
+    //Guitar's octave and keys
+    //reference: https://www.reddit.com/r/guitarlessons/comments/cp7dg5/guitar_fretboard_octavesinrelationtopianooctaves/
+
     @Test
     void makeOctave(){
         int stringNumber = 6;
@@ -97,19 +100,96 @@ class GuitarNotesTest {
         }
     }
 
-    void makeKey1(){
+    @Test
+    void makeKey(){
+        String[] keys = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
+        int stringNumber = 6;
+        int fretNumber = 0;
+        int keyIndex = 4;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+
+        stringNumber = 5;
+        fretNumber = 0;
+        keyIndex = 9;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+
+        stringNumber = 4;
+        fretNumber = 0;
+        keyIndex = 2;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+
+        stringNumber = 3;
+        fretNumber = 0;
+        keyIndex = 7;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+
+        stringNumber = 2;
+        fretNumber = 0;
+        keyIndex = 11;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+
+        stringNumber = 1;
+        fretNumber = 0;
+        keyIndex = 4;
+        while(fretNumber < 20){
+            String key = GuitarNote.key(stringNumber, fretNumber);
+            assertTrue(keys[keyIndex].equals(key));
+            fretNumber++;
+            keyIndex++;
+            if(keyIndex == 12){
+                keyIndex = 0;
+            }
+        }
+    }
+
+    @Test
+    void testPitch1(){
 
     }
 
-    void makeKey2(){
-
-    }
-
-    void makePitch1(){
-
-    }
-
-    void makePitch2(){
+    @Test
+    void testPitch2(){
 
     }
 }
