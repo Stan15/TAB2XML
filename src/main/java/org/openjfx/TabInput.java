@@ -132,9 +132,9 @@ public class TabInput {
 
     private static String getErrorStyleClass(int priority) {
         switch (priority) {
-            case 1: return "redHighlight";
-            case 2: return "orangeHighlight";
-            case 3: return "blueHighlight";
+            case 1: return "highPriorityError";
+            case 2: return "mediumPriorityError";
+            case 3: return "lowPriorityError";
             default:
                 new Exception("TXT2XML: invalid validation error priority").printStackTrace();
                 return "";
@@ -143,7 +143,7 @@ public class TabInput {
 
     public void enableHighlighting() {
         Subscription cleanupWhenDone = TEXT_AREA.multiPlainChanges()
-                .successionEnds(Duration.ofMillis(350))
+                .successionEnds(Duration.ofMillis(200))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(TEXT_AREA.multiPlainChanges())
                 .filterMap(t -> {

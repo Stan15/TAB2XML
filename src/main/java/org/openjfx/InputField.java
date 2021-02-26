@@ -2,8 +2,7 @@ package org.openjfx;
 
 import converter.Score;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import parser.Parser;
-import utility.Range;
+import utility.*;
 
 import java.util.HashMap;
 import java.util.Map;
