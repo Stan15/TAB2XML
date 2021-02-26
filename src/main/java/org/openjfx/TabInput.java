@@ -47,9 +47,12 @@ public class TabInput {
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
         String strippedText = text.strip();
-        if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) return new StyleSpansBuilder<Collection<String>>().create();
-        TabInput.SCORE = new Score(text);
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+        if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) {
+            spansBuilder.add(Collections.emptyList(), text.length());
+            return spansBuilder.create();
+        }
+        TabInput.SCORE = new Score(text);
 
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
