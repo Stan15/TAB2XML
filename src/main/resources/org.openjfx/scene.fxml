@@ -24,7 +24,7 @@
                </font></Label>
                 <Button layoutX="772.0" layoutY="653.0" mnemonicParsing="false" onMouseClicked="#convertButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Convert" />
             <Separator layoutX="48.0" layoutY="610.0" prefHeight="0.0" prefWidth="862.0" />
-            <CodeArea fx:id="INPUT_FIELD" layoutX="45.0" layoutY="75.0" onKeyPressed="#errorHighlightInputField" onKeyReleased="#errorHighlightInputField" prefHeight="496.0" prefWidth="862.0" stylesheets="@text_input_styles.css" />
+            <CodeArea fx:id="TEXT_AREA" layoutX="45.0" layoutY="75.0" prefHeight="496.0" prefWidth="862.0" stylesheets="@text_input_styles.css" />
             </children>
         </AnchorPane>
     </children>

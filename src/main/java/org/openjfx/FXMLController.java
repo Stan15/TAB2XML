@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,18 +17,22 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.event.MouseOverTextEvent;
+import org.reactfx.Subscription;
 import utility.Parser;
 
 public class FXMLController implements Initializable {
 
-    public CodeArea INPUT_FIELD;
+    public static ExecutorService executor;
+
+    @FXML public CodeArea TEXT_AREA;
 
     @FXML private AnchorPane anchorPane;
 
     @FXML
     private void convertButtonHandle() {
-        Parser.createScore(INPUT_FIELD.getText());
+        Parser.createScore(TEXT_AREA.getText());
         String output = Parser.parse();
 
         FileChooser fc = new FileChooser();
@@ -61,7 +67,8 @@ public class FXMLController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        INPUT_FIELD.setWrapText(true);
+        TEXT_AREA.setParagraphGraphicFactory(LineNumberFactory.get(TEXT_AREA));
+        new TabInput(TEXT_AREA).enableHighlighting();
 
         Popup popup = new Popup();
         Label popupMsg = new Label();
@@ -71,17 +78,17 @@ public class FXMLController implements Initializable {
                         "-fx-padding: 5;");
         popup.getContent().add(popupMsg);
 
-        INPUT_FIELD.setMouseOverTextDelay(Duration.ofMillis(TabInput.HOVER_DELAY));
-        INPUT_FIELD.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
-            if (TabInput.ACTIVE_ERROR_MESSAGES.isEmpty()) return;
+        TEXT_AREA.setMouseOverTextDelay(Duration.ofMillis(TabInput.HOVER_DELAY));
+        TEXT_AREA.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
+            if (TabInput.ACTIVE_ERRORS.isEmpty()) return;
             int chIdx = e.getCharacterIndex();
             String message = TabInput.getMessageOfCharAt(chIdx);
             if (message.isEmpty()) return;
             Point2D pos = e.getScreenPosition();
             popupMsg.setText(message);
-            popup.show(INPUT_FIELD, pos.getX(), pos.getY() + 10);
+            popup.show(TEXT_AREA, pos.getX(), pos.getY() + 10);
         });
-        INPUT_FIELD.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
+        TEXT_AREA.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             popup.hide();
         });
 
