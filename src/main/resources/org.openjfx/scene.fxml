@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
-<?import org.fxmisc.richtext.StyleClassedTextArea?>
+<?import org.fxmisc.richtext.CodeArea?>
 
 <GridPane alignment="center" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="719.0" prefWidth="958.0" vgap="10" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.FXMLController">
     <children>
@@ -24,7 +24,7 @@
                </font></Label>
                 <Button layoutX="772.0" layoutY="653.0" mnemonicParsing="false" onMouseClicked="#convertButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Convert" />
             <Separator layoutX="48.0" layoutY="610.0" prefHeight="0.0" prefWidth="862.0" />
-            <StyleClassedTextArea fx:id="INPUT_FIELD" layoutX="45.0" layoutY="75.0" onKeyPressed="#errorHighlightInputField" onKeyReleased="#errorHighlightInputField" prefHeight="496.0" prefWidth="862.0" style="-fx-padding: 5px;" stylesheets="@styles.css" />
+            <CodeArea fx:id="INPUT_FIELD" layoutX="45.0" layoutY="75.0" onKeyPressed="#errorHighlightInputField" onKeyReleased="#errorHighlightInputField" prefHeight="496.0" prefWidth="862.0" stylesheets="@text_input_styles.css" />
             </children>
         </AnchorPane>
     </children>
