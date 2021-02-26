@@ -62,11 +62,12 @@ public abstract class Measure {
      * MeasureLine.isGuitar() and MeasureLine.isDrum() methods). If its features could not be deciphered or it has features
      * of both guitar and drum features, it defaults to creating a GuitarMeasure object and further error checking can
      * be done by calling GuitarMeasure().validate() on the object.
-     * @param lineList A list of the insides of each measure lines that makes up this measure
-     * @param lineNameList A list of the names of each the measure lines that makes up this measure
-     * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this
+     * @param lineList A list of the insides of each measure lines that makes up this measure (without the line names) (parallel list with the other two List parameters)
+     * @param lineNameList A list of the names of each the measure lines that makes up this measure (parallel list with the other two List parameters)
+     * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this (parallel list with the other two List parameters)
      *                         measure, where a line's position is the index at which the line is located in the root
      *                         String from which it was derived (Score.ROOT_STRING)
+     * @param isFirstMeasure specifies wether this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
      *
      * @return A Measure object which is either of type GuitarMeasure if the measure was understood to be a guitar
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
@@ -88,6 +89,8 @@ public abstract class Measure {
             return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasure); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
     }
 
+
+
     /**
      * Validates if all MeasureLine objects which this Measure object aggregates areinstances of the same concrete
      * MeasureLine Class (i.e they're all GuitarMeasureLine instances or all DrumMeasureLine objects). It does not
@@ -98,8 +101,8 @@ public abstract class Measure {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public HashMap<String, String> validate() {
-        HashMap<String, String> result = new HashMap<>();
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>();
 
         boolean hasGuitarMeasureLines = true;
         boolean hasDrumMeasureLines = true;
@@ -107,14 +110,14 @@ public abstract class Measure {
             hasGuitarMeasureLines &= measureLine instanceof GuitarMeasureLine;
             hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
         }
-        if (!(hasGuitarMeasureLines|| hasDrumMeasureLines)) {
-            result.put("success", "false");
-            result.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "1");
-            return result;
+        if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "1");
+            result.add(response);
         }
-        result.put("success", "true");
+
         return result;
     }
 
@@ -156,7 +159,7 @@ public abstract class Measure {
         return measureXML.toString();
     }
 
-    private StringBuilder addAttributesXML(StringBuilder measureXML) {
+    protected StringBuilder addAttributesXML(StringBuilder measureXML) {
         measureXML.append("<attributes>\n");
         measureXML.append("<divisions>");
         measureXML.append(this.beatType/4);
@@ -167,20 +170,9 @@ public abstract class Measure {
         measureXML.append("<fifths>");
         measureXML.append(0);
         measureXML.append("</fifths>\n");
+        measureXML.append("<mode>major</mode>\n");
 
         measureXML.append("</key>\n");
-
-        measureXML.append("<time>\n");
-
-        measureXML.append("<beats>");
-        measureXML.append(this.beats);
-        measureXML.append("</beats>\n");
-
-        measureXML.append("<beat-type>");
-        measureXML.append(this.beatType);
-        measureXML.append("</beat-type>\n");
-
-        measureXML.append("</time>\n");
 
         measureXML.append("<clef>\n");
 
@@ -222,11 +214,14 @@ public abstract class Measure {
         return measureXML;
     }
 
-    private PriorityQueue<Note> getNoteQueue() {
+    public PriorityQueue<Note> getNoteQueue() {
         PriorityQueue<Note> noteQueue = new PriorityQueue<>();
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
-            noteQueue.addAll(guitarMline.noteList);
+            for (Note note : guitarMline.noteList) {
+                if (note.isValid)
+                    noteQueue.add(note);
+            }
         }
         return noteQueue;
     }

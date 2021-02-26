@@ -66,39 +66,88 @@ public class GuitarMeasure extends Measure{
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     @Override
-    public HashMap<String, String> validate() {
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String,String>> result = new ArrayList<>();
         //-----------------Validate yourself-------------------------
-        HashMap<String, String> superResult = super.validate(); //this validates if all MeasureLine objects in this measure are of the same type
-        if (superResult.get("success").equals("false"))
-            return superResult;
+        result.addAll(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
-        HashMap<String, String> result = new HashMap<>();
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
-            result.put("success", "false");
-            result.put("message", "All measure lines in this measure must be Guitar measure lines.");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "1");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in this measure must be Guitar measure lines.");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "1");
+            result.add(response);
         }
 
         if (this.measureLineList.size()!=6) {
-            result.put("success", "false");
-            result.put("message", "A guitar measure should have 6 lines.");
-            result.put("positions", this.getLinePositions());
-            result.put("priority", "2");
-            return result;
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "A guitar measure should have 6 lines.");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "2");
+            result.add(response);
         }
 
 
-        //-----------------Validate Aggregates------------------
+        //-----------------Validate Aggregates (only if you are valid)------------------
+        if (!result.isEmpty()) return result;
+
         for (MeasureLine measureLine : this.measureLineList) {
-            HashMap<String,String> response = measureLine.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(measureLine.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
+
+//    @Override
+//    protected StringBuilder addAttributesXML(StringBuilder measureXML) {
+//        measureXML.append("<attributes>\n");
+//        measureXML.append("<divisions>");
+//        measureXML.append(this.beatType/4);
+//        measureXML.append("</divisions>\n");
+//
+//        measureXML.append("<key>\n");
+//
+//        measureXML.append("<fifths>");
+//        measureXML.append(0);
+//        measureXML.append("</fifths>\n");
+//        measureXML.append("<mode>major</mode>\n");
+//        measureXML.append("</key>\n");
+//
+//        measureXML.append("""
+//                <clef>
+//                  <sign>TAB</sign>
+//                  <line>5</line>
+//                </clef>
+//                <staff-details>
+//                  <staff-lines>6</staff-lines>
+//                  <staff-tuning line="1">
+//                    <tuning-step>E</tuning-step>
+//                    <tuning-octave>2</tuning-octave>
+//                  </staff-tuning>
+//                  <staff-tuning line="2">
+//                    <tuning-step>A</tuning-step>
+//                    <tuning-octave>2</tuning-octave>
+//                  </staff-tuning>
+//                  <staff-tuning line="3">
+//                    <tuning-step>D</tuning-step>
+//                    <tuning-octave>3</tuning-octave>
+//                  </staff-tuning>
+//                  <staff-tuning line="4">
+//                    <tuning-step>G</tuning-step>
+//                    <tuning-octave>3</tuning-octave>
+//                  </staff-tuning>
+//                  <staff-tuning line="5">
+//                    <tuning-step>B</tuning-step>
+//                    <tuning-octave>3</tuning-octave>
+//                  </staff-tuning>
+//                  <staff-tuning line="6">
+//                    <tuning-step>E</tuning-step>
+//                    <tuning-octave>4</tuning-octave>
+//                  </staff-tuning>
+//                </staff-details>
+//                """);
+//        measureXML.append("</attributes>\n");
+//        return measureXML;
+//    }
 }

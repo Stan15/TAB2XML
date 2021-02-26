@@ -11,11 +11,11 @@ public class Score {
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public static String ROOT_STRING;
+    public String rootString;
     public Map<Integer, String> rootStringFragments;
 
     public Score(String rootString) {
-        ROOT_STRING = rootString;
+        this.rootString = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
     }
@@ -33,10 +33,10 @@ public class Score {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
         for (Map.Entry<Integer, String> fragment : stringFragments.entrySet()) {
-            MeasureCollection msurCollection = MeasureCollection.getInstance(fragment.getValue(), fragment.getKey());
+            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey());
             //it may be that the text is completely not understood in the slightest as a measure collection
             //and the MeasureCollection.getInstance() returns null
-            if (msurCollection!=null)
+            for (MeasureCollection msurCollection : msurCollectionSubList)
                 msurCollectionList.add(msurCollection);
         }
         return msurCollectionList;
@@ -53,12 +53,12 @@ public class Score {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
-        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+");
+        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+|$");
         Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
 
         int previousBreakEndIdx = 0;
         while(textBreakMatcher.find()) {
-            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
+            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
                 int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
@@ -68,13 +68,9 @@ public class Score {
         return stringFragments;
     }
 
-    /**
+    /** TODO modify this javadoc to reflect the new validation paradigm
      * Ensures that all the lines of the root string (the whole tablature file) is understood as multiple measure collections,
      * and if so, it validates all MeasureCollection objects it aggregates. It stops evaluation at the first aggregated object which fails validation.
-     * TODO it might be better to not have it stop when one aggregated object fails validation, but instead have it
-     *      validate all of them and return a List of all aggregated objects that failed validation, so the user knows
-     *      all what is wrong with their tablature file, instead of having to fix one problem before being able to see
-     *      what the other problems with their text file is.
      * TODO fix the logic. One rootString fragment could contain what is identified as multiple measures (maybe?) and another could be misunderstood so they cancel out and validation passes when it shouldn't
      * TODO maybe have a low priority validation error when there are no measures detected in the Score.
      * @return a HashMap<String, String> that maps the value "success" to "true" if validation is successful and "false"
@@ -83,45 +79,41 @@ public class Score {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public Map<String,String> validate() {
-        HashMap<String, String> result = new HashMap<>();
-        //------------Validating yourself--------------------
-        //check if all the text in the root string is converted into measure collections. If not, then there is some
-        // text that wasn't understood to be a measure collection
-        if (this.rootStringFragments.size()!=this.measureCollectionList.size()) {
-            result.put("success", "false");
-            result.put("message", "Some text was not understood.");
+    public List<HashMap<String,String>> validate() {
+        List<HashMap<String,String>> result = new ArrayList<>();
 
-            // we want to remove all the elements of rootStringFragments that were successfully understood to be
-            // a measure collection, then we will be left with those that weren't understood. Now we can know exactly which
-            // pieces of text were not understood.
-            LinkedHashMap<Integer, String> rootStrFragmntsCopy = new LinkedHashMap<>();
-            rootStrFragmntsCopy.putAll(rootStringFragments);
-            for (MeasureCollection msurClctn: this.measureCollectionList) {
-                rootStrFragmntsCopy.remove(msurClctn.position);
+        StringBuilder errorRanges = new StringBuilder();
+
+        int prevEndIdx = 0;
+        for (MeasureCollection msurCollction : this.measureCollectionList) {
+            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
+            if (!uninterpretedFragment.isBlank()) {
+                if (!errorRanges.isEmpty()) errorRanges.append(";");
+                errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
             }
 
-            //get a list of positions to highlight red showing where the error applies.
-            StringBuilder positions = new StringBuilder();
-
-            for (int startIdx : rootStrFragmntsCopy.keySet()) {
-                String fragment = this.rootStringFragments.get(startIdx);
-                if (positions.isEmpty())
-                    positions.append(";");
-                positions.append("[" + startIdx + "," + startIdx + fragment.length() + "]");
-            }
-            result.put("positions", positions.toString());
-            return result;
+            prevEndIdx = msurCollction.endIndex;
         }
 
-        //--------------Validating your aggregates-------------------
+        String restOfDocument = this.rootString.substring(prevEndIdx);
+        if (!restOfDocument.isBlank()) {
+            if (!errorRanges.isEmpty()) errorRanges.append(";");
+            errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");
+        }
+
+        if (!errorRanges.isEmpty()) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "This text can't be understood.");
+            response.put("positions", errorRanges.toString());
+            response.put("priority", "3");
+            result.add(response);
+        }
+
+        //--------------Validate your aggregates (regardless of if you're valid, as there is no validation performed upon yourself that preclude your aggregates from being valid)-------------------
         for (MeasureCollection colctn : this.measureCollectionList) {
-            HashMap<String,String> response = colctn.validate();
-            if (response.get("success").equals("false"))
-                return response;
+            result.addAll(colctn.validate());
         }
 
-        result.put("success", "true");
         return result;
     }
 
