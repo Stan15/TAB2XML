@@ -185,11 +185,56 @@ class GuitarNotesTest {
 
     @Test
     void testPitch1(){
+        String pitchStr1 = GuitarNote.pitchScript(3,"C");
+        String pitchStr2 = GuitarNote.pitchScript(5,"F");
+        String pitchStr3 = GuitarNote.pitchScript(2,"B");
 
+        String expected1 = "<pitch>\n" +
+                "<step>C</step>\n" +
+                "<octave>3</octave>\n" +
+                "</pitch>\n";
+
+        String expected2 = "<pitch>\n" +
+                "<step>F</step>\n" +
+                "<octave>5</octave>\n" +
+                "</pitch>\n";
+
+        String expected3 = "<pitch>\n" +
+                "<step>B</step>\n" +
+                "<octave>2</octave>\n" +
+                "</pitch>\n";
+
+        assertTrue(pitchStr1.equals(expected1));
+        assertTrue(pitchStr2.equals(expected2));
+        assertTrue(pitchStr3.equals(expected3));
     }
 
     @Test
     void testPitch2(){
+        String pitchStr1 = GuitarNote.pitchScript(2,"G#");
+        String pitchStr2 = GuitarNote.pitchScript(3,"A#");
+        String pitchStr3 = GuitarNote.pitchScript(5,"D#");
 
+        String expected1 = "<pitch>\n" +
+                "<step>G</step>\n" +
+                "<alter>" + 1 + "</alter>\n"+
+                "<octave>2</octave>\n" +
+                "</pitch>\n";
+
+        String expected2 = "<pitch>\n" +
+                "<step>A</step>\n" +
+                "<alter>" + 1 + "</alter>\n"+
+                "<octave>3</octave>\n" +
+                "</pitch>\n";
+
+        String expected3 = "<pitch>\n" +
+                "<step>D</step>\n" +
+                "<alter>" + 1 + "</alter>\n"+
+                "<octave>5</octave>\n" +
+                "</pitch>\n";
+
+        assertTrue(pitchStr1.equals(expected1));
+        assertTrue(pitchStr2.equals(expected2));
+        assertTrue(pitchStr3.equals(expected3));
     }
 }
