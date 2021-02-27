@@ -9,9 +9,9 @@ import java.util.List;
 
 public class DrumMeasure extends Measure {
 
-    public DrumMeasure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
-        super(lines, lineNames, linePositions, isFirstMeasure);
-        this.measureLineList = this.createMeasureLineList(this.lines, this.lineNames, this.positions);
+    public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
+        super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
+        this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
     }
     /**
      * Validates that all MeasureLine objects in this GuitarMeasure are GuitarMeasureLine objects, and validates its
@@ -37,7 +37,7 @@ public class DrumMeasure extends Measure {
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof DrumMeasureLine)) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measure lines in this measure must be Guitar measure lines.");
+            response.put("message", "All measure lines in this measure must be Drum measure lines.");
             response.put("positions", this.getLinePositions());
             response.put("priority", "1");
             result.add(response);

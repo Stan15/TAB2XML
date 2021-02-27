@@ -14,23 +14,43 @@ import java.util.PriorityQueue;
 public abstract class Measure {
     public static int GLOBAL_MEASURE_COUNT = 0;
     public int measureCount;
-    int beats = 4;
+    int beatCount = 4;
     int beatType = 4;
+    double divisions = 1;
     List<String> lines;
-    List<String> lineNames;
+    List<String[]> lineNamesAndPositions;
     public int lineCount;
     List<Integer> positions;
     List<MeasureLine> measureLineList;
     boolean isFirstMeasure;
 
-    public Measure(List<String> lines, List<String> lineNames, List<Integer> linePositions, boolean isFirstMeasure) {
+    public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
         this.measureCount = GLOBAL_MEASURE_COUNT;
         GLOBAL_MEASURE_COUNT++;
         this.lines = lines;
         this.lineCount = this.lines.size();
-        this.lineNames = lineNames;
+        this.lineNamesAndPositions = lineNamesAndPositions;
         this.positions = linePositions;
         this.isFirstMeasure = isFirstMeasure;
+    }
+
+    public int noteGroupCount() {
+        int noteGroupCount = 0;
+        for (MeasureLine measureLine : this.measureLineList) {
+            noteGroupCount = Math.max(noteGroupCount, measureLine.noteCount);
+        }
+        return noteGroupCount;
+    }
+
+    public void parseNoteDivisionsAndDuration(int maxNoteGroupCount, int defaultBeatCount, int defaultBeatType) {
+        this.divisions = ( (double)(maxNoteGroupCount*beatType)/(double)beatCount )/4.0;
+        if (this.divisions>6)
+            this.divisions = 6;
+        for (MeasureLine measureLine : this.measureLineList) {
+            for (Note note : measureLine.noteList) {
+                note.computeDuration(this.divisions, this.noteGroupCount(), defaultBeatCount, defaultBeatType);
+            }
+        }
     }
 
     /**
@@ -38,20 +58,20 @@ public abstract class Measure {
      * These MeasureLine objects are not guaranteed to be valid. you can find out if all the Measure
      * objects in this MeasureGroup are actually valid by calling the Measure().validate() method.
      * @param lines a List of Strings where each String represents a line of the measure. It is a parallel list with lineNames and linePositions
-     * @param lineNames a List of Strings where each String represents the name of a line of the measure. It is a parallel list with lines and linePositions
+     * @param namesAndsPosition a List of Strings where each String represents the name of a line of the measure. It is a parallel list with lines and linePositions
      * @param linePositions a List of Strings where each String represents the starting index of a line of the measure,
      *                      where a starting index of a line is the index where the line can be found in the root string,
      *                      Score.ROOT_STRING, from where it was derived. It is a parallel list with lineNames and lines
      * @return A list of MeasureLine objects. The concrete class type of these MeasureLine objects is determined
      * from the input String lists(lines and lineNames), and they are not guaranteed to all be of the same type.
      */
-    protected List<MeasureLine> createMeasureLineList(List<String> lines, List<String> lineNames, List<Integer> linePositions) {
+    protected List<MeasureLine> createMeasureLineList(List<String> lines, List<String[]> namesAndsPosition, List<Integer> linePositions) {
         List<MeasureLine> measureLineList = new ArrayList<>();
         for (int i=0; i<lines.size(); i++) {
             String line = lines.get(i);
-            String name = lineNames.get(i);
+            String[] nameAndPosition = namesAndsPosition.get(i);
             int position = linePositions.get(i);
-            measureLineList.add(MeasureLine.from(line, name, position));
+            measureLineList.add(MeasureLine.from(line, nameAndPosition, position));
         }
         return measureLineList;
     }
@@ -67,19 +87,19 @@ public abstract class Measure {
      * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this (parallel list with the other two List parameters)
      *                         measure, where a line's position is the index at which the line is located in the root
      *                         String from which it was derived (Score.ROOT_STRING)
-     * @param isFirstMeasure specifies wether this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
+     * @param isFirstMeasure specifies weather this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
      *
      * @return A Measure object which is either of type GuitarMeasure if the measure was understood to be a guitar
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
      */
-    public static Measure from(List<String> lineList, List<String> lineNameList, List<Integer> linePositionList, boolean isFirstMeasure) {
+    public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasure) {
         boolean isGuitarMeasure = true;
         boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
             String line = lineList.get(i);
-            String name = lineNameList.get(i);
-            isGuitarMeasure &= MeasureLine.isGuitar(line, name);
-            isDrumMeasure &= MeasureLine.isDrum(line, name);
+            String[] nameAndPosition = lineNameList.get(i);
+            isGuitarMeasure &= MeasureLine.isGuitar(line, nameAndPosition[0]);
+            isDrumMeasure &= MeasureLine.isDrum(line, nameAndPosition[0]);
         }
         if (isDrumMeasure && !isGuitarMeasure)
             return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasure);
@@ -92,7 +112,7 @@ public abstract class Measure {
 
 
     /**
-     * Validates if all MeasureLine objects which this Measure object aggregates areinstances of the same concrete
+     * Validates if all MeasureLine objects which this Measure object aggregates are instances of the same concrete
      * MeasureLine Class (i.e they're all GuitarMeasureLine instances or all DrumMeasureLine objects). It does not
      * validate its aggregated objects. That job is left up to its concrete classes (this is an abstract class)
      * @return a HashMap<String, String> that maps the value "success" to "true" if validation is successful and "false"
@@ -162,7 +182,7 @@ public abstract class Measure {
     protected StringBuilder addAttributesXML(StringBuilder measureXML) {
         measureXML.append("<attributes>\n");
         measureXML.append("<divisions>");
-        measureXML.append(this.beatType/4);
+        measureXML.append((int)Math.ceil(this.divisions));
         measureXML.append("</divisions>\n");
 
         measureXML.append("<key>\n");
@@ -224,5 +244,15 @@ public abstract class Measure {
             }
         }
         return noteQueue;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringOut = new StringBuilder();
+        for (MeasureLine measureLine : this.measureLineList) {
+            stringOut.append(measureLine.toString());
+            stringOut.append("\n");
+        }
+        return stringOut.toString();
     }
 }
