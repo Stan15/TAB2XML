@@ -54,7 +54,8 @@ public abstract class MeasureLine {
         StringBuilder noteStrCollector = new StringBuilder();
         int startIdx = 0;
         for (int i = 0; i < this.line.length(); i++) {
-            dashCounter++;
+            if (line.charAt(i)!=' ')
+                dashCounter++;
             if (line.charAt(i) == '-') { //accounts for each instance of dash
                 if(!noteStrCollector.isEmpty()){
                     noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));

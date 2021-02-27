@@ -11,11 +11,11 @@ public class Score {
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public static String ROOT_STRING;
+    public String rootString;
     public Map<Integer, String> rootStringFragments;
 
     public Score(String rootString) {
-        ROOT_STRING = rootString;
+        this.rootString = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
     }
@@ -58,7 +58,7 @@ public class Score {
 
         int previousBreakEndIdx = 0;
         while(textBreakMatcher.find()) {
-            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
+            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
                 int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
@@ -86,7 +86,7 @@ public class Score {
 
         int prevEndIdx = 0;
         for (MeasureCollection msurCollction : this.measureCollectionList) {
-            String uninterpretedFragment = Score.ROOT_STRING.substring(prevEndIdx,msurCollction.position);
+            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
@@ -95,7 +95,7 @@ public class Score {
             prevEndIdx = msurCollction.endIndex;
         }
 
-        String restOfDocument = Score.ROOT_STRING.substring(prevEndIdx);
+        String restOfDocument = this.rootString.substring(prevEndIdx);
         if (!restOfDocument.isBlank()) {
             if (!errorRanges.isEmpty()) errorRanges.append(";");
             errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");

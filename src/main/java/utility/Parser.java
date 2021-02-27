@@ -1,4 +1,4 @@
-package parser;
+package utility;
 
 import converter.Score;
 

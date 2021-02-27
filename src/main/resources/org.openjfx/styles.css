@@ -11,15 +11,3 @@
     -fx-border-color: #ccc;
     -fx-font-family: Monospaced;
 }
-
-.redHighlight {
-    -rtfx-background-color: #ffa6a6;
-}
-
-.blueHighlight {
-    -rtfx-background-color: #b4eaff;
-}
-
-.yellowHighlight {
-    -rtfx-background-color: #ffff76;
-}

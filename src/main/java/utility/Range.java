@@ -1,15 +1,23 @@
 package utility;
 
 public class Range {
-    private int low;
-    private int high;
+    private int start;
+    private int end;
+    private int size;
 
-    public Range(int low, int high) {
-        this.low = low;
-        this.high = high;
+    public Range(int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.size = this.end - this.start;
     }
+
+    public int getStart() {return start;}
+    public int getEnd() {return end;}
+    public int getSize() {return size;}
 
     public boolean contains(int number) {
-        return (number >= low && number <= high);
+
+        return number >= start && number <= end;
     }
 }
+
