@@ -3,12 +3,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<GridPane alignment="center" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="694.0" prefWidth="958.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.FXMLController">
-    <AnchorPane fx:id="convertPane" prefHeight="600.0" prefWidth="1200.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" >
+<GridPane alignment="center" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="574.0" prefWidth="958.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.FXMLController">
+    <AnchorPane fx:id="convertPane" prefHeight="575.0" prefWidth="960.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
         <children>
             <Label layoutX="-53.0" layoutY="6.0" text="Label" />
+            <Button layoutX="662.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#cancelButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Cancel" />
+            <Button layoutX="810.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#saveButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Save" />
         </children>
     </AnchorPane>
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
 </GridPane>
-

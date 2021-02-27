@@ -29,6 +29,9 @@ import utility.Parser;
 public class FXMLController implements Initializable {
 
     public static ExecutorService executor;
+    private String generatedOutput;
+
+    @FXML public Stage convertWindow = new Stage();
 
     @FXML public CodeArea TEXT_AREA;
 
@@ -36,19 +39,18 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void convertButtonHandle() throws IOException {
-
-
         Parser.createScore(TEXT_AREA.getText());
-        String output = Parser.parse();
+        generatedOutput = Parser.parse();
 
+        /*This code for some reason will not create a new window*/
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/convertWindow.fxml"));
+        convertWindow.setTitle("Convert Settings");
+        convertWindow.setScene(new Scene(root, 575, 960));
+        convertWindow.show();
+    }
 
-        Stage stage = new Stage();
-        stage.setTitle("Convert Settings");
-        stage.setScene(new Scene(root, 450, 450));
-        stage.show();
-
-        /*
+    @FXML
+    private void saveButtonHandle() throws IOException {
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fc.getExtensionFilters().add(extFilter);
@@ -64,10 +66,15 @@ public class FXMLController implements Initializable {
         File file = fc.showSaveDialog( anchorPane.getScene().getWindow() );
 
         if (file != null) {
-            saveToFile(output, file);
+            saveToFile(generatedOutput, file);
         }
-        */
     }
+
+    @FXML
+    private void cancelButtonHandle()  {
+        convertWindow.hide();
+    }
+
 
     private void saveToFile(String content, File file) {
         try {
