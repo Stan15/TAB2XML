@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.openjfx.FXMLController"
-            prefHeight="400.0" prefWidth="600.0"
-            stylesheets="@styles.css"
-            fx:id="convertPane">
 
-</AnchorPane>
+<GridPane alignment="center" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="694.0" prefWidth="958.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.FXMLController">
+    <AnchorPane fx:id="convertPane" prefHeight="600.0" prefWidth="1200.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" >
+        <children>
+            <Label layoutX="-53.0" layoutY="6.0" text="Label" />
+        </children>
+    </AnchorPane>
+</GridPane>
+
