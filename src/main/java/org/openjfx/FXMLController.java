@@ -10,12 +10,16 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.event.MouseOverTextEvent;
@@ -31,10 +35,20 @@ public class FXMLController implements Initializable {
     @FXML private AnchorPane anchorPane;
 
     @FXML
-    private void convertButtonHandle() {
+    private void convertButtonHandle() throws IOException {
+
+
         Parser.createScore(TEXT_AREA.getText());
         String output = Parser.parse();
 
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/convertWindow.fxml"));
+
+        Stage stage = new Stage();
+        stage.setTitle("Convert Settings");
+        stage.setScene(new Scene(root, 450, 450));
+        stage.show();
+
+        /*
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fc.getExtensionFilters().add(extFilter);
@@ -52,6 +66,7 @@ public class FXMLController implements Initializable {
         if (file != null) {
             saveToFile(output, file);
         }
+        */
     }
 
     private void saveToFile(String content, File file) {

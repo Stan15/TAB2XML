@@ -1,5 +1,8 @@
 .label {
-    -fx-text-fill: grey;
+    -fx-text-fill: rgba(255,255,255,0.75);
+}
+.menu-item .label {
+    -fx-text-fill: rgba(0,0,0,1);
 }
 .styled-text-area .navigator {
     -fx-padding: 5px;
@@ -10,4 +13,11 @@
     -fx-border-style: solid;
     -fx-border-color: #ccc;
     -fx-font-family: Monospaced;
+}
+.tool-bar {
+    background-color: #000000;
+}
+#anchorPane, #menuBar {
+    -fx-background-color: rgb(50,50,50);
+
 }

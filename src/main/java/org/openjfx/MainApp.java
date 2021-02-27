@@ -13,7 +13,6 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
 
-
         Scene scene = new Scene(root);
 
 
