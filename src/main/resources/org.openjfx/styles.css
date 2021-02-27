@@ -11,3 +11,10 @@
     -fx-border-color: #ccc;
     -fx-font-family: Monospaced;
 }
+.tool-bar {
+    background-color: #000000;
+}
+#anchorPane {
+    -fx-background-color: rgba(0,0,0,0.65);
+
+}
