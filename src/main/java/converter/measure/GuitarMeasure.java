@@ -99,55 +99,6 @@ public class GuitarMeasure extends Measure{
         return result;
     }
 
-//    @Override
-//    protected StringBuilder addAttributesXML(StringBuilder measureXML) {
-//        measureXML.append("<attributes>\n");
-//        measureXML.append("<divisions>");
-//        measureXML.append(this.beatType/4);
-//        measureXML.append("</divisions>\n");
-//
-//        measureXML.append("<key>\n");
-//
-//        measureXML.append("<fifths>");
-//        measureXML.append(0);
-//        measureXML.append("</fifths>\n");
-//        measureXML.append("<mode>major</mode>\n");
-//        measureXML.append("</key>\n");
-//
-//        measureXML.append("""
-//                <clef>
-//                  <sign>TAB</sign>
-//                  <line>5</line>
-//                </clef>
-//                <staff-details>
-//                  <staff-lines>6</staff-lines>
-//                  <staff-tuning line="1">
-//                    <tuning-step>E</tuning-step>
-//                    <tuning-octave>2</tuning-octave>
-//                  </staff-tuning>
-//                  <staff-tuning line="2">
-//                    <tuning-step>A</tuning-step>
-//                    <tuning-octave>2</tuning-octave>
-//                  </staff-tuning>
-//                  <staff-tuning line="3">
-//                    <tuning-step>D</tuning-step>
-//                    <tuning-octave>3</tuning-octave>
-//                  </staff-tuning>
-//                  <staff-tuning line="4">
-//                    <tuning-step>G</tuning-step>
-//                    <tuning-octave>3</tuning-octave>
-//                  </staff-tuning>
-//                  <staff-tuning line="5">
-//                    <tuning-step>B</tuning-step>
-//                    <tuning-octave>3</tuning-octave>
-//                  </staff-tuning>
-//                  <staff-tuning line="6">
-//                    <tuning-step>E</tuning-step>
-//                    <tuning-octave>4</tuning-octave>
-//                  </staff-tuning>
-//                </staff-details>
-//                """);
-//        measureXML.append("</attributes>\n");
-//        return measureXML;
-//    }
+
+
 }
