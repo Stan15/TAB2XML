@@ -1,7 +1,7 @@
 package converter.GuitarConverter;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GuitarConvert {
     protected int measureNumber;
@@ -15,6 +15,8 @@ public class GuitarConvert {
 
     public GuitarConvert(){}
 
+
+
     //I assumed this class receives ArrayList has whole bar per line as String.
     //e.g) bars.get(0) = first whole bar line, like this. Whole one line is one element.
     //|---------|---3------2--|---2-8--------|\n
@@ -24,6 +26,7 @@ public class GuitarConvert {
     //|-------0-|-------------|-1------------|\n
     //|-------0-|---3---------|--10----------|\n
 
+    //pre condition: each Whole bar should has the same number of measures.
 
     public static ArrayList<String> tempConvert(String whole){
         String[] everyLines = whole.split("\n");
@@ -121,7 +124,7 @@ public class GuitarConvert {
 
             ArrayList<String> temp = new ArrayList<>();
             for(int j = 0; j < measures.length; j++){
-                if(!measures[j].equals("") && !measures[j].equals(" ") && measures[j].contains("-")){
+                if(!measures[j].equals("") && !measures[j].equals(" ")){
                     temp.add(measures[j]);
                 }// Store measures when it has information
             }
