@@ -48,6 +48,7 @@ public abstract class Note implements Comparable<Note>{
         return true;
     }
 
+
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY
      * @param line

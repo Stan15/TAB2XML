@@ -53,8 +53,8 @@ public class TabInput {
             spansBuilder.add(Collections.emptyList(), text.length());
             return spansBuilder.create();
         }
-        TabInput.SCORE = new Score(text);
 
+        TabInput.SCORE = new Score(text);
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
             spansBuilder.add(Collections.emptyList(), text.length());
@@ -147,7 +147,7 @@ public class TabInput {
 
     public void enableHighlighting() {
         Subscription cleanupWhenDone = TEXT_AREA.multiPlainChanges()
-                .successionEnds(Duration.ofMillis(200))
+                .successionEnds(Duration.ofMillis(350))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(TEXT_AREA.multiPlainChanges())
                 .filterMap(t -> {
