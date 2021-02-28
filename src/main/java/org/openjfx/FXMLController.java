@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,63 +22,45 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.IndexRange;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.event.MouseOverTextEvent;
 import utility.Parser;
 
-public class FXMLController implements Initializable {
+public class FXMLController {
 
-    private File saveFile;
-    private boolean isEditingSavedFile;
+    private static File saveFile;
+    private static boolean isEditingSavedFile;
 
-    private String generatedOutput;
+    private static String generatedOutput;
 
-    @FXML public Stage convertWindow = new Stage();
+    private static Window convertWindow = new Stage();
 
     @FXML public CodeArea TEXT_AREA;
 
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
 
-    private static CodeArea savedTextArea;
+    private static CodeArea savedTextArea;      //this is a variable used to fix the bug where a new window can't be opened when the "convert" button is clicked. It is kind of a hack, not fixing the actual problem
 
 
 
     @FXML
     private void handleNew() {
-        //we don't care about overwriting a blank file
-        if (!TEXT_AREA.getText().isBlank()) {
-            boolean fileChanged = true;
-
-            try {
-                if (saveFile!=null && Files.readString(Path.of(saveFile.getAbsolutePath())).replace("\r\n", "\n").equals(TEXT_AREA.getText()))
-                    fileChanged = false;
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-            if (fileChanged) {
-                boolean userOkToGoAhead = promptSave("This document will be overwritten. Do you want to save it first?");
-                if (!userOkToGoAhead) return;
-            }
-        }
+        boolean userOkToGoAhead = promptSave();
+        if (!userOkToGoAhead) return;
         this.TEXT_AREA.clear();
         this.isEditingSavedFile = false;
     }
 
     @FXML
     private void handleOpen() {
-        handleNew();
+        boolean userOkToGoAhead = promptSave();
+        if (!userOkToGoAhead) return;
 
         String userDirectoryString = System.getProperty("user.home");
 
@@ -95,6 +78,7 @@ public class FXMLController implements Initializable {
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         fileChooser.setInitialDirectory(openDirectory);
         File openedFile = fileChooser.showOpenDialog(MainApp.STAGE);
+        if (openedFile==null) return;
         if (openedFile.exists()) {
             try {
                 String newText = Files.readString(Path.of(openedFile.getAbsolutePath())).replace("\r\n", "\n");
@@ -104,8 +88,10 @@ public class FXMLController implements Initializable {
             }
         }
 
-        this.saveFile = openedFile;
-        this.isEditingSavedFile = true;
+        saveFile = openedFile;
+        isEditingSavedFile = true;
+        new TabInput(TEXT_AREA).computeHighlightingAsync();
+
     }
 
     @FXML
@@ -113,20 +99,20 @@ public class FXMLController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-        if (this.saveFile!=null) {
+        if (saveFile!=null) {
             fileChooser.setInitialFileName(saveFile.getName());
             fileChooser.setInitialDirectory(new File(saveFile.getParent()));
         }
 
-        File saveFile = fileChooser.showSaveDialog(MainApp.STAGE);
-        if (saveFile==null) return false;
+        File newSaveFile = fileChooser.showSaveDialog(MainApp.STAGE);
+        if (newSaveFile==null) return false;
         try {
-            FileWriter myWriter = new FileWriter(saveFile.getPath());
+            FileWriter myWriter = new FileWriter(newSaveFile.getPath());
             myWriter.write(TEXT_AREA.getText());
             myWriter.close();
 
-            this.saveFile = saveFile;
-            this.isEditingSavedFile = true;
+            saveFile = newSaveFile;
+            isEditingSavedFile = true;
         } catch (IOException e) {
             return false;
         }
@@ -135,10 +121,10 @@ public class FXMLController implements Initializable {
 
     @FXML
     private boolean handleSave() {
-        if (!this.isEditingSavedFile || !this.saveFile.exists())
+        if (!isEditingSavedFile || saveFile==null || !saveFile.exists())
             return this.handleSaveAs();
         try {
-            FileWriter myWriter = new FileWriter(this.saveFile.getPath());
+            FileWriter myWriter = new FileWriter(saveFile.getPath());
             myWriter.write(TEXT_AREA.getText());
             myWriter.close();
         } catch (IOException e) {
@@ -147,85 +133,124 @@ public class FXMLController implements Initializable {
         return true;
     }
 
-    private boolean promptSave(String message) {
+    private boolean promptSave() {
 
-        // open popup dialog that asks if user wants to cancel their action, save before continuing with action, or not save.
+        //we don't care about overwriting a blank file. If file is blank, we are ok to go. it doesn't matter if it is saved or not
+        if (TEXT_AREA.getText().isBlank())  return true;
 
-        boolean userAskedToSave = true;
-        boolean userCancelledDialog = false;
-        if (userCancelledDialog) return false;
+        try {
+            if (saveFile!=null && Files.readString(Path.of(saveFile.getAbsolutePath())).replace("\r\n", "\n").equals(TEXT_AREA.getText()))
+                return true;    //if file didn't change, we are ok to go. no need to save anything, no chance of overwriting.
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
-        if (this.TEXT_AREA.getText().isBlank()) return true;    // in this case, there is nothing to save.
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Unsaved file");
+        alert.setHeaderText("This document is unsaved and will be overwritten. Do you want to save it first?");
+        alert.setContentText("Choose your option.");
 
-        if (userCancelledDialog) return false;
-        if (userAskedToSave) {
-            boolean saved = false;
+        ButtonType buttonTypeSave = new ButtonType("Save");
+        ButtonType buttonTypeOverwrite = new ButtonType("Overwrite");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeOverwrite, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        boolean userOkToGoAhead = false;
+        if (result.get() == buttonTypeSave){
+            boolean saved;
             if (isEditingSavedFile) {
                 saved = handleSave();
             }else {
                 saved = handleSaveAs();
             }
-            if (!saved) return false;
+            if (saved)
+                userOkToGoAhead = true;
+        } else if (result.get() == buttonTypeOverwrite) {
+            // ... user chose "Override". we are good to go ahead
+            userOkToGoAhead = true;
         }
-        return true;
+        //if user chose "cancel", userOkToGoAhead is still false. we are ok.
+        return userOkToGoAhead;
+    }
+
+    private Window openNewWindow(String fxmlPath, String windowName) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getClassLoader().getResource(fxmlPath));
+
+            Stage stage = new Stage();
+            stage.setTitle(windowName);
+            stage.initOwner(borderPane.getScene().getWindow());
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+            return scene.getWindow();
+        } catch (IOException e) {
+            Logger logger = Logger.getLogger(getClass().getName());
+            logger.log(Level.SEVERE, "Failed to create new Window.", e);
+        }
+        return null;
     }
 
     @FXML
     private void convertButtonHandle() throws IOException {
         Parser.createScore(TEXT_AREA.getText());
         generatedOutput = Parser.parse();
-
-        try {
-
-            Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/convertWindow.fxml"));
-
-            Stage stage = new Stage();
-            stage.setTitle("Conversion options");
-            stage.initOwner(borderPane.getScene().getWindow());
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            Logger logger = Logger.getLogger(getClass().getName());
-            logger.log(Level.SEVERE, "Failed to create new Window.", e);
-        }
+        convertWindow = this.openNewWindow("org.openjfx/convertWindow.fxml", "ConversionOptions");
     }
+
 
     @FXML
     private void saveConvertedButtonHandle() {
-        FileChooser fc = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
-        fc.getExtensionFilters().add(extFilter);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save As");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.mxl", "*.musicxml", "*.xml");
+        fileChooser.getExtensionFilters().add(extFilter);
 
-        String userDirectoryString = System.getProperty("user.home");
-        String saveFileDir = this.saveFile.getParent();
-        File saveDirectory = new File(saveFileDir ==null ? userDirectoryString : saveFileDir);
-        if(!saveDirectory.canRead()) {
-            saveDirectory = new File("c:/");
+        File initialDir = null;
+        if (saveFile!=null) {
+            String name = saveFile.getName();
+            if(name.contains("."))
+                name = name.substring(0, name.lastIndexOf('.'));
+            fileChooser.setInitialFileName(name);
+            File parentDir = new File(saveFile.getParent());
+            if (parentDir.exists())
+                initialDir = parentDir;
         }
-        fc.setInitialDirectory(saveDirectory);
+
+        if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
+            initialDir = new File(System.getProperty("user.home"));
+        if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
+            initialDir = new File("c:/");
+
+        fileChooser.setInitialDirectory(initialDir);
 
 
-        File file = fc.showSaveDialog( borderPane.getScene().getWindow() );
+        File file = fileChooser.showSaveDialog(convertWindow);
 
         if (file != null) {
-            saveToFile(generatedOutput, file);
+            saveToXMLFile(generatedOutput, file);
         }
+        cancelConvertButtonHandle();
     }
 
     @FXML
     private void cancelConvertButtonHandle()  {
-        convertWindow.close();
+        convertWindow.hide();
+        new TabInput(TEXT_AREA).enableHighlighting();
     }
 
 
-    private void saveToFile(String content, File file) {
+    private void saveToXMLFile(String content, File file) {
         try {
             PrintWriter writer;
             writer = new PrintWriter(file);
             writer.println(content);
             writer.close();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -234,8 +259,7 @@ public class FXMLController implements Initializable {
         TEXT_AREA.setWrapText(this.wrapCheckbox.isSelected());
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
         }
