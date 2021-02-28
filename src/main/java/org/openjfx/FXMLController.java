@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
@@ -45,6 +48,10 @@ public class FXMLController implements Initializable {
 
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
+
+    private static CodeArea savedTextArea;
+
+
 
     @FXML
     private void handleNew() {
@@ -168,15 +175,23 @@ public class FXMLController implements Initializable {
         Parser.createScore(TEXT_AREA.getText());
         generatedOutput = Parser.parse();
 
-        /*This code for some reason will not create a new window*/
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/convertWindow.fxml"));
-        convertWindow.setTitle("Convert Settings");
-        convertWindow.setScene(new Scene(root, 575, 960));
-        convertWindow.show();
+        try {
+
+            Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/convertWindow.fxml"));
+
+            Stage stage = new Stage();
+            stage.setTitle("Conversion options");
+            stage.initOwner(borderPane.getScene().getWindow());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            Logger logger = Logger.getLogger(getClass().getName());
+            logger.log(Level.SEVERE, "Failed to create new Window.", e);
+        }
     }
 
     @FXML
-    private void saveConvertedButtonHandle() throws IOException {
+    private void saveConvertedButtonHandle() {
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fc.getExtensionFilters().add(extFilter);
@@ -198,8 +213,8 @@ public class FXMLController implements Initializable {
     }
 
     @FXML
-    private void cancelButtonHandle()  {
-        convertWindow.hide();
+    private void cancelConvertButtonHandle()  {
+        convertWindow.close();
     }
 
 
@@ -221,8 +236,13 @@ public class FXMLController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (TEXT_AREA==null && savedTextArea!=null) {
+            this.TEXT_AREA = savedTextArea;
+        }
         TEXT_AREA.setParagraphGraphicFactory(LineNumberFactory.get(TEXT_AREA));
         new TabInput(TEXT_AREA).enableHighlighting();
+
+        savedTextArea = TEXT_AREA;
 
         Popup popup = new Popup();
         Label popupMsg = new Label();

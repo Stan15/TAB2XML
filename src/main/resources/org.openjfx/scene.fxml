@@ -39,7 +39,7 @@
     <center>
         <AnchorPane prefHeight="200.0" prefWidth="666.0" BorderPane.alignment="CENTER">
             <children>
-                <CodeArea fx:id="TEXT_AREA" layoutX="13.0" layoutY="32.0" onMouseClicked="#convertButtonHandle" prefHeight="582.0" prefWidth="974.0" stylesheets="@text_input_styles.css" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="32.0" />
+                <CodeArea fx:id="TEXT_AREA" layoutX="13.0" layoutY="32.0" prefHeight="582.0" prefWidth="974.0" stylesheets="@text_input_styles.css" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="32.0" />
                 <AnchorPane layoutX="13.0" prefHeight="32.0" prefWidth="974.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="0.0">
                     <children>
                         <Label layoutY="1.0" text="INPUT" AnchorPane.leftAnchor="0.0">

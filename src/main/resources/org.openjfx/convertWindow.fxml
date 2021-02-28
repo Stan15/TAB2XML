@@ -7,7 +7,7 @@
     <AnchorPane fx:id="convertPane" prefHeight="575.0" prefWidth="960.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
         <children>
             <Label layoutX="-53.0" layoutY="6.0" text="Label" />
-            <Button layoutX="662.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#cancelButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Cancel" />
+            <Button layoutX="662.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#cancelConvertButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Cancel" />
             <Button layoutX="810.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#saveConvertedButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Save" />
         </children>
     </AnchorPane>
