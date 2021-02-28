@@ -59,7 +59,9 @@ public class GuitarMeasure extends GuitarConvert{
             for(int i = 0; i < totalDurationPerMeasure; i++){
                 if(position <= (double) (i + 1) / totalDurationPerMeasure) {
                     if(notesBox[stringNum][i] != null){
-                        notesBox[stringNum][i + 1] = notation;
+                        if(i + 1 <= totalDurationPerMeasure) {
+                            notesBox[stringNum][i + 1] = notation;
+                        }
                         break;
                     }
                     else if(notesBox[stringNum][i] != null && notesBox[stringNum][i + 1] != null){
