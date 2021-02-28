@@ -34,25 +34,6 @@ public abstract class Measure {
         this.isFirstMeasure = isFirstMeasure;
     }
 
-    public int noteGroupCount() {
-        int noteGroupCount = 0;
-        for (MeasureLine measureLine : this.measureLineList) {
-            noteGroupCount = Math.max(noteGroupCount, measureLine.noteCount);
-        }
-        return noteGroupCount;
-    }
-
-    public void parseNoteDivisionsAndDuration(int maxNoteGroupCount, int defaultBeatCount, int defaultBeatType) {
-        this.divisions = ( (double)(maxNoteGroupCount*beatType)/(double)beatCount )/4.0;
-        if (this.divisions>6)
-            this.divisions = 6;
-        for (MeasureLine measureLine : this.measureLineList) {
-            for (Note note : measureLine.noteList) {
-                note.computeDuration(this.divisions, this.noteGroupCount(), defaultBeatCount, defaultBeatType);
-            }
-        }
-    }
-
     /**
      * Creates a List of MeasureLine objects from the provided string representation of a Measure.
      * These MeasureLine objects are not guaranteed to be valid. you can find out if all the Measure

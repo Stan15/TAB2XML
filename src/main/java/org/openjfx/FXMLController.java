@@ -48,9 +48,21 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void handleNew() {
+        //we don't care about overwriting a blank file
         if (!TEXT_AREA.getText().isBlank()) {
-            boolean userOkToGoAhead = promptSave("Do you want to save this document first?");
-            if (!userOkToGoAhead) return;
+            boolean fileChanged = true;
+
+            try {
+                if (saveFile!=null && Files.readString(Path.of(saveFile.getAbsolutePath())).replace("\r\n", "\n").equals(TEXT_AREA.getText()))
+                    fileChanged = false;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if (fileChanged) {
+                boolean userOkToGoAhead = promptSave("This document will be overwritten. Do you want to save it first?");
+                if (!userOkToGoAhead) return;
+            }
         }
         this.TEXT_AREA.clear();
         this.isEditingSavedFile = false;
@@ -164,7 +176,7 @@ public class FXMLController implements Initializable {
     }
 
     @FXML
-    private void saveButtonHandle() throws IOException {
+    private void saveConvertedButtonHandle() throws IOException {
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fc.getExtensionFilters().add(extFilter);

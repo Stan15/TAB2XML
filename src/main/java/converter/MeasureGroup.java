@@ -46,23 +46,8 @@ public class MeasureGroup {
         }
         this.measureList = this.createMeasureList(this.lines, this.positions);
         this.instructionList = new ArrayList<>();
-        this.parseNoteDivisionsAndDuration();
     }
 
-    public int maxMeasureNoteGroupCount() {
-        int maxMeasureNoteGroupCount = 0;
-        for (Measure measure : this.measureList) {
-            maxMeasureNoteGroupCount = Math.max(maxMeasureNoteGroupCount, measure.noteGroupCount());
-        }
-        return maxMeasureNoteGroupCount;
-    }
-
-    public void parseNoteDivisionsAndDuration() {
-        int maxNoteGroupCount = this.maxMeasureNoteGroupCount();
-        for (Measure measure : this.measureList) {
-            measure.parseNoteDivisionsAndDuration(maxNoteGroupCount, defaultBeatCount, defaultBeatType);
-        }
-    }
 
     /**
      * Creates a List of Measure objects from the provided string representation of a MeasureGroup.

@@ -14,7 +14,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         this.STAGE = stage;
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene2.fxml"));
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
 
         Scene scene = new Scene(root);
 

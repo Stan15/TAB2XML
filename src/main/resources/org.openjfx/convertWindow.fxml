@@ -8,7 +8,7 @@
         <children>
             <Label layoutX="-53.0" layoutY="6.0" text="Label" />
             <Button layoutX="662.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#cancelButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Cancel" />
-            <Button layoutX="810.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#saveButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Save" />
+            <Button layoutX="810.0" layoutY="526.0" mnemonicParsing="false" onMouseClicked="#saveConvertedButtonHandle" prefHeight="33.0" prefWidth="133.0" text="Save" />
         </children>
     </AnchorPane>
    <columnConstraints>
