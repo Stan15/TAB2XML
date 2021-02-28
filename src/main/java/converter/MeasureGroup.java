@@ -15,11 +15,13 @@ import java.util.regex.Pattern;
 public class MeasureGroup {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
-    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*"+"(?=\\n|$))"     +  ")";
+    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";
     public List<Integer> positions = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
     public List<Instruction> instructionList;
+    public int defaultBeatCount = 4;
+    public int defaultBeatType = 4;
 
     /**
      * Creates a MeasureGroup object from a List of Strings which represent the lines in the measure group
@@ -44,6 +46,22 @@ public class MeasureGroup {
         }
         this.measureList = this.createMeasureList(this.lines, this.positions);
         this.instructionList = new ArrayList<>();
+        this.parseNoteDivisionsAndDuration();
+    }
+
+    public int maxMeasureNoteGroupCount() {
+        int maxMeasureNoteGroupCount = 0;
+        for (Measure measure : this.measureList) {
+            maxMeasureNoteGroupCount = Math.max(maxMeasureNoteGroupCount, measure.noteGroupCount());
+        }
+        return maxMeasureNoteGroupCount;
+    }
+
+    public void parseNoteDivisionsAndDuration() {
+        int maxNoteGroupCount = this.maxMeasureNoteGroupCount();
+        for (Measure measure : this.measureList) {
+            measure.parseNoteDivisionsAndDuration(maxNoteGroupCount, defaultBeatCount, defaultBeatType);
+        }
     }
 
     /**
@@ -69,12 +87,12 @@ public class MeasureGroup {
         // a line is its index in the root string from where it is derived (i.e Score.ROOT_STRING)
         List<List<Integer>> measurePositionsList = new ArrayList<>();
         //A list of measures where each measure is represented by list of the names of its lines
-        List<List<String>> measureNamesList = new ArrayList<>();
+        List<List<String[]>> measureNamesList = new ArrayList<>();
 
         for (int i=0; i<measureGroupLines.size(); i++) {
             String measureGroupLine = measureGroupLines.get(i);
             int measureGroupStartIdx = positions.get(i);
-            String lineName = MeasureLine.nameOf(measureGroupLine);
+            String[] lineName = MeasureLine.nameOf(measureGroupLine, measureGroupStartIdx);
 
             int measureCount = 0;
             Matcher measureInsidesMatcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher(measureGroupLine);
@@ -92,7 +110,7 @@ public class MeasureGroup {
                 //get the particular measure we are interested in and add this line to its list of lines
                 List<String> measureLines = measureStringList.get(measureCount-1);  //-1 cuz of zero indexing
                 List<Integer> measurePositions = measurePositionsList.get(measureCount-1);
-                List<String> measureNames = measureNamesList.get(measureCount-1);
+                List<String[]> measureNames = measureNamesList.get(measureCount-1);
                 measureLines.add(measureLineString);
                 measurePositions.add(measurePosition);
                 measureNames.add(lineName);
@@ -101,7 +119,7 @@ public class MeasureGroup {
         for (int i=0; i<measureStringList.size(); i++) {
             List<String> measureLineList = measureStringList.get(i);
             List<Integer> measureLinePositionList = measurePositionsList.get(i);
-            List<String> measureLineNameList = measureNamesList.get(i);
+            List<String[]> measureLineNameList = measureNamesList.get(i);
             boolean isFirstMeasure = false;
             if (i==0)
                 isFirstMeasure = true;

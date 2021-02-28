@@ -48,6 +48,14 @@ public abstract class Note implements Comparable<Note>{
         return true;
     }
 
+    public void computeDuration(double divisions, int measureNoteGroupCount, int beatCount, int beatType) {
+        this.duration = (int) Math.ceil(
+                ( (double)(measureNoteGroupCount*beatType)/(double)beatCount )/(4.0*divisions)
+        );
+        if (this.duration < 1)
+            this.duration = 1;
+    }
+
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY
      * @param line
