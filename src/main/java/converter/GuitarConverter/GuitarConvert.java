@@ -12,27 +12,30 @@ public class GuitarConvert {
 
     protected final int INSTRUMENT_STRING_NUM = 6;
     protected ArrayList<String> barsPerline;
-//aaaa
+
     public GuitarConvert(){}
 
-    public static void main(String[] args) {
-        ArrayList<String> o = new ArrayList<>();
-        o.add("|---------------------------------|------------------------------------|\n" +
-                "|-----1---------1-----1-----------|-------1---------------1----------1-|\n" +
-                "|-----------0------------0--------|-------------0----------------0-----|\n" +
-                "|-----0-------2-------2-----------|-------2-------2-------0--------0---|\n" +
-                "|-3-------3-------3-------3-------|------------------------------------|\n" +
-                "|-----------------------------0---|---1-------1-------3-------3--------|");
-        o.add("|------------------------------------------------------------------|\n" +
-                "|-----1---------1-----0---------0-----1---------1-----3---------3--|\n" +
-                "|-----------0---------------0---------------0---------------0------|\n" +
-                "|-----2-------2-------2-------2-------2-------2-------0-------0----|\n" +
-                "|-0-------0--------------------------------------------------------|\n" +
-                "|-----------------0-------0--------1------1-------3-------3--------|");
-        GuitarConvert ex = new GuitarConvert(o);
-        String aa = ex.makeScript();
-        System.out.println(aa);
-    }// example
+    public static ArrayList<String> tempConvert(String whole){
+        String[] everyLines = whole.split("\n");
+        ArrayList<String> result = new ArrayList<>();
+        int i = 0;
+        while(i < everyLines.length){
+            if(everyLines[i].contains("-") && everyLines[i].contains("|") && !everyLines[i].contains(" ") && !everyLines[i].equals("")){
+                StringBuilder temp = new StringBuilder("");
+                int j = 0;
+                while(j < 6){
+                    temp.append(everyLines[i]);
+                    temp.append("\n");
+                    j++;
+                    i++;
+                }
+                result.add(temp.toString());
+            }
+            i++;
+        }
+
+        return result;
+    }
 
     //I assumed this class receives ArrayList has whole bar per line as String.
     //e.g) bars.get(0) = first whole bar line, like this. Whole one line is one element.
