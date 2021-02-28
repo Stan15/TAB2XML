@@ -29,7 +29,7 @@ public class TabInput {
         this.TEXT_AREA = TEXT_AREA;
     }
 
-    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
+    public Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         String text = TEXT_AREA.getText();
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
