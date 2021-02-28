@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import converter.GuitarConverter.GuitarConvert;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
@@ -31,7 +33,11 @@ public class FXMLController implements Initializable {
     @FXML
     private void convertButtonHandle() {
         parser.Parser.createScore(INPUT_FIELD.getText());
-        String output = parser.Parser.parse();
+        //String output = parser.Parser.parse();
+
+        //temporay version
+        ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(INPUT_FIELD.getText());
+        String output = new GuitarConvert(arrForTempConverter).makeScript();
 
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
