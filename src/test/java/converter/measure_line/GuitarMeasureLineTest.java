@@ -61,13 +61,14 @@ public class GuitarMeasureLineTest {
     @Test
     void testInvalidNaming(){
         String[] names = {"x", "z", "v", "q", "w", "u", "y", "i", "o", "p", "X", "Z", "V", "Q", "W", "U", "Y", "I", "O", "P"};
-        String s6 = ("|----2--4--7-7----6---|");
-        MeasureLine measureLine = new GuitarMeasureLine(s6, "G", 4);
+        String s6 = ("----2--4--7-7----6---");
         Integer[] expected = {};
         for(int i = 0; i < names.length; i++){
-            Note note = measureLine.noteList.get(i);
-            assertEquals("false", measureLine.validate().get(Integer.parseInt("success")));
+            MeasureLine measureLine = new GuitarMeasureLine(s6, names[i], 4);
+            assertFalse(measureLine.validate().isEmpty());
         }
     }
+//    @Test
+//    void testInvalid
 
 }
