@@ -13,7 +13,7 @@ public class GuitarMeasureLineTest {
     @Test
     void testValidity1(){
         String s1 = ("---12---6-4-5-8-1-----------2-");
-        MeasureLine measureLine = new GuitarMeasureLine(s1, "e", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s1, new String[]{"e","1"}, 4);
         Integer[] expected = {12, 6, 4, 5, 8, 1, 2};
         for(int i = 0; i < measureLine.noteList.size(); i++) {
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
@@ -23,7 +23,7 @@ public class GuitarMeasureLineTest {
     @Test
     void testValidity2(){
         String s2 = ("-1-----1-1-1-1--");
-        MeasureLine measureLine = new GuitarMeasureLine(s2, "B", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s2, new String[]{"B","1"}, 4);
         Integer[] expected = {1, 1, 1, 1, 1};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
@@ -33,7 +33,7 @@ public class GuitarMeasureLineTest {
     @Test
     void testValidity3(){
         String s3 = ("-----------------------------28-");
-        MeasureLine measureLine = new GuitarMeasureLine(s3, "D", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s3, new String[]{"D","1"}, 4);
         Integer[] expected = {28};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
@@ -43,19 +43,19 @@ public class GuitarMeasureLineTest {
     @Test
     void testInvalidity1(){
         String s4 = ("----------|----------");
-        MeasureLine measureLine = new GuitarMeasureLine(s4, "B", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s4, new String[]{"B","1"}, 4);
         assertFalse(measureLine.validate().isEmpty());
     }
     @Test
     void testInvalidity2(){
         String s5 = ("----2----|---4----8--|");
-        MeasureLine measureLine = new GuitarMeasureLine(s5, "g", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s5, new String[]{"g","1"}, 4);
         assertFalse(measureLine.validate().isEmpty());
     }
     @Test
     void testInvalidity3(){
         String s6 = ("|----2--4--7-7----6---|");
-        MeasureLine measureLine = new GuitarMeasureLine(s6, "G", 4);
+        MeasureLine measureLine = new GuitarMeasureLine(s6, new String[]{"G","1"}, 4);
         assertFalse(measureLine.validate().isEmpty());
     }
     @Test
@@ -64,7 +64,7 @@ public class GuitarMeasureLineTest {
         String s6 = ("----2--4--7-7----6---");
         Integer[] expected = {};
         for(int i = 0; i < names.length; i++){
-            MeasureLine measureLine = new GuitarMeasureLine(s6, names[i], 4);
+            MeasureLine measureLine = new GuitarMeasureLine(s6, new String[]{names[i],"1"}, 4);
             assertFalse(measureLine.validate().isEmpty());
         }
     }

@@ -108,6 +108,13 @@ public abstract class MeasureLine {
             response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
             result.add(response);
         }
+        if (!("|"+name).matches(MeasureLine.INSIDES_PATTERN)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "invalid measure line.");
+            response.put("priority", "1");
+            response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+            result.add(response);
+        }
 
         return result;
     }
