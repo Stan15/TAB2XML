@@ -40,7 +40,7 @@
             </font>
          </Label>
          <TextField fx:id="fileNameField" layoutX="311.0" layoutY="143.0" prefHeight="25.0" prefWidth="396.0" />
-         <CheckBox fx:id="conversionMethodCheckbox" layoutX="14.0" layoutY="191.0" mnemonicParsing="false" onAction="#toggleUsePiano" text="temporary. check for tab version, uncheck for piano version" textFill="WHITE" />
+         <CheckBox fx:id="conversionMethodCheckbox" layoutX="14.0" layoutY="191.0" mnemonicParsing="false" onAction="#toggleUsePiano" text="temporary. check for piano notation version, uncheck for tab" textFill="WHITE" />
         </children>
     </AnchorPane>
    <columnConstraints>

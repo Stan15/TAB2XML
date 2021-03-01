@@ -30,7 +30,7 @@ import utility.Parser;
 public class FXMLController {
 
     @FXML private CheckBox conversionMethodCheckbox;
-    public static boolean useTab = true;
+    public static boolean usePiano;
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
@@ -88,7 +88,7 @@ public class FXMLController {
 
     @FXML
     public void toggleUsePiano() {
-        useTab = conversionMethodCheckbox.isSelected();
+        usePiano = conversionMethodCheckbox.isSelected();
     }
 
     @FXML
@@ -235,12 +235,12 @@ public class FXMLController {
 
     @FXML
     private void saveConvertedButtonHandle() {
-        if (useTab) {
-            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
-            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
-        }else {
+        if (usePiano) {
             Parser.createScore(TEXT_AREA.getText());
             generatedOutput = Parser.parse();
+        }else {
+            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
+            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
         }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
@@ -280,6 +280,7 @@ public class FXMLController {
             saveToXMLFile(generatedOutput, file);
             saveFile = file;
             cancelConvertButtonHandle();
+            usePiano = false;
         }
     }
 
