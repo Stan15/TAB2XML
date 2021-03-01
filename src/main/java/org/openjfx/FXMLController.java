@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -39,15 +40,43 @@ public class FXMLController {
     private static String generatedOutput;
 
     private static Window convertWindow = new Stage();
-
+    private static String userDirectoryString = System.getProperty("user.home");
     @FXML public CodeArea TEXT_AREA;
 
+    @FXML private ComboBox errorSensitivity;
+    @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
 
     private static CodeArea savedTextArea;      //this is a variable used to fix the bug where a new window can't be opened when the "convert" button is clicked. It is kind of a hack, not fixing the actual problem
 
+    @FXML private void handleErrorSensitivity() {
+            Preferences p;
+            p = Preferences.userNodeForPackage(MainApp.class);
+            p.put("errorSensitivity", errorSensitivity.getValue().toString() );
+            changeErrorSensitivity(errorSensitivity.getValue().toString());
+    }
 
+    @FXML
+    private void handleSettings() {
+        convertWindow = this.openNewWindow("org.openjfx/settingsWindow.fxml", "Program Settings");
+    }
+
+    @FXML
+    private void handleUserManual() {
+    }
+
+    @FXML
+    private void handleChangeFolder() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setInitialDirectory(new File("src"));
+        File selected = dc.showDialog(MainApp.STAGE);
+        outputFolderField.setText(selected.getAbsolutePath());
+
+        Preferences p;
+        p = Preferences.userNodeForPackage(MainApp.class);
+        p.put("outputFolder", selected.getAbsolutePath());
+    }
 
     @FXML
     private void handleNew() {
@@ -61,8 +90,6 @@ public class FXMLController {
     private void handleOpen() {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
-
-        String userDirectoryString = System.getProperty("user.home");
 
         File openDirectory;
         if (this.saveFile!=null && saveFile.canRead()) {
@@ -289,6 +316,32 @@ public class FXMLController {
         TEXT_AREA.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             popup.hide();
         });
+        initializeSettings();
+    }
 
+    private void changeErrorSensitivity(String prefValue) {
+        switch (prefValue) {
+            case "Level 1 - Minimal Error Checking":
+                TabInput.ERROR_SENSITIVITY = 1;
+                break;
+            case "Level 3 - Advanced Error Checking":
+                TabInput.ERROR_SENSITIVITY = 3;
+                break;
+            case "Level 2 - Standard Error Checking":
+            default:
+                TabInput.ERROR_SENSITIVITY = 2;
+                break;
+        }
+    }
+    private void initializeSettings() {
+        if (errorSensitivity != null && outputFolderField != null) {
+            Preferences p;
+            p = Preferences.userNodeForPackage(MainApp.class);
+            String level = p.get("errorSensitivity", "Level 2 - Standard Error Checking");
+            errorSensitivity.setValue(level);
+            changeErrorSensitivity(errorSensitivity.getValue().toString());
+            String outputFolder = p.get("outputFolder", new File("src").getAbsolutePath());
+            outputFolderField.setText(outputFolder);
+        }
     }
 }
