@@ -21,9 +21,9 @@ public class ScoreTest {
     }
     @Test//(expected = InvalidInputException.class)
     void test_Score_getStringFragments2(){
-        String s = "";
-        Score test = new Score(s); // test will fail, exceptions not added yet
-
+        Assertions.assertThrows(InvalidInputException.class, () -> {
+            new Score("");
+        });
     }
     /**
      * Test for Score Class.
