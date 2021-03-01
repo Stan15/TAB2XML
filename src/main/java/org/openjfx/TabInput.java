@@ -20,6 +20,7 @@ public class TabInput {
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 350;   //in milliseconds
     protected static int ERROR_SENSITIVITY;
+    protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
     protected static ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -28,7 +29,7 @@ public class TabInput {
         this.TEXT_AREA = TEXT_AREA;
     }
 
-    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
+    public Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         String text = TEXT_AREA.getText();
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
@@ -52,8 +53,8 @@ public class TabInput {
             spansBuilder.add(Collections.emptyList(), text.length());
             return spansBuilder.create();
         }
-        TabInput.SCORE = new Score(text);
 
+        TabInput.SCORE = new Score(text);
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
             spansBuilder.add(Collections.emptyList(), text.length());
@@ -146,7 +147,7 @@ public class TabInput {
 
     public void enableHighlighting() {
         Subscription cleanupWhenDone = TEXT_AREA.multiPlainChanges()
-                .successionEnds(Duration.ofMillis(200))
+                .successionEnds(Duration.ofMillis(350))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(TEXT_AREA.multiPlainChanges())
                 .filterMap(t -> {

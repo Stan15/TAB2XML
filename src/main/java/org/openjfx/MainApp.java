@@ -9,10 +9,12 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
+    public static Stage STAGE;
+
     @Override
     public void start(Stage stage) throws Exception {
+        this.STAGE = stage;
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
-
 
         Scene scene = new Scene(root);
 
@@ -20,7 +22,10 @@ public class MainApp extends Application {
         scene.getStylesheets().add(getClass().getClassLoader().getResource("org.openjfx/styles.css").toExternalForm());
 
         stage.setTitle("JavaFX and Gradle");
+        stage.setMinWidth(700);
+        stage.setMinHeight(500);
         stage.setScene(scene);
+        LoadScreen.run();
         stage.show();
     }
 
