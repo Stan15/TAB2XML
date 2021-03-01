@@ -159,7 +159,7 @@ public abstract class Measure {
         return measureXML.toString();
     }
 
-    private StringBuilder addAttributesXML(StringBuilder measureXML) {
+    protected StringBuilder addAttributesXML(StringBuilder measureXML) {
         measureXML.append("<attributes>\n");
         measureXML.append("<divisions>");
         measureXML.append(this.beatType/4);
@@ -170,20 +170,9 @@ public abstract class Measure {
         measureXML.append("<fifths>");
         measureXML.append(0);
         measureXML.append("</fifths>\n");
+        measureXML.append("<mode>major</mode>\n");
 
         measureXML.append("</key>\n");
-
-        measureXML.append("<time>\n");
-
-        measureXML.append("<beats>");
-        measureXML.append(this.beats);
-        measureXML.append("</beats>\n");
-
-        measureXML.append("<beat-type>");
-        measureXML.append(this.beatType);
-        measureXML.append("</beat-type>\n");
-
-        measureXML.append("</time>\n");
 
         measureXML.append("<clef>\n");
 

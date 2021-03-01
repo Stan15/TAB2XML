@@ -19,17 +19,19 @@ public class MeasureCollection {
      * Static factory method which verifies that the input String "origin" can be recognised as a measure collection
      * before instantiation.
      * @param origin The String representation of a measure collection (a collection of measure groups that happen to be
-     *              on the same line. e.g P|----|---|  Hh|----|----| are drum measures which are on the same line)
+     *              on the same line. e.g P|----|---|  Hh|----|----| are drum measures which are on the same line) along with instructions pertaining to them
      * @param position the start position of the input String "origin" in Score.ROOT_STRING, from where it was extracted
      * @return a MeasureCollection object if the input String "origin" is properly recognised to be a representation of
      * a measure group(regardless of if the measure group it is representing is valid or not). null otherwise
      */
-    public static MeasureCollection getInstance(String origin, int position) {
+    public static List<MeasureCollection> getInstances(String origin, int position) {
+        List<MeasureCollection> msurCollectionList = new ArrayList<>();
+
         Matcher matcher = Pattern.compile(MeasureCollection.PATTERN).matcher(origin);
-        if (matcher.find())
-            return new MeasureCollection(matcher.group(), position+matcher.start());
-        else
-            return null;
+        while (matcher.find())
+            msurCollectionList.add(new MeasureCollection(matcher.group(), position+matcher.start()));
+
+        return msurCollectionList;
     }
 
     private MeasureCollection(String origin, int position) {

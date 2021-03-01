@@ -11,11 +11,11 @@ public class Score {
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public static String ROOT_STRING;
+    public String rootString;
     public Map<Integer, String> rootStringFragments;
 
     public Score(String rootString) {
-        ROOT_STRING = rootString;
+        this.rootString = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
     }
@@ -33,10 +33,10 @@ public class Score {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
         for (Map.Entry<Integer, String> fragment : stringFragments.entrySet()) {
-            MeasureCollection msurCollection = MeasureCollection.getInstance(fragment.getValue(), fragment.getKey());
+            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey());
             //it may be that the text is completely not understood in the slightest as a measure collection
             //and the MeasureCollection.getInstance() returns null
-            if (msurCollection!=null)
+            for (MeasureCollection msurCollection : msurCollectionSubList)
                 msurCollectionList.add(msurCollection);
         }
         return msurCollectionList;
@@ -58,7 +58,7 @@ public class Score {
 
         int previousBreakEndIdx = 0;
         while(textBreakMatcher.find()) {
-            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
+            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
                 int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
@@ -82,32 +82,29 @@ public class Score {
     public List<HashMap<String,String>> validate() {
         List<HashMap<String,String>> result = new ArrayList<>();
 
-        //------------Validating yourself--------------------
-        //check if all the text in the root string is converted into measure collections. If not, then there is some
-        // text that wasn't understood to be a measure collection
-        if (this.rootStringFragments.size()!=this.measureCollectionList.size()) {
+        StringBuilder errorRanges = new StringBuilder();
+
+        int prevEndIdx = 0;
+        for (MeasureCollection msurCollction : this.measureCollectionList) {
+            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
+            if (!uninterpretedFragment.isBlank()) {
+                if (!errorRanges.isEmpty()) errorRanges.append(";");
+                errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
+            }
+
+            prevEndIdx = msurCollction.endIndex;
+        }
+
+        String restOfDocument = this.rootString.substring(prevEndIdx);
+        if (!restOfDocument.isBlank()) {
+            if (!errorRanges.isEmpty()) errorRanges.append(";");
+            errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");
+        }
+
+        if (!errorRanges.isEmpty()) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Some text was not understood.");
-
-            // we want to remove all the elements of rootStringFragments that were successfully understood to be
-            // a measure collection, then we will be left with those that weren't understood. Now we can know exactly which
-            // pieces of text were not understood.
-            LinkedHashMap<Integer, String> rootStrFragmntsCopy = new LinkedHashMap<>();
-            rootStrFragmntsCopy.putAll(rootStringFragments);
-            for (MeasureCollection msurClctn: this.measureCollectionList) {
-                rootStrFragmntsCopy.remove(msurClctn.position);
-            }
-
-            //get a list of positions to highlight red showing where the error applies.
-            StringBuilder positions = new StringBuilder();
-
-            for (int startIdx : rootStrFragmntsCopy.keySet()) {
-                String fragment = this.rootStringFragments.get(startIdx);
-                if (!positions.isEmpty())
-                    positions.append(";");
-                positions.append("[" + startIdx + "," + (startIdx + fragment.length()) + "]");
-            }
-            response.put("positions", positions.toString());
+            response.put("message", "This text can't be understood.");
+            response.put("positions", errorRanges.toString());
             response.put("priority", "3");
             result.add(response);
         }
