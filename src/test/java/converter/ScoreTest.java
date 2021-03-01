@@ -62,7 +62,7 @@ public class ScoreTest {
             Map.Entry expectedItem = expected.get(i);
 
         }*/
-        //System.out.println("Here is the output" +
+        //System.
         //Assertions.assertEquals(expectedStringFragments.get(1), test.rootStringFragments.get(1));
     }
 
