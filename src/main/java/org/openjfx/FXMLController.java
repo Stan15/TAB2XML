@@ -40,7 +40,6 @@ public class FXMLController {
     private static String generatedOutput;
 
     private static Window convertWindow = new Stage();
-    private static String userDirectoryString = System.getProperty("user.home");
     @FXML public CodeArea TEXT_AREA;
 
     @FXML private ComboBox errorSensitivity;
@@ -95,6 +94,7 @@ public class FXMLController {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
 
+        String userDirectoryString = System.getProperty("user.home");
         File openDirectory;
         if (this.saveFile!=null && saveFile.canRead()) {
             openDirectory = new File(this.saveFile.getParent());
