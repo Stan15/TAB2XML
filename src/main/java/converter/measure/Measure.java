@@ -21,7 +21,7 @@ public abstract class Measure {
     List<String[]> lineNamesAndPositions;
     public int lineCount;
     List<Integer> positions;
-    List<MeasureLine> measureLineList;
+    public List<MeasureLine> measureLineList;
     boolean isFirstMeasure;
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
@@ -150,7 +150,7 @@ public abstract class Measure {
     public String toXML() {
         StringBuilder measureXML = new StringBuilder();
         measureXML.append("<measure number=\"");
-        measureXML.append(this.measureCount);
+        measureXML.append(++GLOBAL_MEASURE_COUNT);
         measureXML.append("\">\n");
         // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
         if (this.isFirstMeasure)
@@ -220,7 +220,7 @@ public abstract class Measure {
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
             for (Note note : guitarMline.noteList) {
-                if (note.isValid)
+                if (note.validate().isEmpty())
                     noteQueue.add(note);
             }
         }

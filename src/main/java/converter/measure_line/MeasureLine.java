@@ -108,7 +108,8 @@ public abstract class MeasureLine {
             response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
             result.add(response);
         }
-        if (!("|"+name).matches(MeasureLine.INSIDES_PATTERN)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
+        Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line);
+        if (!matcher.find() || !matcher.group().equals(this.line)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line.");
             response.put("priority", "1");
@@ -175,7 +176,7 @@ public abstract class MeasureLine {
 
         //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
         //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
         return measureInsides;
     }
 
@@ -245,10 +246,17 @@ public abstract class MeasureLine {
         while (noteIterator.hasNext()) {
             Note currentNote = noteIterator.next();
             if (currentNote.validate().isEmpty()) continue;
-
-            if (previousNote!=null && previousNote.line.equals(currentNote.line)) {
+            int dashCount = currentNote.distance;
+            if (previousNote!=null && currentNote.distance<(previousNote.distance+previousNote.line.length())) {
                 previousNote = currentNote;
                 continue;
+            }
+            if (previousNote!=null) {
+                dashCount -= previousNote.distance;
+            }
+            while (dashCount>0) {
+                outStr.append("-");
+                dashCount--;
             }
             outStr.append(currentNote.line.strip());
 

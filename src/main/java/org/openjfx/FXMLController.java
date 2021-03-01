@@ -40,13 +40,16 @@ public class FXMLController {
     private static String generatedOutput;
 
     private static Window convertWindow = new Stage();
-    private static String userDirectoryString = System.getProperty("user.home");
     @FXML public CodeArea TEXT_AREA;
 
     @FXML private ComboBox errorSensitivity;
     @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
+
+    @FXML TextField titleField;
+    @FXML TextField artistField;
+    @FXML TextField fileNameField;
 
     private static CodeArea savedTextArea;      //this is a variable used to fix the bug where a new window can't be opened when the "convert" button is clicked. It is kind of a hack, not fixing the actual problem
 
@@ -91,6 +94,7 @@ public class FXMLController {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
 
+        String userDirectoryString = System.getProperty("user.home");
         File openDirectory;
         if (this.saveFile!=null && saveFile.canRead()) {
             openDirectory = new File(this.saveFile.getParent());
@@ -233,19 +237,27 @@ public class FXMLController {
     private void saveConvertedButtonHandle() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.mxl", "*.musicxml", "*.xml");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.xml", "*.mxl", "*.musicxml");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File initialDir = null;
+        String initialName = null;
+        if (!fileNameField.getText().isBlank() && fileNameField.getText().length()<50)
+            initialName = fileNameField.getText().strip();
+
         if (saveFile!=null) {
-            String name = saveFile.getName();
-            if(name.contains("."))
-                name = name.substring(0, name.lastIndexOf('.'));
-            fileChooser.setInitialFileName(name);
+            if (initialName==null) {
+                String name = saveFile.getName();
+                if(name.contains("."))
+                    name = name.substring(0, name.lastIndexOf('.'));
+                initialName = name;
+            }
             File parentDir = new File(saveFile.getParent());
             if (parentDir.exists())
                 initialDir = parentDir;
         }
+        if (initialName!=null)
+            fileChooser.setInitialFileName(initialName);
 
         if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
             initialDir = new File(System.getProperty("user.home"));
@@ -259,8 +271,9 @@ public class FXMLController {
 
         if (file != null) {
             saveToXMLFile(generatedOutput, file);
+            saveFile = file;
+            cancelConvertButtonHandle();
         }
-        cancelConvertButtonHandle();
     }
 
     @FXML
@@ -287,6 +300,11 @@ public class FXMLController {
     }
 
     public void initialize() {
+        initializeTextAreaErrorPopups();
+        initializeSettings();
+    }
+
+    private void initializeTextAreaErrorPopups() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
         }
@@ -316,7 +334,6 @@ public class FXMLController {
         TEXT_AREA.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             popup.hide();
         });
-        initializeSettings();
     }
 
     private void changeErrorSensitivity(String prefValue) {

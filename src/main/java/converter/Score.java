@@ -1,5 +1,7 @@
 package converter;
 
+import converter.measure.Measure;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,6 +120,7 @@ public class Score {
     }
 
     public String toXML() {
+        Measure.GLOBAL_MEASURE_COUNT = 0;
         StringBuilder scoreXML = new StringBuilder();
         scoreXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
                 "<!DOCTYPE score-partwise PUBLIC\n" +
