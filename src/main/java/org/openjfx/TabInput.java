@@ -19,7 +19,7 @@ public class TabInput {
     private static String PREVIOUS_TEXT_INPUT = "";
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 350;   //in milliseconds
-    protected static int ERROR_SENSITIVITY;
+    protected static int ERROR_SENSITIVITY = 3;
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
@@ -67,6 +67,7 @@ public class TabInput {
         int lastErrorEnd = 0;
         for (Range range : errorRanges) {
             int errorPriority = Integer.parseInt(ACTIVE_ERRORS.get(range).get("priority"));
+            if (ERROR_SENSITIVITY<errorPriority) continue;
             String styleClass = getErrorStyleClass(errorPriority);
             spansBuilder.add(Collections.emptyList(), range.getStart() - lastErrorEnd);
             spansBuilder.add(Collections.singleton(styleClass), range.getSize());
