@@ -193,7 +193,7 @@ public abstract class Measure {
 
     private StringBuilder addNotesXML(StringBuilder measureXML) {
         //remove all the other notes that make up the chord and place the chord in the appropriate location
-        PriorityQueue<Note> noteQueue = this.getNoteQueue();
+            PriorityQueue<Note> noteQueue = this.getNoteQueue();
         while(!noteQueue.isEmpty()) {
 
             //notes of the same distance from the start of their measure are a chord, and are collected in the below array
