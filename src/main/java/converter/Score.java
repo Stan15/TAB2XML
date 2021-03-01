@@ -49,7 +49,7 @@ public class Score {
      * @return an ordered map mapping the position of each broken up piece of text(Integer[startIndex, endIndex]) to the
      * actual piece of text (String)
      */
-    private LinkedHashMap<Integer, String> getStringFragments(String rootStr) {
+    public LinkedHashMap<Integer, String> getStringFragments(String rootStr) {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)

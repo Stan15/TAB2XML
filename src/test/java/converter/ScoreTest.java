@@ -3,6 +3,8 @@ package converter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.*;
+
 public class ScoreTest {
 
     /**
@@ -32,9 +34,36 @@ public class ScoreTest {
      * is separated by a blank line.
      */
     @Test
-    void test_Score_getStringFragments(){
-        String s = "";
+    void test_Score_getStringFragments() throws InvalidInputException {
+        String s = "abcd";
         Score test = new Score (s);
+
+        LinkedHashMap<Integer, String> expectedStringFragments = new LinkedHashMap<>();
+        LinkedHashMap<Integer, String> actualStringFragments = test.getStringFragments(s);
+
+        expectedStringFragments.put(1, "abcd");
+
+        //changed list to set
+        Set<Map.Entry<Integer, String>> expected = expectedStringFragments.entrySet();
+        Set<Map.Entry<Integer, String>> actual = actualStringFragments.entrySet();
+
+
+        Assertions.assertTrue(actual.size() == expected.size());
+
+        //no get in Set and list wasnt working.
+        for (Iterator<Map.Entry<Integer, String>> it = expected.iterator(); it.hasNext();){
+            Map.Entry expectedItem = it.next();
+            //Map.Entry actualItem = it.
+            Assertions.assertEquals(expectedItem, test.rootStringFragments);
+
+        }
+        /*test.rootStringFragments.get(0)
+        for (int i = 0; i < expected.size();i++){
+            Map.Entry expectedItem = expected.get(i);
+
+        }*/
+        //System.out.println("Here is the output" + expectedStringFragments.get(1));
+        //Assertions.assertEquals(expectedStringFragments.get(1), test.rootStringFragments.get(1));
     }
 
 }
