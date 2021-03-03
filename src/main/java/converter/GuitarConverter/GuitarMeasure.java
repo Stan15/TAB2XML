@@ -59,8 +59,10 @@ public class GuitarMeasure extends GuitarConvert{
             for(int i = 0; i < totalDurationPerMeasure; i++){
                 if(position <= (double) (i + 1) / totalDurationPerMeasure) {
                     if(notesBox[stringNum][i] != null){
-                        notesBox[stringNum][i + 1] = notation;
-                        break;
+                        if(i + 1 < totalDurationPerMeasure) {
+                            notesBox[stringNum][i + 1] = notation;
+                            break;
+                        }
                     }
                     else if(notesBox[stringNum][i] != null && notesBox[stringNum][i + 1] != null){
                         notesBox[stringNum][i - 1] = notation;
@@ -133,7 +135,7 @@ public class GuitarMeasure extends GuitarConvert{
                 "</attributes>\n";
         return attributes;
     } // If capo information is extracted from parser,
-      // It should be changed.
+    // It should be changed.
 
     public String makeScript(){
         String script = "<measure number=\"" + measureNum + "\">\n";
@@ -158,13 +160,13 @@ public class GuitarMeasure extends GuitarConvert{
             if(notations.isEmpty()){
                 script += GuitarNote.makeRestNoteScript();
             } // If any notation does not exist in the column, add rest note not to play any note in that position in score
-              // In the above example, the third column
+            // In the above example, the third column
             else if(notations.size() == 1){
                 Iterator iter = notations.keySet().iterator();
                 int key = (int) iter.next();
                 script += GuitarNote.makeNoteScript(key, notations.get(key));
             } // If notation is only one, make a normal note script
-              // In the above example, first and second column
+            // In the above example, first and second column
 
             else{
                 script += GuitarNote.makeChordNoteScript(notations);
@@ -181,3 +183,4 @@ public class GuitarMeasure extends GuitarConvert{
         return script;
     }
 }
+

@@ -4,27 +4,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import converter.GuitarConverter.GuitarConvert;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.*;
 import org.fxmisc.richtext.CodeArea;
@@ -34,6 +29,8 @@ import utility.Parser;
 
 public class FXMLController {
 
+    @FXML private CheckBox conversionMethodCheckbox;
+    public static boolean usePiano;
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
@@ -86,7 +83,12 @@ public class FXMLController {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
         this.TEXT_AREA.clear();
-        this.isEditingSavedFile = false;
+        isEditingSavedFile = false;
+    }
+
+    @FXML
+    public void toggleUsePiano() {
+        usePiano = conversionMethodCheckbox.isSelected();
     }
 
     @FXML
@@ -227,14 +229,19 @@ public class FXMLController {
 
     @FXML
     private void convertButtonHandle() throws IOException {
-        Parser.createScore(TEXT_AREA.getText());
-        generatedOutput = Parser.parse();
         convertWindow = this.openNewWindow("org.openjfx/convertWindow.fxml", "ConversionOptions");
     }
 
 
     @FXML
     private void saveConvertedButtonHandle() {
+        if (usePiano) {
+            Parser.createScore(TEXT_AREA.getText());
+            generatedOutput = Parser.parse();
+        }else {
+            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
+            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.xml", "*.mxl", "*.musicxml");
@@ -273,6 +280,7 @@ public class FXMLController {
             saveToXMLFile(generatedOutput, file);
             saveFile = file;
             cancelConvertButtonHandle();
+            usePiano = false;
         }
     }
 
