@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
 
 public abstract class Measure {
     public static int GLOBAL_MEASURE_COUNT = 0;
-    public int measureCount;
+    protected int measureCount;
     int beatCount = 4;
     int beatType = 4;
     double divisions = 1;
