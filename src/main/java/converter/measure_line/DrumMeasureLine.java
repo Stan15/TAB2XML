@@ -7,8 +7,8 @@ import java.util.*;
 public class DrumMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
 
-    protected DrumMeasureLine(String line, String name, int position) {
-        super(line, name, position);
+    protected DrumMeasureLine(String line, String[] nameAndPosition, int position) {
+        super(line, nameAndPosition, position);
     }
 
     protected static Set<String> createLineNameSet() {
@@ -32,6 +32,14 @@ public class DrumMeasureLine extends MeasureLine {
     public List<HashMap<String, String>> validate() {
         List<HashMap<String,String>> result = new ArrayList<>();
         result.addAll(super.validate());
+
+        if (!isGuitar(this.line, this.name)) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "A drum measure line name is expected here.");
+            response.put("positions", "["+this.namePosition+"]");
+            response.put("priority", "2");
+            result.add(response);
+        }
 
         for (Note note : this.noteList)
             result.addAll(note.validate());

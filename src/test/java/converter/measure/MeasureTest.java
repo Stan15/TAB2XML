@@ -24,7 +24,7 @@ public class MeasureTest {
                 "---3-------4-------5------6--------",
                 "-----------------------------------");
 
-        List<String> lineNames = Arrays.asList("e", "B", "G", "D", "A", "E");
+        List<String[]> lineNames = Arrays.asList(new String[]{"e","1"}, new String[]{"B","1"}, new String[]{"G","1"}, new String[]{"D","1"}, new String[]{"A","1"}, new String[]{"E","1"});
 
         //doesn't really matter what values the position has.
         List<Integer> positions = Arrays.asList(1, 5, 7, 9, 20, 43);

@@ -31,7 +31,7 @@ public class GuitarNote extends Note {
     @Override
     public String toXML() {
         int fret = Integer.parseInt(this.line);
-        if (!this.isValid) return "";
+        if (!this.validate().isEmpty()) return "";
         StringBuilder noteXML = new StringBuilder();
         noteXML.append("<note>\n");
 

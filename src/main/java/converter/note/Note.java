@@ -13,7 +13,6 @@ public abstract class Note implements Comparable<Note>{
     public int distance;
     int position;
     public int duration;
-    public boolean isValid;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -31,22 +30,12 @@ public abstract class Note implements Comparable<Note>{
         this.stringNumber = this.convertNameToNumber(this.name);
         this.duration = 1;
         this.distance = distanceFromMeasureStart;
-
-        this.isValid = this.isValid();
     }
 
     public List<HashMap<String,String>> validate() {
         return new ArrayList<>();
     }
 
-    public boolean isValid() {
-        int cut_off_priority_level = 2;
-        for (HashMap<String,String> response : this.validate()) {
-            if (Integer.parseInt(response.get("priority")) <= cut_off_priority_level)
-                return false;
-        }
-        return true;
-    }
 
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY
@@ -68,17 +57,18 @@ public abstract class Note implements Comparable<Note>{
     }
 
     public int convertNameToNumber(String lineName) {
+        lineName = lineName.strip();
         if (lineName.equals("e")) {
             return 1;
-        } else if (lineName.equals("B")) {
+        } else if (lineName.equalsIgnoreCase("B")) {
             return 2;
-        } else if (lineName.equals("G")) {
+        } else if (lineName.equalsIgnoreCase("G")) {
             return 3;
-        } else if (lineName.equals("D")) {
+        } else if (lineName.equalsIgnoreCase("D")) {
             return 4;
-        } else if (lineName.equals("A")) {
+        } else if (lineName.equalsIgnoreCase("A")) {
             return 5;
-        } else if (lineName.equals("E")) {
+        } else if (lineName.equalsIgnoreCase("E")) {
             return 6;
         }
         return 0;

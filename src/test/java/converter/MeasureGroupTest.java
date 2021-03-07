@@ -52,7 +52,7 @@ public class MeasureGroupTest {
     }
 
     @Test
-    void testValidate_invalidInput1() {
+    void testValidate_validInput4() {
         List<String> origin = new ArrayList<String>();
         origin.add("[0] E|------------1|");
         origin.add("[10] A|-----1|");
@@ -61,7 +61,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin);
-        assertFalse(mg.validate().isEmpty());
+        assertTrue(mg.validate().isEmpty());
     }
 
     @Test
