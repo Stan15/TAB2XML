@@ -102,8 +102,11 @@ public class GuitarNote {
             if(fret >= 0 && fret <= 7) {
                 octave = 2;
             }
-            else {
+            else if(fret >=8 && fret <= 19){
                 octave = 3;
+            }
+            else{
+                octave = 4;
             }
         }
         else if(stringNumber == 5) {
@@ -121,8 +124,11 @@ public class GuitarNote {
             if(fret >=0 && fret <= 9) {
                 octave = 3;
             }
-            else {
+            else if(fret >= 10 && fret <= 21){
                 octave = 4;
+            }
+            else{
+                octave = 5;
             }
         }
         else if(stringNumber == 3) {
@@ -151,8 +157,11 @@ public class GuitarNote {
             if(fret >= 0 && fret <= 7) {
                 octave = 4;
             }
-            else {
+            else if(fret >= 8 && fret <= 19){
                 octave = 5;
+            }
+            else{
+                octave = 6;
             }
         }
         return octave;
