@@ -105,6 +105,11 @@ public class GuitarMeasure extends Measure{
         return result;
     }
 
+    public Attributes getAttributes() {
+        Attributes attributes = new Attributes();
+        attributes.setDivisions();
+    }
+
 
 
 }

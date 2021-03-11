@@ -119,7 +119,7 @@ public abstract class MeasureLine {
      * @return
      */
     public static boolean isDrum(String line, String name) {
-        if (!DrumMeasureLine.NAME_SET.contains(name)) return false;
+        if (!DrumMeasureLine.NAME_SET.contains(name.strip())) return false;
         return true;
     }
 
@@ -130,7 +130,7 @@ public abstract class MeasureLine {
      * @return
      */
     public static boolean isGuitar(String line, String name) {
-        if (!GuitarMeasureLine.NAME_SET.contains(name)) return false;
+        if (!GuitarMeasureLine.NAME_SET.contains(name.strip())) return false;
         return true;
     }
 

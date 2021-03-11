@@ -21,7 +21,7 @@ public class MainApp extends Application {
 
         scene.getStylesheets().add(getClass().getClassLoader().getResource("org.openjfx/styles.css").toExternalForm());
 
-        stage.setTitle("JavaFX and Gradle");
+        stage.setTitle("TAB 2 XML");
         stage.setMinWidth(700);
         stage.setMinHeight(500);
         stage.setScene(scene);
