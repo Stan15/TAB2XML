@@ -4,26 +4,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import converter.GuitarConverter.GuitarConvert;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.*;
 import org.fxmisc.richtext.CodeArea;
@@ -33,28 +29,66 @@ import utility.Parser;
 
 public class FXMLController {
 
+    @FXML private CheckBox conversionMethodCheckbox;
+    public static boolean usePiano;
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
     private static String generatedOutput;
 
     private static Window convertWindow = new Stage();
-
     @FXML public CodeArea TEXT_AREA;
 
+    @FXML private ComboBox errorSensitivity;
+    @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
 
+    @FXML TextField titleField;
+    @FXML TextField artistField;
+    @FXML TextField fileNameField;
+
     private static CodeArea savedTextArea;      //this is a variable used to fix the bug where a new window can't be opened when the "convert" button is clicked. It is kind of a hack, not fixing the actual problem
 
+    @FXML private void handleErrorSensitivity() {
+            Preferences p;
+            p = Preferences.userNodeForPackage(MainApp.class);
+            p.put("errorSensitivity", errorSensitivity.getValue().toString() );
+            changeErrorSensitivity(errorSensitivity.getValue().toString());
+    }
 
+    @FXML
+    private void handleSettings() {
+        convertWindow = this.openNewWindow("org.openjfx/settingsWindow.fxml", "Program Settings");
+    }
+
+    @FXML
+    private void handleUserManual() {
+    }
+
+    @FXML
+    private void handleChangeFolder() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setInitialDirectory(new File("src"));
+        File selected = dc.showDialog(MainApp.STAGE);
+        outputFolderField.setText(selected.getAbsolutePath());
+
+        Preferences p;
+        p = Preferences.userNodeForPackage(MainApp.class);
+        p.put("outputFolder", selected.getAbsolutePath());
+    }
 
     @FXML
     private void handleNew() {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
         this.TEXT_AREA.clear();
-        this.isEditingSavedFile = false;
+        isEditingSavedFile = false;
+    }
+
+    @FXML
+    public void toggleUsePiano() {
+        usePiano = conversionMethodCheckbox.isSelected();
     }
 
     @FXML
@@ -63,7 +97,6 @@ public class FXMLController {
         if (!userOkToGoAhead) return;
 
         String userDirectoryString = System.getProperty("user.home");
-
         File openDirectory;
         if (this.saveFile!=null && saveFile.canRead()) {
             openDirectory = new File(this.saveFile.getParent());
@@ -196,29 +229,42 @@ public class FXMLController {
 
     @FXML
     private void convertButtonHandle() throws IOException {
-        Parser.createScore(TEXT_AREA.getText());
-        generatedOutput = Parser.parse();
         convertWindow = this.openNewWindow("org.openjfx/convertWindow.fxml", "ConversionOptions");
     }
 
 
     @FXML
     private void saveConvertedButtonHandle() {
+        if (usePiano) {
+            Parser.createScore(TEXT_AREA.getText());
+            generatedOutput = Parser.parse();
+        }else {
+            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
+            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.mxl", "*.musicxml", "*.xml");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.xml", "*.mxl", "*.musicxml");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File initialDir = null;
+        String initialName = null;
+        if (!fileNameField.getText().isBlank() && fileNameField.getText().length()<50)
+            initialName = fileNameField.getText().strip();
+
         if (saveFile!=null) {
-            String name = saveFile.getName();
-            if(name.contains("."))
-                name = name.substring(0, name.lastIndexOf('.'));
-            fileChooser.setInitialFileName(name);
+            if (initialName==null) {
+                String name = saveFile.getName();
+                if(name.contains("."))
+                    name = name.substring(0, name.lastIndexOf('.'));
+                initialName = name;
+            }
             File parentDir = new File(saveFile.getParent());
             if (parentDir.exists())
                 initialDir = parentDir;
         }
+        if (initialName!=null)
+            fileChooser.setInitialFileName(initialName);
 
         if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
             initialDir = new File(System.getProperty("user.home"));
@@ -232,8 +278,10 @@ public class FXMLController {
 
         if (file != null) {
             saveToXMLFile(generatedOutput, file);
+            saveFile = file;
+            cancelConvertButtonHandle();
+            usePiano = false;
         }
-        cancelConvertButtonHandle();
     }
 
     @FXML
@@ -260,6 +308,11 @@ public class FXMLController {
     }
 
     public void initialize() {
+        initializeTextAreaErrorPopups();
+        initializeSettings();
+    }
+
+    private void initializeTextAreaErrorPopups() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
         }
@@ -289,6 +342,31 @@ public class FXMLController {
         TEXT_AREA.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             popup.hide();
         });
+    }
 
+    private void changeErrorSensitivity(String prefValue) {
+        switch (prefValue) {
+            case "Level 1 - Minimal Error Checking":
+                TabInput.ERROR_SENSITIVITY = 1;
+                break;
+            case "Level 3 - Advanced Error Checking":
+                TabInput.ERROR_SENSITIVITY = 3;
+                break;
+            case "Level 2 - Standard Error Checking":
+            default:
+                TabInput.ERROR_SENSITIVITY = 2;
+                break;
+        }
+    }
+    private void initializeSettings() {
+        if (errorSensitivity != null && outputFolderField != null) {
+            Preferences p;
+            p = Preferences.userNodeForPackage(MainApp.class);
+            String level = p.get("errorSensitivity", "Level 2 - Standard Error Checking");
+            errorSensitivity.setValue(level);
+            changeErrorSensitivity(errorSensitivity.getValue().toString());
+            String outputFolder = p.get("outputFolder", new File("src").getAbsolutePath());
+            outputFolderField.setText(outputFolder);
+        }
     }
 }

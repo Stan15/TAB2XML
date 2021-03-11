@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
 
 public abstract class Measure {
     public static int GLOBAL_MEASURE_COUNT = 0;
-    public int measureCount;
+    protected int measureCount;
     int beatCount = 4;
     int beatType = 4;
     double divisions = 1;
@@ -21,7 +21,7 @@ public abstract class Measure {
     List<String[]> lineNamesAndPositions;
     public int lineCount;
     List<Integer> positions;
-    List<MeasureLine> measureLineList;
+    public List<MeasureLine> measureLineList;
     boolean isFirstMeasure;
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
@@ -150,7 +150,7 @@ public abstract class Measure {
     public String toXML() {
         StringBuilder measureXML = new StringBuilder();
         measureXML.append("<measure number=\"");
-        measureXML.append(this.measureCount);
+        measureXML.append(++GLOBAL_MEASURE_COUNT);
         measureXML.append("\">\n");
         // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
         if (this.isFirstMeasure)
@@ -193,7 +193,7 @@ public abstract class Measure {
 
     private StringBuilder addNotesXML(StringBuilder measureXML) {
         //remove all the other notes that make up the chord and place the chord in the appropriate location
-        PriorityQueue<Note> noteQueue = this.getNoteQueue();
+            PriorityQueue<Note> noteQueue = this.getNoteQueue();
         while(!noteQueue.isEmpty()) {
 
             //notes of the same distance from the start of their measure are a chord, and are collected in the below array
@@ -220,7 +220,7 @@ public abstract class Measure {
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
             for (Note note : guitarMline.noteList) {
-                if (note.isValid)
+                if (note.validate().isEmpty())
                     noteQueue.add(note);
             }
         }
