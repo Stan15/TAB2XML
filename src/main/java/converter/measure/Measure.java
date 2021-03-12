@@ -3,16 +3,12 @@ package converter.measure;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
-import converter.note.GuitarNote;
 import converter.note.Note;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public abstract class Measure {
-    public static int GLOBAL_MEASURE_COUNT = 0;
+    public static int GLOBAL_MEASURE_COUNT;
     protected int measureCount;
     int beatCount = 4;
     int beatType = 4;
@@ -23,6 +19,8 @@ public abstract class Measure {
     List<Integer> positions;
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasure;
+    boolean isLastMeasure;
+    List<Note> sortedNoteList;
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
         this.measureCount = GLOBAL_MEASURE_COUNT;
@@ -39,18 +37,18 @@ public abstract class Measure {
      * These MeasureLine objects are not guaranteed to be valid. you can find out if all the Measure
      * objects in this MeasureGroup are actually valid by calling the Measure().validate() method.
      * @param lines a List of Strings where each String represents a line of the measure. It is a parallel list with lineNames and linePositions
-     * @param namesAndsPosition a List of Strings where each String represents the name of a line of the measure. It is a parallel list with lines and linePositions
+     * @param namesAndPosition a List of Strings where each String represents the name of a line of the measure. It is a parallel list with lines and linePositions
      * @param linePositions a List of Strings where each String represents the starting index of a line of the measure,
      *                      where a starting index of a line is the index where the line can be found in the root string,
      *                      Score.ROOT_STRING, from where it was derived. It is a parallel list with lineNames and lines
      * @return A list of MeasureLine objects. The concrete class type of these MeasureLine objects is determined
      * from the input String lists(lines and lineNames), and they are not guaranteed to all be of the same type.
      */
-    protected List<MeasureLine> createMeasureLineList(List<String> lines, List<String[]> namesAndsPosition, List<Integer> linePositions) {
+    protected List<MeasureLine> createMeasureLineList(List<String> lines, List<String[]> namesAndPosition, List<Integer> linePositions) {
         List<MeasureLine> measureLineList = new ArrayList<>();
         for (int i=0; i<lines.size(); i++) {
             String line = lines.get(i);
-            String[] nameAndPosition = namesAndsPosition.get(i);
+            String[] nameAndPosition = namesAndPosition.get(i);
             int position = linePositions.get(i);
             measureLineList.add(MeasureLine.from(line, nameAndPosition, position));
         }
@@ -79,8 +77,8 @@ public abstract class Measure {
         for (int i=0; i<lineList.size(); i++) {
             String line = lineList.get(i);
             String[] nameAndPosition = lineNameList.get(i);
-            isGuitarMeasure &= MeasureLine.isGuitar(line, nameAndPosition[0]);
-            isDrumMeasure &= MeasureLine.isDrum(line, nameAndPosition[0]);
+            isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
+            isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
         }
         if (isDrumMeasure && !isGuitarMeasure)
             return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasure);
@@ -145,86 +143,42 @@ public abstract class Measure {
         return linePositions.toString();
     }
 
-    //-----------------------------XML stuff------------------------------------
-
-    public String toXML() {
-        StringBuilder measureXML = new StringBuilder();
-        measureXML.append("<measure number=\"");
-        measureXML.append(++GLOBAL_MEASURE_COUNT);
-        measureXML.append("\">\n");
-        // TODO much later on, check the notes in all the measure lines for notes with the same duration and make a chord out of them. then
-        if (this.isFirstMeasure)
-            this.addAttributesXML(measureXML);
-        this.addNotesXML(measureXML);
-        measureXML.append("</measure>\n");
-        return measureXML.toString();
-    }
-
-    protected StringBuilder addAttributesXML(StringBuilder measureXML) {
-        measureXML.append("<attributes>\n");
-        measureXML.append("<divisions>");
-        measureXML.append((int)Math.ceil(this.divisions));
-        measureXML.append("</divisions>\n");
-
-        measureXML.append("<key>\n");
-
-        measureXML.append("<fifths>");
-        measureXML.append(0);
-        measureXML.append("</fifths>\n");
-        measureXML.append("<mode>major</mode>\n");
-
-        measureXML.append("</key>\n");
-
-        measureXML.append("<clef>\n");
-
-        measureXML.append("<sign>");
-        measureXML.append("G");
-        measureXML.append("</sign>\n");
-
-        measureXML.append("<line>");
-        measureXML.append(2);
-        measureXML.append("</line>\n");
-
-        measureXML.append("</clef>\n");
-
-        measureXML.append("</attributes>\n");
-        return measureXML;
-    }
-
-    private StringBuilder addNotesXML(StringBuilder measureXML) {
-        //remove all the other notes that make up the chord and place the chord in the appropriate location
-            PriorityQueue<Note> noteQueue = this.getNoteQueue();
-        while(!noteQueue.isEmpty()) {
-
-            //notes of the same distance from the start of their measure are a chord, and are collected in the below array
-            List<Note> currentChord = new ArrayList<>();
-            Note previousNote;
-            do {
-                Note note = noteQueue.poll();
-                currentChord.add(note);
-                previousNote = note;
-            }while(!noteQueue.isEmpty() && noteQueue.peek().distance==previousNote.distance);
-            //adding all chord notes to the measureXML
-            for(int i=0; i<currentChord.size(); i++) {
-                Note note = currentChord.get(i);
-                if (i>0)
-                    note.startWithPrevious = true;
-                measureXML.append(note.toXML());
-            }
+    protected void setChords() {
+        for (int i=1; i<this.sortedNoteList.size(); i++) {
+            Note previousNote = this.sortedNoteList.get(i-1);
+            Note currentNote = this.sortedNoteList.get(i);
+            if (previousNote.distance==currentNote.distance)
+                currentNote.startsWithPreviousNote = true;
         }
-        return measureXML;
     }
 
-    public PriorityQueue<Note> getNoteQueue() {
-        PriorityQueue<Note> noteQueue = new PriorityQueue<>();
+    public List<Note> getSortedNoteList() {
+        List<Note> sortedNoteList = new ArrayList<>();
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
             for (Note note : guitarMline.noteList) {
                 if (note.validate().isEmpty())
-                    noteQueue.add(note);
+                    sortedNoteList.add(note);
             }
         }
-        return noteQueue;
+        Collections.sort(sortedNoteList);
+        return sortedNoteList;
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            if (!measureLine.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            if (!measureLine.isDrum(strictCheck))
+                return false;
+        }
+        return true;
     }
 
     @Override
@@ -236,4 +190,6 @@ public abstract class Measure {
         }
         return stringOut.toString();
     }
+
+    public abstract models.measure.Measure getModel();
 }

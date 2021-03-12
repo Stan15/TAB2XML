@@ -12,6 +12,7 @@ public class DrumMeasure extends Measure {
     public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
+        this.sortedNoteList = this.getSortedNoteList();
     }
     /**
      * Validates that all MeasureLine objects in this GuitarMeasure are GuitarMeasureLine objects, and validates its
@@ -51,5 +52,10 @@ public class DrumMeasure extends Measure {
         }
 
         return result;
+    }
+
+    @Override
+    public models.measure.Measure getModel() {
+        return null;
     }
 }

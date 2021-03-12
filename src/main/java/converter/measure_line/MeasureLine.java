@@ -1,5 +1,6 @@
 package converter.measure_line;
 
+import converter.note.DrumNote;
 import converter.note.GuitarNote;
 import converter.note.Note;
 import converter.Patterns;
@@ -16,10 +17,10 @@ public abstract class MeasureLine {
     public List<Note> noteList;
     public int noteCount;
 
-    protected MeasureLine(String line, String[] namesAndsPosition, int position) {
+    protected MeasureLine(String line, String[] namesAndPosition, int position) {
         this.line = line;
-        this.name = namesAndsPosition[0];
-        this.namePosition = Integer.parseInt(namesAndsPosition[1]);
+        this.name = namesAndPosition[0];
+        this.namePosition = Integer.parseInt(namesAndPosition[1]);
         this.position = position;
         this.noteList = this.createNoteList(line, name, position);
         this.noteCount = this.noteList.size();
@@ -42,8 +43,8 @@ public abstract class MeasureLine {
      */
     public static MeasureLine from(String line, String[] nameAndPosition, int position) {
         String name = nameAndPosition[0];
-        boolean isGuitarLine = MeasureLine.isGuitar(line, name);
-        boolean isDrumLine = MeasureLine.isDrum(line, name);
+        boolean isGuitarLine = MeasureLine.isGuitarName(name);
+        boolean isDrumLine = MeasureLine.isDrumName(name);
         if (isDrumLine && !isGuitarLine)
             return new DrumMeasureLine(line, nameAndPosition, position);
         else if(isGuitarLine && !isDrumLine)
@@ -56,34 +57,24 @@ public abstract class MeasureLine {
     private List<Note> createNoteList(String line, String name, int position) {
         List<Note> noteList = new ArrayList<>();
 
-        int dashCounter = 0;
         StringBuilder noteStrCollector = new StringBuilder();
-        int startIdx = 0;
-        for (int i = 0; i < this.line.length(); i++) {
-            if (line.charAt(i)!=' ')
-                dashCounter++;
-            if (line.charAt(i) == '-') { //accounts for each instance of dash
-                if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
-                    noteStrCollector.setLength(0);
-                }
-                startIdx = 0;
-            } else if (line.charAt(i) == '|') { //accounts for each instance of vertical bar
-                if(!noteStrCollector.isEmpty()){
-                    noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
-                    noteStrCollector.setLength(0);
-                }
-                dashCounter = 0; //reset dash counter
-                startIdx = 0;
-            } else {
-                if (startIdx==0)
-                    startIdx = position+i;
-                noteStrCollector.append(line.charAt(i));
+        int noteStrStartIdx = 0;
+        int noteStrTrimStartIdx = 0;
+        int distance = 0;
+        for (int i=0; i<line.length(); i++) {
+            char currentChar = line.charAt(i);
+
+            if (currentChar!='-') {
+                if (noteStrCollector.isEmpty()) noteStrStartIdx = distance;
+                if (noteStrCollector.toString().isBlank() && !String.valueOf(currentChar).matches("\s")) noteStrTrimStartIdx = distance;
+                noteStrCollector.append(currentChar);
             }
-        }
-        if(!noteStrCollector.isEmpty()){
-            noteList.addAll(Note.from(noteStrCollector.toString().strip(), name, dashCounter, startIdx));
-            noteStrCollector.setLength(0);
+
+            if ((currentChar=='-' || i==line.length()-1) && !noteStrCollector.toString().isBlank()) {
+                noteList.addAll(Note.from(noteStrCollector.toString(), name, noteStrTrimStartIdx, line.length(), position+noteStrStartIdx));
+                noteStrCollector.delete(0, noteStrCollector.length());
+            }
+            distance++;
         }
         return noteList;
     }
@@ -122,23 +113,41 @@ public abstract class MeasureLine {
 
     /**
      * TODO Make a more comprehensive test where you check if the line components belong go a drum
-     * @param line
      * @param name
      * @return
      */
-    public static boolean isDrum(String line, String name) {
+    public static boolean isDrumName(String name) {
         if (!DrumMeasureLine.NAME_SET.contains(name.strip())) return false;
         return true;
     }
 
     /**
      * TODO Make a more comprehensive test where you check if the line components belong go a guitar
-     * @param line
      * @param name
      * @return
      */
-    public static boolean isGuitar(String line, String name) {
+    public static boolean isGuitarName(String name) {
         if (!GuitarMeasureLine.NAME_SET.contains(name.strip())) return false;
+        return true;
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        if (!isGuitarName(this.name)) return false;
+        if (!strictCheck) return true;
+        for (Note note : this.noteList) {
+            if (!note.isGuitar())
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        if (!isDrumName(this.name)) return false;
+        if (!strictCheck) return true;
+        for (Note note : this.noteList) {
+            if (!note.isDrum())
+                return false;
+        }
         return true;
     }
 
@@ -224,7 +233,7 @@ public abstract class MeasureLine {
     }
 
     private static String createLineComponentPattern() {
-        return "(" + GuitarMeasureLine.COMPONENT_PATTERN + "|" + GuitarMeasureLine.COMPONENT_PATTERN + ")";
+        return "(" + GuitarNote.COMPONENT_PATTERN + "|" + DrumNote.COMPONENT_PATTERN + ")";
     }
 
     @Override

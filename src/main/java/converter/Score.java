@@ -1,6 +1,17 @@
 package converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import converter.measure.Measure;
+import custom_exceptions.InvalidScoreTypeException;
+import custom_exceptions.MixedScoreTypeException;
+import custom_exceptions.TXMLException;
+import models.Part;
+import models.ScorePartwise;
+import models.part_list.PartList;
+import models.part_list.ScoreInstrument;
+import models.part_list.ScorePart;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -15,11 +26,20 @@ public class Score {
     // different Strings.
     public String rootString;
     public Map<Integer, String> rootStringFragments;
+    public static String STRICT_TYPE;
 
     public Score(String rootString) {
+        Measure.GLOBAL_MEASURE_COUNT = 0;
         this.rootString = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
+        if (STRICT_TYPE==null)
+            STRICT_TYPE = "";
+    }
+
+    public Score(String rootString, String strictType) {
+        this(rootString);
+        STRICT_TYPE = strictType;
     }
 
     /**
@@ -119,27 +139,119 @@ public class Score {
         return result;
     }
 
-    public String toXML() {
-        Measure.GLOBAL_MEASURE_COUNT = 0;
-        StringBuilder scoreXML = new StringBuilder();
-        scoreXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<!DOCTYPE score-partwise PUBLIC\n" +
-                " \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\"\n" +
-                " \"http://www.musicxml.org/dtds/partwise.dtd\">\n");
-        scoreXML.append("<score-partwise version=\"3.1\">\n" +
-                " <part-list>\n" +
-                " <score-part id=\"P1\">\n" +
-                " <part-name>Music</part-name>\n" +
-                " </score-part>\n" +
-                " </part-list>\n" +
-                " <part id=\"P1\">\n");
-        for (MeasureCollection msurCollection : this.measureCollectionList) {
-            for (MeasureGroup msurGroup : msurCollection.measureGroupList)
-                scoreXML.append(msurGroup.toXML());
-        }
-        scoreXML.append("</part>\n" +
-                "</score-partwise>");
+    public ScorePartwise getModel() throws TXMLException {
+        boolean isGuitar;
+        boolean isDrum = false;
 
-        return scoreXML.toString();
+        if (STRICT_TYPE.equals("guitar"))
+            isGuitar = true;
+        else if (STRICT_TYPE.equals("drum"))
+            isDrum = true;
+        else {
+            isGuitar = this.isGuitar(false);
+            isDrum = this.isDrum(false);
+            if (isDrum && isGuitar) {
+                isDrum = this.isDrum(true);
+                isGuitar = this.isGuitar(true);
+            }
+            if (isDrum && isGuitar && STRICT_TYPE.isEmpty())
+                throw new MixedScoreTypeException("A score must be only of one type");
+            if (!isDrum && !isGuitar)
+                throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");
+        }
+
+        List<models.measure.Measure> measures = new ArrayList<>();
+        for (MeasureCollection measureCollection : this.measureCollectionList) {
+            measures.addAll(measureCollection.getMeasureModels());
+        }
+        Part part = new Part("P1", measures);
+        List<models.Part> parts = new ArrayList<>();
+        parts.add(part);
+
+        PartList partList;
+        if (isDrum)
+            partList = this.getDrumPartList();
+        else
+            partList = this.getGuitarPartList();
+
+        ScorePartwise scorePartwise = new ScorePartwise("3.1", partList, parts);
+        return scorePartwise;
+    }
+
+    private PartList getDrumPartList() {
+        List<ScorePart> scoreParts = new ArrayList<>();
+        ScorePart scorePart = new ScorePart("P1", "Drumset");
+        List<ScoreInstrument> scoreInstruments = new ArrayList<>();
+
+        scoreInstruments.add(new ScoreInstrument("P1-I36", "Bass Drum 1"));
+        scoreInstruments.add(new ScoreInstrument("P1-I37", "Bass Drum 2"));
+        scoreInstruments.add(new ScoreInstrument("P1-I38", "Side Stick"));
+        scoreInstruments.add(new ScoreInstrument("P1-I39", "Snare"));
+        scoreInstruments.add(new ScoreInstrument("P1-I42", "Low Floor Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I43", "Closed Hi-Hat"));
+        scoreInstruments.add(new ScoreInstrument("P1-I44", "High Floor Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I45", "Pedal Hi-Hat"));
+        scoreInstruments.add(new ScoreInstrument("P1-I46", "Low Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I47", "Open Hi-Hat"));
+        scoreInstruments.add(new ScoreInstrument("P1-I48", "Low-Mid Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I49", "Hi-Mid Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I50", "Crash Cymbal 1"));
+        scoreInstruments.add(new ScoreInstrument("P1-I51", "High Tom"));
+        scoreInstruments.add(new ScoreInstrument("P1-I52", "Ride Cymbal 1"));
+        scoreInstruments.add(new ScoreInstrument("P1-I53", "Chinese Cymbal"));
+        scoreInstruments.add(new ScoreInstrument("P1-I54", "Ride Bell"));
+        scoreInstruments.add(new ScoreInstrument("P1-I55", "Tambourine"));
+        scoreInstruments.add(new ScoreInstrument("P1-I56", "Splash Cymbal"));
+        scoreInstruments.add(new ScoreInstrument("P1-I57", "Cowbell"));
+        scoreInstruments.add(new ScoreInstrument("P1-I58", "Crash Cymbal 2"));
+        scoreInstruments.add(new ScoreInstrument("P1-I60", "Ride Cymbal 2"));
+        scoreInstruments.add(new ScoreInstrument("P1-I64", "Open Hi Conga"));
+        scoreInstruments.add(new ScoreInstrument("P1-I65", "Low Conga"));
+
+        scorePart.setScoreInstruments(scoreInstruments);
+        scoreParts.add(scorePart);
+
+        return new PartList(scoreParts);
+    }
+
+    private PartList getGuitarPartList() {
+        List<ScorePart> scoreParts = new ArrayList<>();
+        scoreParts.add(new ScorePart("P1", "Classical Guitar"));
+        return new PartList(scoreParts);
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            if (!msurCollection.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            if (!msurCollection.isDrum(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public String toXML() throws TXMLException {
+        XmlMapper mapper = new XmlMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String xmlString = "";
+        try {
+            xmlString = mapper.writeValueAsString(this.getModel());
+        }catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        xmlString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+                """
+                + xmlString;
+
+        return xmlString;
     }
 }

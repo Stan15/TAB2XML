@@ -1,8 +1,9 @@
 package converter.measure;
 
-import converter.Patterns;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
+import converter.note.Note;
+import models.measure.attributes.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +14,10 @@ public class GuitarMeasure extends Measure{
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
+        this.sortedNoteList = this.getSortedNoteList();
+        if (GLOBAL_MEASURE_COUNT==20)
+            System.out.println("pause");
+        setChords();
     }
 
     private List<String[]>  fixNamingOfE(List<String[]> lineNamesAndPositions) {
@@ -105,11 +110,42 @@ public class GuitarMeasure extends Measure{
         return result;
     }
 
-    public Attributes getAttributes() {
+    private Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
-        attributes.setDivisions();
+        attributes.setDivisions((int)Math.ceil(this.divisions));
+        attributes.setKey(new Key(0));
+        attributes.setTime(new Time(4, 4));
+        attributes.setClef(new Clef("TAB", 5));
+
+        List<StaffTuning> staffTunings = new ArrayList<>();
+        staffTunings.add(new StaffTuning(1, "E", 2));
+        staffTunings.add(new StaffTuning(2, "A", 2));
+        staffTunings.add(new StaffTuning(3, "D", 3));
+        staffTunings.add(new StaffTuning(4, "G", 3));
+        staffTunings.add(new StaffTuning(5, "B", 3));
+        staffTunings.add(new StaffTuning(6, "E", 4));
+
+        attributes.setStaffDetails(new StaffDetails(6, staffTunings));
+
+
+        return attributes;
     }
 
+    public models.measure.Measure getModel() {
+        models.measure.Measure measureModel = new models.measure.Measure();
+        measureModel.setNumber(this.measureCount);
+        if (this.measureCount == 0) {
+            measureModel.setAttributes(this.getAttributesModel());
+        }
+
+        List<models.measure.note.Note> noteModels = new ArrayList<>();
+        for (Note note : this.sortedNoteList) {
+            noteModels.add(note.getModel());
+        }
+
+        measureModel.setNotes(noteModels);
+        return measureModel;
+    }
 
 
 }
