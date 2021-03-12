@@ -201,17 +201,28 @@ public class MeasureGroup {
         return linePositions.toString();
     }
 
-    public String toXML() {
-        StringBuilder measureGroupXML = new StringBuilder();
-        for (int i=0; i<this.measureList.size(); i++) {
-            Measure measure = this.measureList.get(i);
-            if (measure instanceof GuitarMeasure)
-                measureGroupXML.append(measure.toXML());
-            else
-                continue;
-            // TODO handle other types
+    public List<models.measure.Measure> getMeasureModels() {
+        List<models.measure.Measure> measureModels = new ArrayList<>();
+        for (Measure measure : this.measureList) {
+            measureModels.add(measure.getModel());
         }
-        return measureGroupXML.toString();
+        return measureModels;
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        for (Measure measure : this.measureList) {
+            if (!measure.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        for (Measure measure : this.measureList) {
+            if (!measure.isDrum(strictCheck))
+                return false;
+        }
+        return true;
     }
 
 }

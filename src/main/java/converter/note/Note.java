@@ -5,14 +5,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class Note implements Comparable<Note>{
-    public boolean startWithPrevious;
+public abstract class Note implements Comparable<Note> {
+    public boolean startsWithPreviousNote;
     public String line;
     public String name;
     int stringNumber;
     public int distance;
     int position;
     public int duration;
+    public int divisions = 1;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -23,7 +24,7 @@ public abstract class Note implements Comparable<Note>{
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
     public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
 
-    public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
+    public Note(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
         this.line = line;
         this.name = lineName;
         this.position = position;
@@ -33,7 +34,15 @@ public abstract class Note implements Comparable<Note>{
     }
 
     public List<HashMap<String,String>> validate() {
-        return new ArrayList<>();
+        List<HashMap<String, String>> result = new ArrayList<>();
+        if (!this.line.equals(this.line.strip())) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Adding whitespace might result in different timing than you expect.");
+            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
+            response.put("priority", "3");
+            result.add(response);
+        }
+        return result;
     }
 
 
@@ -45,10 +54,10 @@ public abstract class Note implements Comparable<Note>{
      * @param position
      * @return
      */
-    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
+    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
         List<Note> noteList = new ArrayList<>();
         try {
-            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
+            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, measureLineLength, position));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,11 +108,9 @@ public abstract class Note implements Comparable<Note>{
                 + "</pitch>\n";
     }
 
-    public abstract String toXML();
-
 
     //decide octave of note
-    private static int octave(int stringNumber, int fret) {
+    protected static int octave(int stringNumber, int fret) {
         int octave;
         if(stringNumber == 6) {
             if(fret >= 0 && fret <= 7) {
@@ -188,8 +195,19 @@ public abstract class Note implements Comparable<Note>{
         }
     }
 
-    @Override
-    public int compareTo(Note o) {
-        return this.distance-o.distance;
+    public boolean isGuitar() {
+        // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
+        return !this.isDrum();
+    }
+
+    public boolean isDrum() {
+        // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
+        return this.line.matches(DrumNote.COMPONENT_PATTERN+"+");
+    }
+
+    public abstract models.measure.note.Note getModel();
+
+    public int compareTo(Note other) {
+        return this.distance-other.distance;
     }
 }

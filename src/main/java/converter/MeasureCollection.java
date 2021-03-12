@@ -1,6 +1,7 @@
 package converter;
 
 import converter.instruction.Instruction;
+import converter.measure.Measure;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -182,5 +183,30 @@ public class MeasureCollection {
                 + ")+"                                                                  // the measure collection line I just described is repeated one or more times.
                 + "(\\n"+ Instruction.LINE_PATTERN+"+)*";
     }
+
+    public List<models.measure.Measure> getMeasureModels() {
+        List<models.measure.Measure> measureModels = new ArrayList<>();
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            measureModels.addAll(measureGroup.getMeasureModels());
+        }
+        return measureModels;
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            if (!measureGroup.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            if (!measureGroup.isDrum(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure
