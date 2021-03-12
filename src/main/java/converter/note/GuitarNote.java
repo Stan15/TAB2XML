@@ -20,9 +20,9 @@ public class GuitarNote extends Note {
     public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
         super(line, lineName, distanceFromMeasureStart, measureLineLength, position);
         try {
-            this.fret = Integer.parseInt(this.line);
-        }catch (Exception E) {
-            this.fret = -1;
+            this.fret = Integer.parseInt(this.line.strip());
+        }catch (Exception e) {
+            this.fret = 0;
         }
     }
 

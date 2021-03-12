@@ -157,7 +157,15 @@ public abstract class Measure {
         for (MeasureLine line : this.measureLineList) {
             GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
             for (Note note : guitarMline.noteList) {
-                if (note.validate().isEmpty())
+                List<HashMap<String, String>> errors = note.validate();
+                boolean criticalError = false;
+                for (HashMap<String, String> error : errors) {
+                    if (Integer.parseInt(error.get("priority")) <= 1) {
+                        criticalError = true;
+                        break;
+                    }
+                }
+                if (!criticalError)
                     sortedNoteList.add(note);
             }
         }

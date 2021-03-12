@@ -15,8 +15,6 @@ public class GuitarMeasure extends Measure{
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.sortedNoteList = this.getSortedNoteList();
-        if (GLOBAL_MEASURE_COUNT==20)
-            System.out.println("pause");
         setChords();
     }
 

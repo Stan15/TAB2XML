@@ -59,22 +59,26 @@ public abstract class MeasureLine {
 
         StringBuilder noteStrCollector = new StringBuilder();
         int noteStrStartIdx = 0;
-        int noteStrTrimStartIdx = 0;
+        int noteNonWSstartIdx = 0;
         int distance = 0;
+        int nonWhitespaceDistance = 0;
         for (int i=0; i<line.length(); i++) {
             char currentChar = line.charAt(i);
 
             if (currentChar!='-') {
                 if (noteStrCollector.isEmpty()) noteStrStartIdx = distance;
-                if (noteStrCollector.toString().isBlank() && !String.valueOf(currentChar).matches("\s")) noteStrTrimStartIdx = distance;
+                if (noteStrCollector.toString().isBlank() && !String.valueOf(currentChar).matches("\s")) noteNonWSstartIdx = nonWhitespaceDistance;
                 noteStrCollector.append(currentChar);
             }
 
-            if ((currentChar=='-' || i==line.length()-1) && !noteStrCollector.toString().isBlank()) {
-                noteList.addAll(Note.from(noteStrCollector.toString(), name, noteStrTrimStartIdx, line.length(), position+noteStrStartIdx));
+            if ((currentChar=='-' || i==line.length()-1)) {
+                if (!noteStrCollector.toString().isBlank())
+                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, line.length(), position+noteStrStartIdx));
                 noteStrCollector.delete(0, noteStrCollector.length());
             }
             distance++;
+            if (!String.valueOf(currentChar).isBlank())
+                nonWhitespaceDistance++;
         }
         return noteList;
     }
@@ -96,7 +100,7 @@ public abstract class MeasureLine {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line name.");
             response.put("priority", "1");
-            response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
             result.add(response);
         }
         Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line);
@@ -104,7 +108,15 @@ public abstract class MeasureLine {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line.");
             response.put("priority", "1");
-            response.put("positions", "["+this.position+","+this.position+this.line.length()+"]");
+            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
+            result.add(response);
+        }
+
+        if (this.line.length()-this.line.replaceAll("\s", "").length() != 0) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Adding whitespace might result in different timing than you expect.");
+            response.put("priority", "3");
+            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
             result.add(response);
         }
 

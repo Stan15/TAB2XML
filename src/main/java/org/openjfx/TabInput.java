@@ -34,7 +34,13 @@ public class TabInput {
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
             protected StyleSpans<Collection<String>> call() {
-                return computeHighlighting(text);
+                try {
+                    return computeHighlighting(text);
+                }catch (Exception e) {
+                    System.out.println("pause at line 40, computeHighlightingAsync, TabInput");
+                    return computeHighlighting(text);
+                }
+
             }
         };
         executor.execute(task);
