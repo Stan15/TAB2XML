@@ -1,16 +1,32 @@
 package converter.GuitarConverter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
 
-public class GMeasure extends GWholeScript{
+public class GMeasure {
+    protected final int BEATS = 4;
+    protected final int BEAT_TYPE = 4;
+    protected final int DIVISION = 4;
+    protected final int STRING_NUM = 6;
+    protected static int measureNum;
     protected String measureInfo;
     protected int repeatInfo;
     protected String[][] lines2Darr;
     protected ArrayList<GNotes> eachMeasrueNotes;
     protected ArrayList<String> scriptsPerMeasrue;
 
+    public static void main(String[] args) {
+        String a = "e|---2-----2-----2-----2-----5-----5-7--7-------------|\n" +
+                "B|-----0-----0-----0-----0-----0----------------------|\n" +
+                "G|-------2-----------2-----------6------8-------------|\n" +
+                "D|----------------------------------------------------|\n" +
+                "A|-------------------------0--------------------------|\n" +
+                "E|-2-----------2------------------------7-------------|";
+
+        GMeasure aa = new GMeasure(a, 1);
+        for(String ae : aa.scriptsPerMeasrue){
+            System.out.println(aa);
+        }
+    }
     public GMeasure(){}
     public GMeasure(String measureInfo, int repeatInfo){
         this.measureInfo = measureInfo;
@@ -30,8 +46,10 @@ public class GMeasure extends GWholeScript{
                 }
             }
         }
+    }
 
-
+    public ArrayList<String> getScriptsPerMeasrue(){
+        return this.scriptsPerMeasrue;
     }
 
     private ArrayList<String> splitByLines(String measureInfo){

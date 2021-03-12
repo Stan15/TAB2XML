@@ -2,9 +2,7 @@ package converter.GuitarConverter;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 
 public class GNotes extends GMeasure{
     protected int totalDurationPerMeasrue;
