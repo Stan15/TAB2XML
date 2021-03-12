@@ -2,34 +2,41 @@ package converter.GuitarConverter;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class GNotes extends GMeasure{
     protected int totalDurationPerMeasrue;
     protected int totalMeasureLength;
     protected ArrayList<Notation> notes;
-    protected char[][] noteBox;
+    protected String[][] noteBox;
+    protected static int frontRest;
 
     public GNotes(ArrayList<String> eachMeasureInfo){
         this.totalDurationPerMeasrue = BEATS * DIVISION;
         this.totalMeasureLength = eachMeasureInfo.get(0).length();
+        this.notes = new ArrayList<>();
+        this.frontRest = Integer.MAX_VALUE;
 
-        this.noteBox = new char[eachMeasureInfo.size()][];
+        this.noteBox = new String[eachMeasureInfo.size()][];
         for(int i = 0; i < this.noteBox.length; i++){
-            this.noteBox[i] = eachMeasureInfo.get(i).toCharArray();
+            this.noteBox[i] = new String[totalDurationPerMeasrue];
         }
 
-        for(int i = 0; i < totalMeasureLength; i++){
-            for(int j = 0; j < noteBox.length; j++){
-                if(noteBox[j][i] != '\000'){
 
-                }
-            }
+        int frontRestDuration = (int) ((double)frontRest / (double)totalMeasureLength + 0.5);
+        if(frontRestDuration >= 1){
+            Notation restNote = new Notation(null,0, 0);
+            notes.add(0, restNote);
         }
 
+        Collections.sort(notes);
     }
 
     private void putNotes(String lines, int stringNum){
         String temp = lines;
+        int totalLength = temp.length();
         String[] splitChar = temp.split("[-]");
         ArrayList<String> notations = new ArrayList<>();
         for(String notation : splitChar){
@@ -38,26 +45,40 @@ public class GNotes extends GMeasure{
             }
         }
 
-        for(String notation : notations){
+        for(int i = 0; i < notations.size(); i++){
+            String notation = notations.get(i);
             int index = temp.indexOf(notation);
+            if(i == 0){
+                if(index < frontRest){
+                    frontRest = index;
+                }
+            }
             Notation newNote = new Notation(notation, index, stringNum);
             notes.add(newNote);
+
+            StringBuilder builder = new StringBuilder(temp);
+            for(int j = index; j < index + notation.length(); j++){
+                builder.setCharAt(j,'-');
+            }
+
+            temp = builder.toString();
         }
     }
 
-    private int setPosition(int index){
-        int resultIndex = -1;
-        double boxIndex = (double)index / (double)(this.totalMeasureLength);
+    private int calculateDuration(int noteLen){
+        int duration = -1;
+        double boxIndex = (double)noteLen / (double)(this.totalMeasureLength);
         for(int i = 1; i <= totalDurationPerMeasrue; i++){
             if(boxIndex <= i / totalDurationPerMeasrue){
-                resultIndex = i - 1;
+                duration = i - 1;
                 break;
             }
         }
-        return resultIndex;
+        return duration;
     }
 }
-class Notation{
+
+class Notation implements Comparable{
     String notation;
     int index;
     int duration;
@@ -81,4 +102,10 @@ class Notation{
     }
 
     public int getStringNum(){return this.stringNum; }
+
+
+    @Override
+    public int compareTo(Object o) {
+        return this.index - ((Notation)o).getIndex();
+    }
 }
