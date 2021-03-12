@@ -105,9 +105,16 @@ public abstract class Measure {
 
         boolean hasGuitarMeasureLines = true;
         boolean hasDrumMeasureLines = true;
+        boolean lineSizeEqual = true;
+
+        int previousLineLength = -1;
         for (MeasureLine measureLine : this.measureLineList) {
             hasGuitarMeasureLines &= measureLine instanceof GuitarMeasureLine;
             hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
+
+            int currentLineLength = measureLine.line.replace("\s", "").length();
+            lineSizeEqual &= (previousLineLength<0) || previousLineLength==currentLineLength;
+            previousLineLength = currentLineLength;
         }
         if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
             HashMap<String, String> response = new HashMap<>();
@@ -116,6 +123,15 @@ public abstract class Measure {
             response.put("priority", "1");
             result.add(response);
         }
+
+        if (!lineSizeEqual) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Unequal measure line lengths may lead to incorrect note durations.");
+            response.put("positions", this.getLinePositions());
+            response.put("priority", "2");
+            result.add(response);
+        }
+
 
         return result;
     }

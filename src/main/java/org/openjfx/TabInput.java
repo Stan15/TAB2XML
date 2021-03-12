@@ -34,13 +34,7 @@ public class TabInput {
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
             protected StyleSpans<Collection<String>> call() {
-                try {
-                    return computeHighlighting(text);
-                }catch (Exception e) {
-                    System.out.println("pause at line 40, computeHighlightingAsync, TabInput");
-                    return computeHighlighting(text);
-                }
-
+                return computeHighlighting(text);
             }
         };
         executor.execute(task);
@@ -90,23 +84,25 @@ public class TabInput {
         while (errorRanges.hasNext()) {
             Range nextRange = errorRanges.next();
 
-            while (errorRanges.hasNext() && nextRange.getStart()<=currentRange.getEnd()) {
+            while (nextRange.overlaps(currentRange)) {
                 int currentErrorPriority = Integer.parseInt(errors.get(currentRange).get("priority"));
                 int nextErrorPriority = Integer.parseInt(errors.get(currentRange).get("priority"));
                 if (currentErrorPriority>nextErrorPriority) {
                     errors.remove(currentRange);
-                    currentRange = nextRange;
+                    break;
                 } else {
                     errors.remove(nextRange);
+                    if (!errorRanges.hasNext()) break;
                     nextRange = errorRanges.next();
                 }
             }
+            currentRange = nextRange;
         }
         return errors;
     }
 
     private TreeMap<Range, HashMap<String,String>> createErrorRangeMap(List<HashMap<String, String>> errors) {
-        TreeMap<Range, HashMap<String,String>> errorMap = new TreeMap<>((r1, r2) -> r1.getStart()-r2.getStart());
+        TreeMap<Range, HashMap<String,String>> errorMap = new TreeMap<>();
         Pattern rangePattern = Pattern.compile("\\[\\d+,\\d+\\]");
         for (HashMap<String, String> error : errors) {
             Matcher rangeMatcher = rangePattern.matcher(error.get("positions"));
