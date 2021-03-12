@@ -9,6 +9,7 @@ public class GMeasure extends GWholeScript{
     protected int repeatInfo;
     protected String[][] lines2Darr;
     protected ArrayList<GNotes> eachMeasrueNotes;
+    protected ArrayList<String> scriptsPerMeasrue;
 
     public GMeasure(){}
     public GMeasure(String measureInfo, int repeatInfo){
@@ -19,8 +20,16 @@ public class GMeasure extends GWholeScript{
         ArrayList<String> storedLines = splitByLines(this.measureInfo);
         this.lines2Darr = make2Darr(storedLines);
 
-        setEachMeasrueNotes();
+        setEachMeasureNotes();
 
+        for(int i = 0; i < this.repeatInfo; i++){
+            for(GNotes o : eachMeasrueNotes){
+                ArrayList<String> temp = o.getCompletedNoteScript();
+                for(String script : temp){
+                    scriptsPerMeasrue.add(script);
+                }
+            }
+        }
 
 
     }
@@ -56,7 +65,7 @@ public class GMeasure extends GWholeScript{
         return linesByMeasure;
     }
 
-    private void setEachMeasrueNotes(){
+    private void setEachMeasureNotes(){
         int totalMeasureNum = lines2Darr[0].length;
         for(int i = 0; i < totalMeasureNum; i++){
             ArrayList<String> eachMeasure = new ArrayList<>();

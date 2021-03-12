@@ -12,6 +12,7 @@ public class GNotes extends GMeasure{
     protected ArrayList<Notation> notes;
     protected String[][] noteBox;
     protected static int frontRest;
+    protected ArrayList<String> completedNoteScript;
 
     public GNotes(ArrayList<String> eachMeasureInfo){
         this.totalDurationPerMeasrue = BEATS * DIVISION;
@@ -24,6 +25,9 @@ public class GNotes extends GMeasure{
             this.noteBox[i] = new String[totalDurationPerMeasrue];
         }
 
+        for(int i = 0; i < eachMeasureInfo.size(); i++){
+            putNotes(eachMeasureInfo.get(i), i);
+        }
 
         int frontRestDuration = (int) ((double)frontRest / (double)totalMeasureLength + 0.5);
         if(frontRestDuration >= 1){
@@ -32,6 +36,12 @@ public class GNotes extends GMeasure{
         }
 
         Collections.sort(notes);
+        GNoteScript noteScrt  = new GNoteScript(notes, totalMeasureLength, totalDurationPerMeasrue);
+        this.completedNoteScript = noteScrt.getEachNoteScript();
+    }
+
+    public ArrayList<String> getCompletedNoteScript(){
+        return this.completedNoteScript;
     }
 
     private void putNotes(String lines, int stringNum){
