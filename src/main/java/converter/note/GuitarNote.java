@@ -72,39 +72,6 @@ public class GuitarNote extends Note {
         return noteModel;
     }
 
-    protected String getType() {
-        double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/this.duration;
-        if (noteVal>=1024)
-            return "1024th";
-        else if (noteVal>=512)
-            return "512th";
-        else if (noteVal>=256)
-            return "256th";
-        else if (noteVal>=128)
-            return "128th";
-        else if (noteVal>=64)
-            return "64th";
-        else if (noteVal>=32)
-            return "32nd";
-        else if (noteVal>=16)
-            return "16th";
-        else if (noteVal>=8)
-            return "eighth";
-        else if (noteVal>=4)
-            return "quarter";
-        else if (noteVal>=2)
-            return "half";
-        else if (noteVal>=1)
-            return "whole";
-        else if (noteVal>=0.5)
-            return "breve";
-        else if (noteVal>=0.25)
-            return "long";
-        else if (noteVal>=0.125)
-            return "maxima";
-        return "";
-    }
-
     private static String step(int stringNum, int fret) {
         String[] stepList = {"C", "C", "D", "D", "E", "F", "F", "G", "G", "A", "A", "B"};
         if(stringNum == 6) {
