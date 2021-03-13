@@ -2,6 +2,8 @@ package converter.note;
 
 import converter.ScoreComponent;
 
+import converter.Score;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,6 +70,39 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
         return noteList;
     }
 
+    protected String getType() {
+        double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/this.duration;
+        if (noteVal>=1024)
+            return "1024th";
+        else if (noteVal>=512)
+            return "512th";
+        else if (noteVal>=256)
+            return "256th";
+        else if (noteVal>=128)
+            return "128th";
+        else if (noteVal>=64)
+            return "64th";
+        else if (noteVal>=32)
+            return "32nd";
+        else if (noteVal>=16)
+            return "16th";
+        else if (noteVal>=8)
+            return "eighth";
+        else if (noteVal>=4)
+            return "quarter";
+        else if (noteVal>=2)
+            return "half";
+        else if (noteVal>=1)
+            return "whole";
+        else if (noteVal>=0.5)
+            return "breve";
+        else if (noteVal>=0.25)
+            return "long";
+        else if (noteVal>=0.125)
+            return "maxima";
+        return "";
+    }
+
     public int convertNameToNumber(String lineName) {
         lineName = lineName.strip();
         if (lineName.equals("e")) {
@@ -85,32 +120,6 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
         }
         return 0;
     }
-
-    //I made only pitch part for now.
-    //reference: https://theacousticguitarist.com/all-notes-on-guitar/
-    //make script
-    public String pitchScript() {
-        int fret = Integer.parseInt(this.line);
-        String key = Note.key(this.stringNumber, fret);
-        int octave = octave(this.stringNumber,fret);
-
-        String octaveString = "<octave>" + octave + "</octave>\n";
-        String stepString;
-        if(!key.contains("#")) {
-            stepString = "<step>" + key + "</step>\n";
-        }
-        else {
-            stepString = "<step>" + key.charAt(0) + "</step>\n"
-                    + "<alter>" + 1 + "</alter>\n";
-            //In musicxml, # is expressed as <alter>1</alter>
-        }
-
-        return "<pitch>\n"
-                + stepString
-                + octaveString
-                + "</pitch>\n";
-    }
-
 
     //decide octave of note
     protected static int octave(int stringNumber, int fret) {
@@ -173,29 +182,6 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
             }
         }
         return octave;
-    }
-
-    //decide key of note
-    public static String key(int stringNumber, int fret) {
-        String[] keys = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-        if(stringNumber == 6) {
-            return keys[(fret + 4) % 12];
-        }
-        else if(stringNumber == 5) {
-            return keys[(fret + 9) % 12];
-        }
-        else if(stringNumber == 4) {
-            return keys[(fret + 2) % 12];
-        }
-        else if(stringNumber == 3) {
-            return keys[(fret + 7) % 12];
-        }
-        else if(stringNumber == 2) {
-            return keys[(fret + 11) % 12];
-        }
-        else {
-            return keys[(fret + 4) % 12];
-        }
     }
 
     public boolean isGuitar() {
