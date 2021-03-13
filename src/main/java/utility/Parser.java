@@ -1,5 +1,8 @@
 package utility;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import converter.Score;
 import custom_exceptions.TXMLException;
 
@@ -22,11 +25,21 @@ public class Parser {
         }
     }
     public static String parse() {
+        XmlMapper mapper = new XmlMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String xmlString = "";
         try {
-            return SCORE.toXML();
-        }catch (TXMLException e) {
+            xmlString = mapper.writeValueAsString(SCORE.getModel());
+        }catch (JsonProcessingException | TXMLException e) {
             e.printStackTrace();
             return "";
         }
+
+        xmlString = """
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+                """
+                + xmlString;
+        return xmlString;
     }
 }

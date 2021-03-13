@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Attributes {
-    public int divisions;
+    public Integer divisions;
     public Key key;
     public Time time;
     public Clef clef;

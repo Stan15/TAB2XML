@@ -9,10 +9,12 @@ import java.util.List;
 
 public class DrumMeasure extends Measure {
 
-    public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
-        super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
+    public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
+        super(lines, lineNamesAndPositions, linePositions, isFirstMeasureInGroup);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.sortedNoteList = this.getSortedNoteList();
+        setChords();
+        calcDurationRatios();
     }
     /**
      * Validates that all MeasureLine objects in this GuitarMeasure are GuitarMeasureLine objects, and validates its

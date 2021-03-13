@@ -21,7 +21,7 @@ public class MeasureGroupTest {
         origin.add("[3] g|-3-2-2-0----|");
         origin.add("[4] b|-3-2-2-0----|");
         origin.add("[5] e|-3-2-2-0----|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertTrue(mg.validate().isEmpty());
     }
 
@@ -34,7 +34,7 @@ public class MeasureGroupTest {
         origin.add("[30] G|-3-2-2-0----|");
         origin.add("[40] B|-3-2-2-0----|");
         origin.add("[50] e|-3-2-2-0----|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertTrue(mg.validate().isEmpty());
     }
 
@@ -47,7 +47,7 @@ public class MeasureGroupTest {
         origin.add("[30] G|----1-|");
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertTrue(mg.validate().isEmpty());
     }
 
@@ -60,7 +60,7 @@ public class MeasureGroupTest {
         origin.add("[30] G|----1-|");
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertTrue(mg.validate().isEmpty());
     }
 
@@ -73,7 +73,7 @@ public class MeasureGroupTest {
         origin.add("[30] G|----1-|");
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertFalse(mg.validate().isEmpty());
     }
 
@@ -86,7 +86,7 @@ public class MeasureGroupTest {
         origin.add("[3] g|-3-2-2-0---d-|");
         origin.add("[4] b|-3-2-2-0---e-|");
         origin.add("[5] e|-3-2-2-0---f-|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         assertFalse(mg.validate().isEmpty());
     }
 
@@ -99,7 +99,7 @@ public class MeasureGroupTest {
         origin.add("[30] D|-5-0-4-2-----2--2-2-----------------------------------------------|");
         origin.add("[40] A|-5---2-0-----2--3-2-----------------------------------------------|");
         origin.add("[50] E|-3-----------0----0-----------------------------------------------|");
-        MeasureGroup mg = new MeasureGroup(origin);
+        MeasureGroup mg = new MeasureGroup(origin, true);
         //assertEquals(mg.toXML(), "");
     }
 
@@ -113,7 +113,7 @@ public class MeasureGroupTest {
                 "[80]A |--------------------||-------------------|{-------------------|--------4----------|---------------8---}|-------------------|",
                 "[97]E |---3-------3--------||---3-------3-------|{-------------------|----3--------------|--------5----------}|-----------1-------|"
         );
-        this.measureGroupInstance = new MeasureGroup(lines);
+        this.measureGroupInstance = new MeasureGroup(lines, true);
     }
 
     @Test

@@ -5,6 +5,7 @@ import converter.measure.DrumMeasure;
 import converter.measure.GuitarMeasure;
 import converter.measure.Measure;
 import converter.measure_line.MeasureLine;
+import converter.note.Note;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +21,7 @@ public class MeasureGroup {
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
     public List<Instruction> instructionList;
-    public int defaultBeatCount = 4;
-    public int defaultBeatType = 4;
+    boolean isFirstGroup;
 
     /**
      * Creates a MeasureGroup object from a List of Strings which represent the lines in the measure group
@@ -34,7 +34,8 @@ public class MeasureGroup {
      *               guaranteed to be a valid representation of a measure group(i.e it looks like a measure group), the
      *               measure group which it is representing is not guaranteed to be valid itself.
      */
-    public MeasureGroup(List<String> origin) {
+    public MeasureGroup(List<String> origin, boolean isFirstGroup) {
+        this.isFirstGroup = isFirstGroup;
         for (String lineWithTag : origin) {
             Matcher tagMatcher = Pattern.compile("^\\[[0-9]+\\]").matcher(lineWithTag);
             tagMatcher.find();
@@ -101,14 +102,14 @@ public class MeasureGroup {
                 measureNames.add(lineName);
             }
         }
+        boolean isFirstMeasureInGroup = true;
         for (int i=0; i<measureStringList.size(); i++) {
             List<String> measureLineList = measureStringList.get(i);
             List<Integer> measureLinePositionList = measurePositionsList.get(i);
             List<String[]> measureLineNameList = measureNamesList.get(i);
-            boolean isFirstMeasure = false;
-            if (i==0)
-                isFirstMeasure = true;
-            measureList.add(Measure.from(measureLineList, measureLineNameList, measureLinePositionList, isFirstMeasure));
+
+            measureList.add(Measure.from(measureLineList, measureLineNameList, measureLinePositionList, isFirstMeasureInGroup));
+            isFirstMeasureInGroup = false;
         }
         return measureList;
     }
@@ -225,4 +226,18 @@ public class MeasureGroup {
         return true;
     }
 
+    public int getDivisions() {
+        int divisions = 0;
+        for (Measure measure : this.measureList) {
+            divisions = Math.max(divisions,  measure.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (Measure measure : this.measureList) {
+            measure.setDurations();
+        }
+    }
 }
