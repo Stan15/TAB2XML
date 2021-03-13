@@ -1,6 +1,7 @@
 package utility;
 
 import converter.Score;
+import custom_exceptions.TXMLException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +22,11 @@ public class Parser {
         }
     }
     public static String parse() {
-        return SCORE.toXML();
+        try {
+            return SCORE.toXML();
+        }catch (TXMLException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }
