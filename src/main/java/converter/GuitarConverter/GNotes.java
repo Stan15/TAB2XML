@@ -44,6 +44,7 @@ public class GNotes extends GMeasure{
 
     private void putNotes(String lines, int stringNum){
         String temp = lines;
+
         int totalLength = temp.length();
         String[] splitChar = temp.split("[-]");
         ArrayList<String> notations = new ArrayList<>();
@@ -68,7 +69,6 @@ public class GNotes extends GMeasure{
             for(int j = index; j < index + notation.length(); j++){
                 builder.setCharAt(j,'-');
             }
-
             temp = builder.toString();
         }
     }

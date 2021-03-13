@@ -8,9 +8,9 @@ public class GNoteScript{
     private int totalMeasureLength;
     private int totalDurationPerMeasure;
     public GNoteScript(ArrayList<Notation> notes, int totalMeasureLength, int totalDurationPerMeasure){
-       this.eachNoteScript = new ArrayList<>();
-       this.totalMeasureLength = totalMeasureLength;
-       this.totalDurationPerMeasure = totalDurationPerMeasure;
+        this.eachNoteScript = new ArrayList<>();
+        this.totalMeasureLength = totalMeasureLength;
+        this.totalDurationPerMeasure = totalDurationPerMeasure;
 
         for(int i = 0; i < notes.size(); i++){
             ArrayList<Notation> tempNotes = new ArrayList<>();
@@ -28,7 +28,6 @@ public class GNoteScript{
             else {
                 durationLength = totalMeasureLength - notes.get(i).getIndex();
             }
-
             makeNote(tempNotes, durationLength);
         }
     }
@@ -45,8 +44,8 @@ public class GNoteScript{
     }
     private void putChordScripts(Notation note , int durationLen, int index){
         int duration = (int) (((double)durationLen / (double)this.totalMeasureLength) * (double)totalDurationPerMeasure + 0.5);
-        StringBuilder result = new StringBuilder("");
         if(index == 0){
+            StringBuilder result = new StringBuilder("");
             int singleRegularNote = Integer.valueOf(note.getNotation());
             int strNum = note.getStringNum() + 1;
             result.append("<note>\n");
@@ -66,6 +65,7 @@ public class GNoteScript{
             eachNoteScript.add(result.toString());
         }
         else{
+            StringBuilder result = new StringBuilder("");
             int singleRegularNote = Integer.valueOf(note.getNotation());
             int strNum = note.getStringNum() + 1;
             result.append("<note>\n");
@@ -88,8 +88,18 @@ public class GNoteScript{
     }
     private void putScripts(Notation note , int durationLen){
         int duration = (int) (((double)durationLen / (double)this.totalMeasureLength) * (double)totalDurationPerMeasure + 0.5);
-        StringBuilder result = new StringBuilder("");
-        if(note.getNotation().matches("[0-9]{1,2}")){
+        if(note.getNotation() == null){
+            String type = typeScript(duration);
+            String restNote ="<note>\n" +
+                    "<rest/>\n" +
+                    "<duration>" + duration + "</duration>\n" +
+                    "<voice>1</voice>\n" +
+                    type +
+                    "</note>\n";
+            eachNoteScript.add(restNote);
+        }
+        else if(note.getNotation().matches("[0-9]{1,2}")){
+            StringBuilder result = new StringBuilder("");
             int singleRegularNote = Integer.valueOf(note.getNotation());
             int strNum = note.getStringNum() + 1;
             result.append("<note>\n");
@@ -109,17 +119,22 @@ public class GNoteScript{
             eachNoteScript.add(result.toString());
         }
         else if(note.getNotation().matches("^[[0-9]*[phPH][0-9]*]*")){
-            boolean startMark = false;
             String[] connectedNotes = note.getNotation().split("[hHpP]");
+            int midDuration = 1;
+            duration = duration - connectedNotes.length - 1;
+            if(duration < 1) {
+                duration = 1;
+            }
             for(int i = 0; i < connectedNotes.length; i++){
+                StringBuilder result = new StringBuilder("");
                 int eachNote = Integer.valueOf(connectedNotes[i]);
                 int strNum = note.getStringNum() + 1;
                 result.append("<note>\n");
                 String pitch = pitchScript(octave(strNum, eachNote), key(strNum, eachNote));
-                String type = typeScript(duration);
                 result.append(pitch);
                 if(i == 0){
-                    result.append("<duration>" + duration + "</duration>\n" +
+                    String type = typeScript(midDuration);
+                    result.append("<duration>" + midDuration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
                             "<notations>\n" +
@@ -133,6 +148,7 @@ public class GNoteScript{
                     eachNoteScript.add(result.toString());
                 }
                 else if(i == connectedNotes.length - 1){
+                    String type = typeScript(duration);
                     result.append("<duration>" + duration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
@@ -147,7 +163,8 @@ public class GNoteScript{
                     eachNoteScript.add(result.toString());
                 }
                 else{
-                    result.append("<duration>" + duration + "</duration>\n" +
+                    String type = typeScript(midDuration);
+                    result.append("<duration>" + midDuration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
                             "<notations>\n" +
@@ -164,15 +181,21 @@ public class GNoteScript{
 
         else if(note.getNotation().matches("^[[0-9]*[/\\\\][0-9]*]*")){
             String[] slideNotes = note.getNotation().split("[/\\\\]");
+            int midDuration = 1;
+            duration = duration - slideNotes.length - 1;
+            if(duration < 1) {
+                duration = 1;
+            }
             for(int i = 0; i < slideNotes.length; i++){
+                StringBuilder result = new StringBuilder("");
                 int eachNote = Integer.valueOf(slideNotes[i]);
                 int strNum = note.getStringNum() + 1;
                 result.append("<note>\n");
                 String pitch = pitchScript(octave(strNum, eachNote), key(strNum, eachNote));
-                String type = typeScript(duration);
                 result.append(pitch);
                 if(i == 0){
-                    result.append("<duration>" + duration + "</duration>\n" +
+                    String type = typeScript(midDuration);
+                    result.append("<duration>" + midDuration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
                             "<notations>\n" +
@@ -186,6 +209,7 @@ public class GNoteScript{
                     eachNoteScript.add(result.toString());
                 }
                 else if(i == slideNotes.length - 1){
+                    String type = typeScript(duration);
                     result.append("<duration>" + duration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
@@ -200,7 +224,8 @@ public class GNoteScript{
                     eachNoteScript.add(result.toString());
                 }
                 else {
-                    result.append("<duration>" + duration + "</duration>\n" +
+                    String type = typeScript(midDuration);
+                    result.append("<duration>" + midDuration + "</duration>\n" +
                             "<voice>1</voice>\n" +
                             type +
                             "<notations>\n" +
@@ -215,16 +240,6 @@ public class GNoteScript{
                     eachNoteScript.add(result.toString());
                 }
             }
-        }
-        else if(note.getNotation() == null){
-            String type = typeScript(duration);
-            String restNote ="<note>\n" +
-                    "<rest/>\n" +
-                    "<duration>" + duration + "</duration>\n" +
-                    "<voice>1</voice>\n" +
-                    type +
-                    "</note>\n";
-            eachNoteScript.add(restNote);
         }
     }
 

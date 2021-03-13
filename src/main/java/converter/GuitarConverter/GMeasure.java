@@ -7,7 +7,6 @@ public class GMeasure {
     protected final int BEAT_TYPE = 4;
     protected final int DIVISION = 4;
     protected final int STRING_NUM = 6;
-    protected static int measureNum;
     protected String measureInfo;
     protected int repeatInfo;
     protected String[][] lines2Darr;
@@ -15,16 +14,16 @@ public class GMeasure {
     protected ArrayList<String> scriptsPerMeasrue;
 
     public static void main(String[] args) {
-        String a = "e|---2-----2-----2-----2-----5-----5-7--7-------------|\n" +
-                "B|-----0-----0-----0-----0-----0----------------------|\n" +
-                "G|-------2-----------2-----------6------8-------------|\n" +
-                "D|----------------------------------------------------|\n" +
-                "A|-------------------------0--------------------------|\n" +
-                "E|-2-----------2------------------------7-------------|";
+        String a = "|-----------0------0-------------------------------|\r\n"
+                 + "|---------0---0----0-------------------------------|\r\n"
+                 + "|-------1-------1--1------4h6p3--------------------|\r\n"
+                 + "|-----2------------2--------------------3/5--------|\r\n"
+                 + "|---2--------------2-------------------------------|\r\n"
+                 + "|-0----------------0-------------------------------|";
 
         GMeasure aa = new GMeasure(a, 1);
         for(String ae : aa.scriptsPerMeasrue){
-            System.out.println(aa);
+            System.out.println(ae);
         }
     }
     public GMeasure(){}
@@ -32,14 +31,15 @@ public class GMeasure {
         this.measureInfo = measureInfo;
         this.repeatInfo = repeatInfo;
         this.eachMeasrueNotes = new ArrayList<>();
+        this.scriptsPerMeasrue = new ArrayList<String>();
 
         ArrayList<String> storedLines = splitByLines(this.measureInfo);
         this.lines2Darr = make2Darr(storedLines);
-
         setEachMeasureNotes();
 
         for(int i = 0; i < this.repeatInfo; i++){
-            for(GNotes o : eachMeasrueNotes){
+            for(GNotes o : eachMeasrueNotes)
+            {
                 ArrayList<String> temp = o.getCompletedNoteScript();
                 for(String script : temp){
                     scriptsPerMeasrue.add(script);
@@ -67,7 +67,7 @@ public class GMeasure {
     private String[][] make2Darr(ArrayList<String> storedLines){
         String[][] linesByMeasure = new String[STRING_NUM][];
         for(int i = 0; i < linesByMeasure.length; i++){
-            String[] split = storedLines.get(i).split("|");
+            String[] split = storedLines.get(i).split("[|]");
             ArrayList<String> temp = new ArrayList<>();
             for(String str : split){
                 if(!str.equals("") && !str.equals(" ") && str.contains("-")){
