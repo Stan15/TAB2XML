@@ -2,6 +2,7 @@ package converter.measure;
 
 import converter.MeasureGroup;
 import converter.Score;
+import converter.ScoreComponent;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
@@ -9,7 +10,7 @@ import converter.note.Note;
 
 import java.util.*;
 
-public abstract class Measure {
+public abstract class Measure implements ScoreComponent {
     public static int GLOBAL_MEASURE_COUNT;
     protected int measureCount;
     int beatCount = Score.DEFAULT_BEAT_COUNT;

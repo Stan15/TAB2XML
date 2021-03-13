@@ -1,5 +1,6 @@
 package converter.measure_line;
 
+import converter.ScoreComponent;
 import converter.note.DrumNote;
 import converter.note.GuitarNote;
 import converter.note.Note;
@@ -9,7 +10,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class MeasureLine {
+public abstract class MeasureLine implements ScoreComponent {
     public String line;
     public String name;
     int namePosition;

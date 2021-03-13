@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MeasureGroup {
+public class MeasureGroup implements ScoreComponent {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
     public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";

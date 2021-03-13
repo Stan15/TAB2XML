@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Score {
+public class Score implements ScoreComponent {
     public List<MeasureCollection> measureCollectionList;
     // Score.ROOT_STRING is only public for the JUnit tester to work. Its access modifier should be protected so that
     // it will not be changed by anything outside the converter package as the "position" instance variable of other
