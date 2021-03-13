@@ -1,15 +1,14 @@
 package converter.note;
 
-public class DrumNote {
-
+public class DrumNote extends Note{
+    int line;
     public DrumNote (String line, String lineName, int distanceFromStart, int position){
-        //super(line, lineName, distanceFromStart, position);
+        super(line, lineName, distanceFromStart, position);
     }
     public int convertNametoNumber(String lineName){
         lineName = lineName.strip();
-        if (lineName.equalsIgnoreCase("C")){ //crash
+        if (lineName.equalsIgnoreCase("C")) //crash
             return 1;
-        }
         else if (lineName.equalsIgnoreCase("R")) // ride
             return 2;
         else if (lineName.equals("T")) //High Tom
@@ -28,5 +27,9 @@ public class DrumNote {
     }
     public String toXML() {
         return null;
+    }
+
+    public models.measure.note.Note getModel(){ //toXML
+
     }
 }
