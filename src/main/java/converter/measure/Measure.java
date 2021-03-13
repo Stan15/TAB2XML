@@ -131,7 +131,7 @@ public abstract class Measure {
     }
 
     public int getDivisions() {
-        double totalMeasureDuration = beatType*beatCount;
+        double totalMeasureDuration = (double)beatCount/(double)beatType;
         double minDurationRatio = 0;
         for (Note note : this.sortedNoteList) {
             double noteDurationRatio = note.durationRatio;
@@ -145,55 +145,61 @@ public abstract class Measure {
             minDurationRatio = 1;
 
         //the number of times you have to divide a whole note to get the note (minDurationRatio*total...) with the shortest duration (i.e a quarter note is 4, an eighth note is 8, 1/16th note is 16, etc)
-        double wholeNoteDivisions = 16/(minDurationRatio*totalMeasureDuration);
+        double inverseStandardDuration = 1/(minDurationRatio*totalMeasureDuration);
 
         //we might not get the exact value we want though (e.g we get a 17th note, but that doesn't exist. we want either a 16th note that is dotted, or a 32th note, cuz those are the standard note types.)
-        double temp = Math.log(wholeNoteDivisions)/Math.log(2);
-        double roundedUpWholeNoteDivisions = Math.pow(2, Math.ceil(temp));      //we get the shortest nearest note to this note (e.g, if we have a 17th note, this gives us the number 32 as the note 1/32 is the shortest nearest note to 1/17)
-        double roundedDownWholeNoteDivisions = Math.pow(2, Math.floor(temp));   //we get the longest nearest note to this note (e.g, if we have a 17th note, this gives us the number 16 as the note 1/16 is the longest nearest note to 1/17)
+        double roundedUpInverseStandardDuration = Math.pow(2, Math.ceil(Math.log(inverseStandardDuration)/Math.log(2)));      //we get the shortest nearest note to this note (e.g, if we have a 17th note, this gives us the number 32 as the note 1/32 is the shortest nearest note to 1/17)
 
-        // might want to remove this if statement later on. we'll see. if our note duration is closer to a shorter acceptable distance, just set it to the longer one, instead of having to put like triple dotted notes and stuff.
-        // (remember, only acceptable durations are 1, 1/2, 1/4, 1/8, 1/16, ...)
-        if (wholeNoteDivisions<(roundedUpWholeNoteDivisions+roundedDownWholeNoteDivisions)/2) {
-            wholeNoteDivisions = roundedDownWholeNoteDivisions;
-        }
-
-        int dotCount = 0;
-        double[] dotMultipliers = {1, 1/1.5, 1/1.75, 1/1.875, 1/1.9375};
-        for (int i=0; i<dotMultipliers.length; i++) {
-            double durationWithDots = dotMultipliers[i]*roundedUpWholeNoteDivisions;
-            if (durationWithDots>wholeNoteDivisions)
-                break;
-            dotCount = i;
-        }
-        wholeNoteDivisions = roundedUpWholeNoteDivisions;
-        note.dotCount = dotCount;
-
-
-        Note.getNoteValFromStandardDuration(minDurationStandard);
-
-        double minNoteDuration = totalMeasureDuration*minDurationRatio;
-        double divisions = 4/minNoteDuration;
+        //find out how many times we need to divide a 4th note to get our smallest duration note (e.g say the smallest duration note in our score is a 1/64th note (wholeNOteDuration = 64) then we need to divide a 4th note 64/4 times to get our smallest duration note)
+        double divisions = roundedUpInverseStandardDuration*0.25;
         return (int) Math.ceil(divisions);
     }
 
 
     public void setDurations() {
-                        //total duration in unit of quarter notes       //converting to units of "GLOBAL_DIVISIONS"
-        double totalMeasureDuration = (beatType*beatCount*0.25)     *     Score.GLOBAL_DIVISIONS;
+                        //total duration in unit of quarter notes
+        double totalMeasureDuration = (double)beatCount/(double)beatType;
         for (MeasureLine measureLine : this.measureLineList) {
-            for (Note currentNote : measureLine.noteList) {
-                double duration = Math.max(1, currentNote.durationRatio * totalMeasureDuration);
+            for (Note note : measureLine.noteList) {
 
-                //convert duration so that final duration works out to an acceptable note (quarter, half, etc. not anything in between)
-                //extend the note with dots so that it matches the original duration as best as possible
+                //the number of times you have to divide a whole note to get the note note.durationRatio*total... (i.e a quarter note is 4, an eighth note is 8, 1/16th note is 16, etc)
+                // 16 durations give you one whole note, x durations give you x/16 whole notes
+                double inverseStandardDuration = 1/(note.durationRatio*totalMeasureDuration);
+
+                //we might not get the exact value we want though (e.g we get a 17th note, but that doesn't exist. we want either a 16th note that is dotted, or a 32th note, cuz those are the standard note types.)
+                double temp = Math.log(inverseStandardDuration)/Math.log(2);
+                double roundedUpInverseStandardDuration = Math.pow(2, Math.ceil(temp));      //we get the nearest shortest note to this note (e.g, if we have a 17th note, this gives us the number 32 as the note 1/32 is the shortest nearest note to 1/17)
+                double roundedDownInverseStandardDuration = Math.pow(2, Math.floor(temp));   //we get the nearest longest note to this note (e.g, if we have a 17th note, this gives us the number 16 as the note 1/16 is the longest nearest note to 1/17)
+
+                // TODO The below if statement is here so we don't have excessive dots on notes. It is meant to round up
+                //  the duration of the note if it is "close enough" to the next, longer note. I might need to redefine
+                //  what "close enough" means, because rounding up based on if it is more than halfway closer to the
+                //  longer note than to the shorter note (like i'm doing in the below if statement) might not give the
+                //  best results. It works pretty decent for now though
+                if (inverseStandardDuration<(roundedUpInverseStandardDuration+roundedDownInverseStandardDuration)/2) {
+                    inverseStandardDuration = roundedDownInverseStandardDuration;
+                    double smallestUnit = 4.0*(double)Score.GLOBAL_DIVISIONS;
+                    double duration = smallestUnit/inverseStandardDuration;
+                    note.duration = Math.max(1, duration);
+                    continue;
+                }
+
                 int dotCount = 0;
+                double[] dotMultipliers = {1, 1/1.5, 1/1.75, 1/1.875, 1/1.9375};
+                for (int i=0; i<dotMultipliers.length; i++) {
+                    double durationWithDots = dotMultipliers[i]*roundedUpInverseStandardDuration;
+                    if (durationWithDots>inverseStandardDuration)
+                        break;
+                    dotCount = i;
+                }
+                inverseStandardDuration = roundedUpInverseStandardDuration;
+                //the smallest unit of duration (in terms of whole note divisions) given our divisions
+                double smallestInverseDurationUnit = 4.0*(double)Score.GLOBAL_DIVISIONS;
 
-                double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/duration;
-
-
-                currentNote.duration = duration;
-                currentNote.dotCount = dotCount;
+                //if smallest unit of duration is 32 (1/32th note) and our note's duration is 8 (1/8th note) then we need 32/8 of our smallest duration note to make up our duration
+                double duration = smallestInverseDurationUnit/inverseStandardDuration;
+                note.dotCount = dotCount;
+                note.duration = Math.max(1, duration);
             }
         }
     }

@@ -2,6 +2,7 @@ package converter.note;
 
 import converter.Score;
 import models.measure.note.Chord;
+import models.measure.note.Dot;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
 import models.measure.note.notations.Technical;
@@ -60,6 +61,13 @@ public class GuitarNote extends Note {
         notations.setTechnical(technical);
 
         noteModel.setNotations(notations);
+        //dot's don't work for some reason
+        List<Dot> dots = new ArrayList<>();
+//        for (int i=0; i<this.dotCount; i++){
+//            dots.add(new Dot());
+//        }
+//        if (!dots.isEmpty())
+//            noteModel.setDots(dots);
 
         return noteModel;
     }
@@ -77,7 +85,7 @@ public class GuitarNote extends Note {
         else if (noteVal>=64)
             return "64th";
         else if (noteVal>=32)
-            return "32th";
+            return "32nd";
         else if (noteVal>=16)
             return "16th";
         else if (noteVal>=8)

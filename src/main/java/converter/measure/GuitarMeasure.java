@@ -113,8 +113,8 @@ public class GuitarMeasure extends Measure{
     private Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
-        if (!hasSameTimeSigAsPrevious)
-            attributes.setTime(new Time(4, 4));
+        if (measureCount==1 || !hasSameTimeSigAsPrevious)
+            attributes.setTime(new Time(this.beatCount, this.beatType));
         if (isFirstMeasureInGroup)
             attributes.setClef(new Clef("TAB", 5));
 

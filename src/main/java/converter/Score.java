@@ -260,23 +260,4 @@ public class Score {
         }
         return true;
     }
-
-    public String toXML() throws TXMLException {
-        XmlMapper mapper = new XmlMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String xmlString = "";
-        try {
-            xmlString = mapper.writeValueAsString(this.getModel());
-        }catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        xmlString = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
-                """
-                + xmlString;
-
-        return xmlString;
-    }
 }
