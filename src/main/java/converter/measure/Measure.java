@@ -1,5 +1,7 @@
 package converter.measure;
 
+import converter.MeasureGroup;
+import converter.Score;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
@@ -10,26 +12,24 @@ import java.util.*;
 public abstract class Measure {
     public static int GLOBAL_MEASURE_COUNT;
     protected int measureCount;
-    int beatCount = 4;
-    int beatType = 4;
-    double divisions = 1;
+    int beatCount = Score.DEFAULT_BEAT_COUNT;
+    int beatType = Score.DEFAULT_BEAT_TYPE;
     List<String> lines;
     List<String[]> lineNamesAndPositions;
     public int lineCount;
     List<Integer> positions;
     public List<MeasureLine> measureLineList;
-    boolean isFirstMeasure;
-    boolean isLastMeasure;
+    boolean isFirstMeasureInGroup;
     List<Note> sortedNoteList;
+    public boolean hasSameTimeSigAsPrevious = true;
 
-    public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
-        this.measureCount = GLOBAL_MEASURE_COUNT;
-        GLOBAL_MEASURE_COUNT++;
+    public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
+        this.measureCount = ++GLOBAL_MEASURE_COUNT;
         this.lines = lines;
         this.lineCount = this.lines.size();
         this.lineNamesAndPositions = lineNamesAndPositions;
         this.positions = linePositions;
-        this.isFirstMeasure = isFirstMeasure;
+        this.isFirstMeasureInGroup = isFirstMeasureInGroup;
     }
 
     /**
@@ -66,12 +66,12 @@ public abstract class Measure {
      * @param linePositionList A list of the positions of the insides of each of the measure lines that make up this (parallel list with the other two List parameters)
      *                         measure, where a line's position is the index at which the line is located in the root
      *                         String from which it was derived (Score.ROOT_STRING)
-     * @param isFirstMeasure specifies weather this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
+     * @param isFirstMeasureInGroup specifies weather this measure is the first one in its measure group. (useful to know, so we only add the xml measure attributes to the first measure)
      *
      * @return A Measure object which is either of type GuitarMeasure if the measure was understood to be a guitar
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
      */
-    public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasure) {
+    public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasureInGroup) {
         boolean isGuitarMeasure = true;
         boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -81,11 +81,129 @@ public abstract class Measure {
             isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
         }
         if (isDrumMeasure && !isGuitarMeasure)
-            return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasure);
+            return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
         else if(isGuitarMeasure && !isDrumMeasure)
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasure);
+            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
         else
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasure); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+    }
+
+    public void calcDurationRatios() {
+        List<List<Note>> chordList = getChordList();
+        int maxMeasureLineLen = getMaxMeasureLineLength();
+
+        // handle all but last chord
+        for (int i=0; i<chordList.size()-1; i++) {
+            List<Note> chord = chordList.get(i);
+            int currentChordDistance = chord.get(0).distance;
+            int nextChordDistance = chordList.get(i+1).get(0).distance;
+
+            double durationRatio = ((double)(nextChordDistance-currentChordDistance))/maxMeasureLineLen;
+            for (Note note : chord) {
+                note.durationRatio = durationRatio;
+            }
+        }
+        //handle last chord, as it is a special case (it has no next chord)
+        if (!chordList.isEmpty()) {
+            List<Note> chord = chordList.get(chordList.size()-1);
+            int currentChordDistance = chord.get(0).distance;
+
+            double durationRatio = ((double)(maxMeasureLineLen-currentChordDistance))/maxMeasureLineLen;
+            for (Note note : chord) {
+                note.durationRatio = durationRatio;
+            }
+        }
+    }
+    public List<List<Note>> getChordList() {
+        List<List<Note>> chordList = new ArrayList<>();
+
+        List<Note> currentChord = new ArrayList<>();
+        for (Note currentNote : this.sortedNoteList) {
+            if (currentNote.startsWithPreviousNote)
+                currentChord.add(currentNote);
+            else {
+                currentChord = new ArrayList<>();
+                currentChord.add(currentNote);
+                chordList.add(currentChord);
+            }
+        }
+        return chordList;
+    }
+
+    public int getDivisions() {
+        double totalMeasureDuration = beatType*beatCount;
+        double minDurationRatio = 0;
+        for (Note note : this.sortedNoteList) {
+            double noteDurationRatio = note.durationRatio;
+            if (noteDurationRatio==0)
+                continue;
+            if (minDurationRatio==0)
+                minDurationRatio = noteDurationRatio;
+            minDurationRatio = Math.min(minDurationRatio,  note.durationRatio);
+        }
+        if (minDurationRatio==0)
+            minDurationRatio = 1;
+
+        //the number of times you have to divide a whole note to get the note (minDurationRatio*total...) with the shortest duration (i.e a quarter note is 4, an eighth note is 8, 1/16th note is 16, etc)
+        double wholeNoteDivisions = 16/(minDurationRatio*totalMeasureDuration);
+
+        //we might not get the exact value we want though (e.g we get a 17th note, but that doesn't exist. we want either a 16th note that is dotted, or a 32th note, cuz those are the standard note types.)
+        double temp = Math.log(wholeNoteDivisions)/Math.log(2);
+        double roundedUpWholeNoteDivisions = Math.pow(2, Math.ceil(temp));      //we get the shortest nearest note to this note (e.g, if we have a 17th note, this gives us the number 32 as the note 1/32 is the shortest nearest note to 1/17)
+        double roundedDownWholeNoteDivisions = Math.pow(2, Math.floor(temp));   //we get the longest nearest note to this note (e.g, if we have a 17th note, this gives us the number 16 as the note 1/16 is the longest nearest note to 1/17)
+
+        // might want to remove this if statement later on. we'll see. if our note duration is closer to a shorter acceptable distance, just set it to the longer one, instead of having to put like triple dotted notes and stuff.
+        // (remember, only acceptable durations are 1, 1/2, 1/4, 1/8, 1/16, ...)
+        if (wholeNoteDivisions<(roundedUpWholeNoteDivisions+roundedDownWholeNoteDivisions)/2) {
+            wholeNoteDivisions = roundedDownWholeNoteDivisions;
+        }
+
+        int dotCount = 0;
+        double[] dotMultipliers = {1, 1/1.5, 1/1.75, 1/1.875, 1/1.9375};
+        for (int i=0; i<dotMultipliers.length; i++) {
+            double durationWithDots = dotMultipliers[i]*roundedUpWholeNoteDivisions;
+            if (durationWithDots>wholeNoteDivisions)
+                break;
+            dotCount = i;
+        }
+        wholeNoteDivisions = roundedUpWholeNoteDivisions;
+        note.dotCount = dotCount;
+
+
+        Note.getNoteValFromStandardDuration(minDurationStandard);
+
+        double minNoteDuration = totalMeasureDuration*minDurationRatio;
+        double divisions = 4/minNoteDuration;
+        return (int) Math.ceil(divisions);
+    }
+
+
+    public void setDurations() {
+                        //total duration in unit of quarter notes       //converting to units of "GLOBAL_DIVISIONS"
+        double totalMeasureDuration = (beatType*beatCount*0.25)     *     Score.GLOBAL_DIVISIONS;
+        for (MeasureLine measureLine : this.measureLineList) {
+            for (Note currentNote : measureLine.noteList) {
+                double duration = Math.max(1, currentNote.durationRatio * totalMeasureDuration);
+
+                //convert duration so that final duration works out to an acceptable note (quarter, half, etc. not anything in between)
+                //extend the note with dots so that it matches the original duration as best as possible
+                int dotCount = 0;
+
+                double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/duration;
+
+
+                currentNote.duration = duration;
+                currentNote.dotCount = dotCount;
+            }
+        }
+    }
+
+    public int getMaxMeasureLineLength() {
+        int maxLen = 0;
+        for (MeasureLine mLine : this.measureLineList) {
+            maxLen = Math.max(maxLen, mLine.line.replace("\s", "").length());
+        }
+        return maxLen;
     }
 
 
@@ -170,9 +288,8 @@ public abstract class Measure {
 
     public List<Note> getSortedNoteList() {
         List<Note> sortedNoteList = new ArrayList<>();
-        for (MeasureLine line : this.measureLineList) {
-            GuitarMeasureLine guitarMline = (GuitarMeasureLine) line;
-            for (Note note : guitarMline.noteList) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            for (Note note : measureLine.noteList) {
                 List<HashMap<String, String>> errors = note.validate();
                 boolean criticalError = false;
                 for (HashMap<String, String> error : errors) {

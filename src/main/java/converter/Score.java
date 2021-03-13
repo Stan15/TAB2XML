@@ -27,6 +27,9 @@ public class Score {
     public String rootString;
     public Map<Integer, String> rootStringFragments;
     public static String STRICT_TYPE;
+    public static int DEFAULT_BEAT_TYPE = 4;
+    public static int DEFAULT_BEAT_COUNT = 4;
+    public static int GLOBAL_DIVISIONS = 1;
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
@@ -35,11 +38,31 @@ public class Score {
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
         if (STRICT_TYPE==null)
             STRICT_TYPE = "";
+
+        // TODO apply instructions (like time signature for specific measures) here. the time signature for each measure has to be set for the following code to be correct
+
+        GLOBAL_DIVISIONS = getDivisions();
+        setDurations();
     }
 
     public Score(String rootString, String strictType) {
         this(rootString);
         STRICT_TYPE = strictType;
+    }
+
+    public int getDivisions() {
+        int divisions = 0;
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            divisions = Math.max(divisions,  msurCollection.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            msurCollection.setDurations();
+        }
     }
 
     /**
@@ -54,8 +77,10 @@ public class Score {
     private List<MeasureCollection> createMeasureCollectionList(Map<Integer, String> stringFragments) {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
+        boolean isFirstCollection = true;
         for (Map.Entry<Integer, String> fragment : stringFragments.entrySet()) {
-            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey());
+            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey(), isFirstCollection);
+            isFirstCollection = false;
             //it may be that the text is completely not understood in the slightest as a measure collection
             //and the MeasureCollection.getInstance() returns null
             for (MeasureCollection msurCollection : msurCollectionSubList)

@@ -15,6 +15,7 @@ public class MeasureCollection {
     List<MeasureGroup> measureGroupList;
     public static String PATTERN = createMeasureCollectionPattern();
     public static String LINE_PATTERN = createLinePattern();
+    boolean isFirstCollection;
 
     /**
      * Static factory method which verifies that the input String "origin" can be recognised as a measure collection
@@ -25,20 +26,21 @@ public class MeasureCollection {
      * @return a MeasureCollection object if the input String "origin" is properly recognised to be a representation of
      * a measure group(regardless of if the measure group it is representing is valid or not). null otherwise
      */
-    public static List<MeasureCollection> getInstances(String origin, int position) {
+    public static List<MeasureCollection> getInstances(String origin, int position, boolean isFirstCollection) {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
         Matcher matcher = Pattern.compile(MeasureCollection.PATTERN).matcher(origin);
         while (matcher.find())
-            msurCollectionList.add(new MeasureCollection(matcher.group(), position+matcher.start()));
+            msurCollectionList.add(new MeasureCollection(matcher.group(), position+matcher.start(), isFirstCollection));
 
         return msurCollectionList;
     }
 
-    private MeasureCollection(String origin, int position) {
+    private MeasureCollection(String origin, int position, boolean isFirstCollection) {
         this.origin = origin;
         this.position = position;
         this.endIndex = position+this.origin.length();
+        this.isFirstCollection = isFirstCollection;
         this.components = this.separateComponents(origin);
         this.measureGroupList = this.createMeasureGroupList(this.components.get("measure-group-collection").get(0));    //there is only one measure group collection per measure collection, so it is the only item in the list of measure group collections. because the type that other components map to is a List<String>, I had to make this a list too.
     }
@@ -89,8 +91,10 @@ public class MeasureCollection {
                 measureGroupLines.add(measureGroupLine);
             }
         }
+        boolean isFirstGroup = true;
         for (List<String> measureGroupString : measureGroupStringList) {
-            measureGroupList.add(new MeasureGroup(measureGroupString));
+            measureGroupList.add(new MeasureGroup(measureGroupString, isFirstGroup));
+            isFirstGroup = false;
         }
         return measureGroupList;
     }
@@ -208,5 +212,19 @@ public class MeasureCollection {
         return true;
     }
 
+    public int getDivisions() {
+        int divisions = 0;
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            divisions = Math.max(divisions,  measureGroup.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            measureGroup.setDurations();
+        }
+    }
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure

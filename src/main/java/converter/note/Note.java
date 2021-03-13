@@ -9,11 +9,12 @@ public abstract class Note implements Comparable<Note> {
     public boolean startsWithPreviousNote;
     public String line;
     public String name;
+    public int dotCount;
     int stringNumber;
     public int distance;
     int position;
-    public int duration;
-    public int divisions = 1;
+    public double duration;
+    public double durationRatio;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -24,7 +25,7 @@ public abstract class Note implements Comparable<Note> {
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
     public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
 
-    public Note(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
+    public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
         this.name = lineName;
         this.position = position;
@@ -54,10 +55,10 @@ public abstract class Note implements Comparable<Note> {
      * @param position
      * @return
      */
-    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
+    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
         List<Note> noteList = new ArrayList<>();
         try {
-            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, measureLineLength, position));
+            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
         }catch (Exception e) {
             e.printStackTrace();
         }

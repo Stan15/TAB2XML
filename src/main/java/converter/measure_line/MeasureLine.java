@@ -73,7 +73,7 @@ public abstract class MeasureLine {
 
             if ((currentChar=='-' || i==line.length()-1)) {
                 if (!noteStrCollector.toString().isBlank())
-                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, line.length(), position+noteStrStartIdx));
+                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, position+noteStrStartIdx));
                 noteStrCollector.delete(0, noteStrCollector.length());
             }
             distance++;

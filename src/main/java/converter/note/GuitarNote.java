@@ -1,5 +1,6 @@
 package converter.note;
 
+import converter.Score;
 import models.measure.note.Chord;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
@@ -17,8 +18,8 @@ public class GuitarNote extends Note {
     }
 
     public int fret;
-    public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
-        super(line, lineName, distanceFromMeasureStart, measureLineLength, position);
+    public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int position) {
+        super(line, lineName, distanceFromMeasureStart, position);
         try {
             this.fret = Integer.parseInt(this.line.strip());
         }catch (Exception e) {
@@ -44,11 +45,12 @@ public class GuitarNote extends Note {
         if (this.startsWithPreviousNote)
             noteModel.setChord(new Chord());
         noteModel.setPitch(new Pitch(GuitarNote.step(this.stringNumber, this.fret), GuitarNote.alter(this.stringNumber, this.fret), Note.octave(this.stringNumber, fret)));
-        noteModel.setDuration(this.duration);
         noteModel.setVoice(1);
         String noteType = this.getType();
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
+
+        noteModel.setDuration((int)Math.round(this.duration));  //we are guaranteed this.duration is greater or equal ot 1. look at Measure.setDurations()
 
         Technical technical = new Technical();
         technical.setString(this.stringNumber);
@@ -63,7 +65,7 @@ public class GuitarNote extends Note {
     }
 
     protected String getType() {
-        double noteVal = (4.0*(double)this.divisions)/((double)this.duration);
+        double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/this.duration;
         if (noteVal>=1024)
             return "1024th";
         else if (noteVal>=512)
