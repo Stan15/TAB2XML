@@ -44,12 +44,12 @@ public abstract class Instruction {
         List<Instruction> instructionList = new ArrayList<>();
         Matcher repeatMatcher = Pattern.compile(Repeat.PATTERN).matcher(line);
         while(repeatMatcher.find()) {
-            instructionList.add(new Repeat(repeatMatcher.group(), position, topOrBottom));
+            instructionList.add(new Repeat(repeatMatcher.group(), position+repeatMatcher.start(), topOrBottom));
         }
 
         Matcher timeSigMatcher = Pattern.compile(TimeSignature.PATTERN).matcher(line);
         while(timeSigMatcher.find()) {
-            instructionList.add(new TimeSignature(timeSigMatcher.group(), position, topOrBottom));
+            instructionList.add(new TimeSignature(timeSigMatcher.group(), position+timeSigMatcher.start(), topOrBottom));
         }
 
         return instructionList;

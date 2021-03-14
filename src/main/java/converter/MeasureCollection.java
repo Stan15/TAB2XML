@@ -148,9 +148,9 @@ public class MeasureCollection implements ScoreComponent {
             }
             if (continueWhileLoop) continue;
             if (isTopInstruction)
-                this.instructionList.addAll(Instruction.from(matcher.group(), matcher.start(), Instruction.TOP));
+                this.instructionList.addAll(Instruction.from(matcher.group(), this.position+matcher.start(), Instruction.TOP));
             else
-                this.instructionList.addAll(Instruction.from(matcher.group(), matcher.start(), Instruction.BOTTOM));
+                this.instructionList.addAll(Instruction.from(matcher.group(), this.position+matcher.start(), Instruction.BOTTOM));
             identifiedComponents.add(new Range(matcher.start(), matcher.end()));
         }
 
