@@ -3,14 +3,13 @@ package converter.note;
 import converter.Score;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 public abstract class Note implements Comparable<Note> {
     public boolean startsWithPreviousNote;
     public String line;
-    public String name;
+    public String lineName;
     public int dotCount;
     int stringNumber;
     public int distance;
@@ -29,9 +28,9 @@ public abstract class Note implements Comparable<Note> {
 
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
-        this.name = lineName;
+        this.lineName = lineName;
         this.position = position;
-        this.stringNumber = this.convertNameToNumber(this.name);
+        this.stringNumber = this.convertNameToNumber(this.lineName);
         this.duration = 1;
         this.distance = distanceFromMeasureStart;
     }
