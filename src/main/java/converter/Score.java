@@ -36,8 +36,6 @@ public class Score implements ScoreComponent {
         if (STRICT_TYPE==null)
             STRICT_TYPE = "";
 
-        // TODO apply instructions (like time signature for specific measures) here. the time signature for each measure has to be set for the following code to be correct
-
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
     }

@@ -47,7 +47,7 @@ public class TabInput {
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
-        String strippedText = text.strip();
+        String strippedText = text.replaceFirst("\\s++$", "");
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) {
             spansBuilder.add(Collections.emptyList(), text.length());

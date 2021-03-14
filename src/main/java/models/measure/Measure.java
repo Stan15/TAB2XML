@@ -3,6 +3,7 @@ package models.measure;
 import lombok.Data;
 import models.measure.attributes.Attributes;
 import models.measure.barline.BarLine;
+import models.measure.direction.Direction;
 import models.measure.note.Note;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -25,6 +26,9 @@ public class Measure {
     @JacksonXmlElementWrapper(useWrapping = false)
     List<Backup> backup;
 
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "barline")
-    BarLine barline;
+    List<BarLine> barlines;
+
+    Direction direction;
 }

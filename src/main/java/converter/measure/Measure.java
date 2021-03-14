@@ -26,8 +26,9 @@ public abstract class Measure implements ScoreComponent {
     List<Note> sortedNoteList;
     public boolean hasSameTimeSigAsPrevious = true;
 
-    private String repeatType = "none";
-    private int repeatCount = 0;
+    boolean repeatStart = false;
+    boolean repeatEnd = false;
+    int repeatCount = 0;
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         this.measureCount = ++GLOBAL_MEASURE_COUNT;
@@ -216,8 +217,19 @@ public abstract class Measure implements ScoreComponent {
         if (!(repeatType.equals("start") || repeatType.equals("end")))
             return false;
         this.repeatCount = repeatCount;
-        this.repeatType = repeatType;
+        if (repeatType.equals("start"))
+            this.repeatStart = true;
+        if (repeatType.equals("end"))
+            this.repeatEnd = true;
         return true;
+    }
+
+    public boolean isRepeatStart() {
+        return this.repeatStart;
+    }
+
+    public boolean isRepeatEnd() {
+        return this.repeatEnd;
     }
 
     public boolean setTimeSignature(int beatCount, int beatType) {

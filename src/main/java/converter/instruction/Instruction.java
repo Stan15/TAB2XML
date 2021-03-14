@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 public abstract class Instruction {
     public static Top TOP = new Top();
     public static Bottom BOTTOM = new Bottom();
-    public static String LINE_PATTERN = "([\\n\\r]"+ Patterns.WHITESPACE+"*"+"#[^\\n\\r]+)";
+    public static String LINE_PATTERN = getLinePattern();
+
     private String content;
     private int position;
     private RelativePosition relativePosition;
@@ -39,7 +40,7 @@ public abstract class Instruction {
         return this.relativePosition;
     }
 
-    public List<Instruction> from(String line, int position, RelativePosition topOrBottom) {
+    public static List<Instruction> from(String line, int position, RelativePosition topOrBottom) {
         List<Instruction> instructionList = new ArrayList<>();
         Matcher repeatMatcher = Pattern.compile(Repeat.PATTERN).matcher(line);
         while(repeatMatcher.find()) {
@@ -78,6 +79,11 @@ public abstract class Instruction {
             result.add(response);
         }
         return new ArrayList<>();
+    }
+
+    private static String getLinePattern() {
+        String instruction = "(("+TimeSignature.PATTERN+")|("+Repeat.PATTERN+"))";
+        return "(([\\n\\r]|^)" + Patterns.WHITESPACE+"*" + instruction + Patterns.WHITESPACE+"*" + ")";
     }
 }
 

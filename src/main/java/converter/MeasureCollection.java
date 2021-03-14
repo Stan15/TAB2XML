@@ -1,5 +1,6 @@
 package converter;
 
+import com.sun.javafx.collections.ElementObservableListDecorator;
 import converter.instruction.Instruction;
 import utility.Patterns;
 import utility.Range;
@@ -12,11 +13,11 @@ public class MeasureCollection implements ScoreComponent {
     String origin;  //the string that was passed to the constructor upon the instantiation of this class
     int position;   //the index in Score.rootString at which the String "MeasureCollection().origin" is located
     int endIndex;
-    Map<String, List<String>> components;
     List<MeasureGroup> measureGroupList;
     public static String PATTERN = createMeasureCollectionPattern();
     public static String LINE_PATTERN = createLinePattern();
     boolean isFirstCollection;
+    private List<Instruction> instructionList = new ArrayList<>();
 
     /**
      * Static factory method which verifies that the input String "origin" can be recognised as a measure collection
@@ -42,8 +43,9 @@ public class MeasureCollection implements ScoreComponent {
         this.position = position;
         this.endIndex = position+this.origin.length();
         this.isFirstCollection = isFirstCollection;
-        this.components = this.separateComponents(origin);
-        createMeasureGroupAndInstructionList();
+        createMeasureGroupAndInstructionList(origin);
+        for (Instruction instruction : this.instructionList)
+            instruction.applyTo(this);
     }
 
     /**
@@ -110,7 +112,7 @@ public class MeasureCollection implements ScoreComponent {
      * containing a List<String> of the comments in the origin String. Each String stored in this Map begins with a tag
      * (i.e "[startIdx]stringContent" ) specifying the start index of the String in Score.rootString
      */
-    private Map<String, List<String>> separateComponents(String origin) {
+    private Map<String, List<String>> createMeasureGroupAndInstructionList(String origin) {
         Map<String, List<String>> componentsMap = new HashMap<>();
         List<String> measureGroupCollctn = new ArrayList<>();
         List<String> instructionList = new ArrayList<>();
@@ -125,7 +127,7 @@ public class MeasureCollection implements ScoreComponent {
         //extract the measure group collection and create the list of MeasureGroup objects with it
         Matcher matcher = Pattern.compile("((^|\\n)"+MeasureCollection.LINE_PATTERN+")+").matcher(origin);
         if(matcher.find()) { // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
-            this.createMeasureGroupList("[" + (this.position + matcher.start()) + "]" + matcher.group());
+            this.measureGroupList = this.createMeasureGroupList("[" + (this.position + matcher.start()) + "]" + matcher.group());
             identifiedComponents.add(new Range(matcher.start(), matcher.end()));
         }
 
@@ -145,9 +147,11 @@ public class MeasureCollection implements ScoreComponent {
                     isTopInstruction = false;
             }
             if (continueWhileLoop) continue;
-            this.instructionList.addAll(Instruction.from(matcher.group(), ing));
-            instructionList.add("["+(this.position+matcher.start())+"]"+);
-            identifiedComponents.add(instructionLineRange);
+            if (isTopInstruction)
+                this.instructionList.addAll(Instruction.from(matcher.group(), matcher.start(), Instruction.TOP));
+            else
+                this.instructionList.addAll(Instruction.from(matcher.group(), matcher.start(), Instruction.BOTTOM));
+            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
         }
 
 //        //extract the comments

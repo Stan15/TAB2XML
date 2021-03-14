@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeSignature extends Instruction {
-    public static String PATTERN = "(?<=\s|^)[0-9][0-9]?/[0-9][0-9]?(?=\s|$)";
+    public static String PATTERN = "(\s|^)[0-9][0-9]?\\/[0-9][0-9]?(?=\s|$)";
     private int beatType;
     private int beatCount;
     TimeSignature(String content, int position, RelativePosition relativePosition) {
