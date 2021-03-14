@@ -1,8 +1,5 @@
 package converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import converter.measure.Measure;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
@@ -24,7 +21,7 @@ public class Score implements ScoreComponent {
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public String rootString;
+    public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
     public static String STRICT_TYPE;
     public static int DEFAULT_BEAT_TYPE = 4;
@@ -33,7 +30,7 @@ public class Score implements ScoreComponent {
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
-        this.rootString = rootString;
+        ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
         if (STRICT_TYPE==null)
@@ -105,7 +102,7 @@ public class Score implements ScoreComponent {
 
         int previousBreakEndIdx = 0;
         while(textBreakMatcher.find()) {
-            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
+            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
                 int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
@@ -133,7 +130,7 @@ public class Score implements ScoreComponent {
 
         int prevEndIdx = 0;
         for (MeasureCollection msurCollction : this.measureCollectionList) {
-            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
+            String uninterpretedFragment = ROOT_STRING.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
@@ -142,7 +139,7 @@ public class Score implements ScoreComponent {
             prevEndIdx = msurCollction.endIndex;
         }
 
-        String restOfDocument = this.rootString.substring(prevEndIdx);
+        String restOfDocument = ROOT_STRING.substring(prevEndIdx);
         if (!restOfDocument.isBlank()) {
             if (!errorRanges.isEmpty()) errorRanges.append(";");
             errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");

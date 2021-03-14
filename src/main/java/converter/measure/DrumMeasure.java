@@ -31,10 +31,9 @@ public class DrumMeasure extends Measure {
      */
     @Override
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
 
         //-----------------Validate yourself-------------------------
-        result.addAll(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
 
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures

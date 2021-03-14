@@ -20,9 +20,12 @@ public class Range implements Comparable<Range> {
     public boolean contains(int number) {
         return number >= start && number <= end;
     }
+    public boolean contains(Range other) {
+        return this.contains(other.start) && this.contains(other.end);
+    }
 
     public boolean overlaps(Range other) {
-        return (this.end<=other.end && this.end>=other.start) || (this.start>=other.start && this.start<=other.end);
+        return (this.end<=other.end && this.end>other.start) || (this.start>=other.start && this.start<other.end);
     }
 
     @Override
@@ -30,6 +33,11 @@ public class Range implements Comparable<Range> {
         int val = this.start-other.start;
         if (val == 0) return this.size-other.size;
         return val;
+    }
+    @Override
+    public boolean equals(Object o) {
+        Range other = (Range) o;
+        return (this.start == other.start) && (this.end == other.end);
     }
 }
 

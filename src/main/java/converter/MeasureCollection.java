@@ -1,7 +1,8 @@
 package converter;
 
 import converter.instruction.Instruction;
-import converter.measure.Measure;
+import utility.Patterns;
+import utility.Range;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ public class MeasureCollection implements ScoreComponent {
         this.endIndex = position+this.origin.length();
         this.isFirstCollection = isFirstCollection;
         this.components = this.separateComponents(origin);
-        this.measureGroupList = this.createMeasureGroupList(this.components.get("measure-group-collection").get(0));    //there is only one measure group collection per measure collection, so it is the only item in the list of measure group collections. because the type that other components map to is a List<String>, I had to make this a list too.
+        createMeasureGroupAndInstructionList();
     }
 
     /**
@@ -118,29 +119,44 @@ public class MeasureCollection implements ScoreComponent {
         componentsMap.put("instructions", instructionList);
         componentsMap.put("comments", commentList);
 
-        HashSet<Integer> identifiedComponents = new HashSet<>();    //to prevent the same thing being identified as two different components (e.g being identified as both a comment and an instruction)
+        //HashSet<Integer> identifiedComponents = new HashSet<>();
+        List<Range> identifiedComponents = new ArrayList<>();       //to prevent the same thing being identified as two different components (e.g being identified as both a comment and an instruction)
 
-        //extract the measure group collection
+        //extract the measure group collection and create the list of MeasureGroup objects with it
         Matcher matcher = Pattern.compile("((^|\\n)"+MeasureCollection.LINE_PATTERN+")+").matcher(origin);
-        matcher.find(); // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
-        measureGroupCollctn.add("["+(this.position+matcher.start())+"]"+matcher.group());
-        identifiedComponents.add(matcher.start());
+        if(matcher.find()) { // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
+            this.createMeasureGroupList("[" + (this.position + matcher.start()) + "]" + matcher.group());
+            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
+        }
 
         //extract the instruction
         matcher = Pattern.compile("((^|\\n)"+ Instruction.LINE_PATTERN+")+").matcher(origin);
         while(matcher.find()) {
-            if (identifiedComponents.contains(matcher.start())) continue;
-            instructionList.add("["+(this.position+matcher.start())+"]"+matcher.group());
-            identifiedComponents.add(matcher.start());
+            //first make sure that what was identified as one thing is not being identified as a different thing.
+            Range instructionLineRange = new Range(matcher.start(), matcher.end());
+            boolean continueWhileLoop = false;
+            boolean isTopInstruction = true;
+            for (Range range : identifiedComponents) {
+                if (range.overlaps(instructionLineRange)) {
+                    continueWhileLoop = true;
+                    break;
+                }
+                if (range.getEnd()<=instructionLineRange.getStart())
+                    isTopInstruction = false;
+            }
+            if (continueWhileLoop) continue;
+            this.instructionList.addAll(Instruction.from(matcher.group(), ing));
+            instructionList.add("["+(this.position+matcher.start())+"]"+);
+            identifiedComponents.add(instructionLineRange);
         }
 
-        //extract the comments
-        matcher = Pattern.compile("((^|\\n)"+Patterns.COMMENT+")+").matcher(origin);
-        while(matcher.find()) {
-            if (identifiedComponents.contains(matcher.start())) continue;
-            commentList.add("["+(this.position+matcher.start())+"]"+matcher.group());
-            identifiedComponents.add(matcher.start());
-        }
+//        //extract the comments
+//        matcher = Pattern.compile("((^|\\n)"+Patterns.COMMENT+")+").matcher(origin);
+//        while(matcher.find()) {
+//            if (identifiedComponents.contains(matcher.start())) continue;
+//            commentList.add("["+(this.position+matcher.start())+"]"+matcher.group());
+//            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
+//        }
         return componentsMap;
     }
 
@@ -171,7 +187,7 @@ public class MeasureCollection implements ScoreComponent {
     }
 
     private static String createLinePattern() {
-        return "("+Patterns.WHITESPACE+"*("+MeasureGroup.LINE_PATTERN+Patterns.WHITESPACE+"*)+)";
+        return "("+ Patterns.WHITESPACE+"*("+MeasureGroup.LINE_PATTERN+Patterns.WHITESPACE+"*)+)";
     }
 
     /**
@@ -225,6 +241,10 @@ public class MeasureCollection implements ScoreComponent {
         for (MeasureGroup measureGroup : this.measureGroupList) {
             measureGroup.setDurations();
         }
+    }
+
+    public List<MeasureGroup> getMeasureGroupList() {
+        return this.measureGroupList;
     }
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure

@@ -3,10 +3,12 @@ package converter.measure;
 import converter.MeasureGroup;
 import converter.Score;
 import converter.ScoreComponent;
+import converter.instruction.TimeSignature;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import utility.Range;
 
 import java.util.*;
 
@@ -23,6 +25,9 @@ public abstract class Measure implements ScoreComponent {
     boolean isFirstMeasureInGroup;
     List<Note> sortedNoteList;
     public boolean hasSameTimeSigAsPrevious = true;
+
+    private String repeatType = "none";
+    private int repeatCount = 0;
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         this.measureCount = ++GLOBAL_MEASURE_COUNT;
@@ -205,6 +210,24 @@ public abstract class Measure implements ScoreComponent {
         }
     }
 
+    public boolean setRepeat(int repeatCount, String repeatType) {
+        if (repeatCount<0)
+            return false;
+        if (!(repeatType.equals("start") || repeatType.equals("end")))
+            return false;
+        this.repeatCount = repeatCount;
+        this.repeatType = repeatType;
+        return true;
+    }
+
+    public boolean setTimeSignature(int beatCount, int beatType) {
+        if (!TimeSignature.isValid(beatCount, beatType))
+            return false;
+        this.beatCount = beatCount;
+        this.beatType = beatType;
+        return true;
+    }
+
     public int getMaxMeasureLineLength() {
         int maxLen = 0;
         for (MeasureLine mLine : this.measureLineList) {
@@ -337,6 +360,18 @@ public abstract class Measure implements ScoreComponent {
             stringOut.append("\n");
         }
         return stringOut.toString();
+    }
+
+    public Range getRelativeRange() {
+        if (this.lines.isEmpty()) return null;
+        int position;
+        if (this.isFirstMeasureInGroup)
+            position = Integer.parseInt(lineNamesAndPositions.get(0)[1]);   // use the starting position of the name instead.
+        else
+            position = this.positions.get(0);       // use the starting position of teh inside of teh measure
+        int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
+        int relEndPos = relStartPos + this.lines.get(0).length();
+        return new Range(relStartPos, relEndPos);
     }
 
     public abstract models.measure.Measure getModel();

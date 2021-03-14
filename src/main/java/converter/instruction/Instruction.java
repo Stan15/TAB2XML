@@ -1,62 +1,104 @@
 package converter.instruction;
 
-import converter.Patterns;
+import utility.Patterns;
 import converter.Score;
 import converter.ScoreComponent;
+import utility.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class Instruction {
     public static Top TOP = new Top();
     public static Bottom BOTTOM = new Bottom();
     public static String LINE_PATTERN = "([\\n\\r]"+ Patterns.WHITESPACE+"*"+"#[^\\n\\r]+)";
-    private String line;
+    private String content;
     private int position;
     private RelativePosition relativePosition;
-    private boolean isApplied;
+    private boolean hasBeenApplied;
 
-    Instruction(String line, int position, RelativePosition relativePosition) {
-        this.line = line;
+    Instruction(String content, int position, RelativePosition topOrBottom) {
+        this.content = content;
         this.position = position;
-        this.relativePosition = relativePosition;
-        this.relativePosition.setPositionFromIndex(position, position+line.length());
+
+        int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
+        int relEndPos = relStartPos + content.length();
+
+        if (topOrBottom instanceof Top)
+            this.relativePosition = new Top(relStartPos, relEndPos);
+        else
+            this.relativePosition = new Bottom(relStartPos, relEndPos);
     }
 
-    public abstract void apply(ScoreComponent scoreComponent);
+    public abstract <E extends ScoreComponent> void applyTo(E scoreComponent);
 
-    /**
-     *
-     * @param line
-     * @param position is this instruction positioned at the top or at the bottom of a measure/measure collection?
-     * @return
-     */
-    public static List<Instruction> from(String line, int index, RelativePosition position) {
-        return new ArrayList<>();
+    RelativePosition getRelativeRange() {
+        return this.relativePosition;
     }
+
+    public List<Instruction> from(String line, int position, RelativePosition topOrBottom) {
+        List<Instruction> instructionList = new ArrayList<>();
+        Matcher repeatMatcher = Pattern.compile(Repeat.PATTERN).matcher(line);
+        while(repeatMatcher.find()) {
+            instructionList.add(new Repeat(repeatMatcher.group(), position, topOrBottom));
+        }
+
+        Matcher timeSigMatcher = Pattern.compile(TimeSignature.PATTERN).matcher(line);
+        while(timeSigMatcher.find()) {
+            instructionList.add(new TimeSignature(timeSigMatcher.group(), position, topOrBottom));
+        }
+
+        return instructionList;
+    }
+
+    String getContent() {
+        return this.content;
+    }
+    int getPosition() {
+        return this.position;
+    }
+    void setHasBeenApplied(boolean bool) {
+        this.hasBeenApplied = bool;
+    }
+    boolean getHasBeenApplied() {
+        return this.hasBeenApplied;
+    }
+
 
     public List<HashMap<String, String>> validate() {
         List<HashMap<String,String>> result = new ArrayList<>();
-        if (!this.isApplied) {
+        if (!this.hasBeenApplied) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "This instruction could not be applied to a measure or note.");
-            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
+            response.put("message", "This instruction could not be applied to any measure or note.");
+            response.put("positions", "["+this.position+","+(this.position+this.content.length())+"]");
             response.put("priority", "3");
             result.add(response);
         }
         return new ArrayList<>();
-
     }
 }
 
-abstract class RelativePosition {
-    int startDistFromNewline;
-    int endDistFromNewline;
-
-    public int setPositionFromIndex(int startIdx, int endIdx) {
-
+abstract class RelativePosition extends Range {
+    RelativePosition(int relStart, int relEnd) {
+        super(relStart, relEnd);
     }
 }
-class Top extends RelativePosition {}
-class Bottom extends RelativePosition {}
+class Top extends RelativePosition {
+    Top() {
+        super(0,0);
+    }
+    Top(int relStart, int relEnd) {
+        super(relStart, relEnd);
+    }
+}
+class Bottom extends RelativePosition {
+    Bottom() {
+        super(0,0);
+    }
+    Bottom(int relStart, int relEnd) {
+        super(relStart, relEnd);
+    }
+}

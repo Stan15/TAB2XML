@@ -29,8 +29,7 @@ public class GuitarNote extends Note {
     }
 
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
         if (line.strip().matches("[0-9]+")) return result;
         HashMap<String, String> response = new HashMap<>();

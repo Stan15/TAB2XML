@@ -5,7 +5,8 @@ import converter.measure.DrumMeasure;
 import converter.measure.GuitarMeasure;
 import converter.measure.Measure;
 import converter.measure_line.MeasureLine;
-import converter.note.Note;
+import utility.Patterns;
+import utility.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 public class MeasureGroup implements ScoreComponent {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
-    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";
+    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+ Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";
     public List<Integer> positions = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
@@ -239,5 +240,17 @@ public class MeasureGroup implements ScoreComponent {
         for (Measure measure : this.measureList) {
             measure.setDurations();
         }
+    }
+
+    public List<Measure> getMeasureList() {
+        return this.measureList;
+    }
+
+    public Range getRelativeRange() {
+        if (this.lines.isEmpty()) return null;
+        int position = this.positions.get(0);
+        int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
+        int relEndPos = relStartPos + this.lines.get(0).length();
+        return new Range(relStartPos, relEndPos);
     }
 }

@@ -4,7 +4,7 @@ import converter.ScoreComponent;
 import converter.note.DrumNote;
 import converter.note.GuitarNote;
 import converter.note.Note;
-import converter.Patterns;
+import utility.Patterns;
 
 import java.util.*;
 import java.util.regex.Matcher;

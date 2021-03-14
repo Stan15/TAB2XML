@@ -20,8 +20,7 @@ public class GuitarMeasureLine extends MeasureLine {
 
 
     public List<HashMap<String,String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
