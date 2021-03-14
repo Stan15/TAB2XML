@@ -200,12 +200,12 @@ public class MeasureCollection implements ScoreComponent {
      */
     private static String createMeasureCollectionPattern() {
         // zero or more instructions, followed by one or more measure group lines, followed by zero or more instructions
-        return "((^|\\n)"+ Instruction.LINE_PATTERN+"+|"+Patterns.COMMENT+")*"          // 0 or more lines separated by newlines, each containing a group of instructions or comments
+        return "((^|\\n)"+ Instruction.LINE_PATTERN+")*"          // 0 or more lines separated by newlines, each containing a group of instructions or comments
                 + "("                                                                   // then the measure collection line, which is made of...
                 +       "(^|\\n)"                                                           // a start of line or a new line
                 +       MeasureCollection.createLinePattern()                               // a measure group line followed by whitespace, all repeated one or more times
                 + ")+"                                                                  // the measure collection line I just described is repeated one or more times.
-                + "(\\n"+ Instruction.LINE_PATTERN+"+)*";
+                + "(\\n"+ Instruction.LINE_PATTERN+")*";
     }
 
     public List<models.measure.Measure> getMeasureModels() {

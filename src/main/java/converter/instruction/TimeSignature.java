@@ -13,13 +13,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeSignature extends Instruction {
-    public static String PATTERN = "(\s|^)[0-9][0-9]?\\/[0-9][0-9]?(?=\s|$)";
+    public static String PATTERN = "(?<=\s|\n|\r|^)[0-9][0-9]?\\/[0-9][0-9]?(?=\s|\n|\r|$)";
     private int beatType;
     private int beatCount;
     TimeSignature(String content, int position, RelativePosition relativePosition) {
         super(content, position, relativePosition);
-        Matcher beatTypeMatcher = Pattern.compile("[0-9]+(?=\\\\)").matcher(content);
-        Matcher beatCountMatcher = Pattern.compile("(?<=\\\\)[0-9]+").matcher(content);
+        Matcher beatCountMatcher = Pattern.compile("[0-9]+(?=[/\\\\])").matcher(content);
+        Matcher beatTypeMatcher = Pattern.compile("(?<=[/\\\\])[0-9]+").matcher(content);
         if (beatCountMatcher.find())
             this.beatCount = Integer.parseInt(beatCountMatcher.group());
         if (beatTypeMatcher.find())

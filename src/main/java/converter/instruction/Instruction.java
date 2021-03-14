@@ -83,7 +83,7 @@ public abstract class Instruction {
 
     private static String getLinePattern() {
         String instruction = "(("+TimeSignature.PATTERN+")|("+Repeat.PATTERN+"))";
-        return "(([\\n\\r]|^)" + Patterns.WHITESPACE+"*" + instruction + Patterns.WHITESPACE+"*" + ")";
+        return "("+Patterns.WHITESPACE+"*" + instruction + Patterns.WHITESPACE+"*" + ")+";
     }
 }
 

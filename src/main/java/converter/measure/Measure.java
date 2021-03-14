@@ -380,7 +380,7 @@ public abstract class Measure implements ScoreComponent {
         if (this.isFirstMeasureInGroup)
             position = Integer.parseInt(lineNamesAndPositions.get(0)[1]);   // use the starting position of the name instead.
         else
-            position = this.positions.get(0);       // use the starting position of teh inside of teh measure
+            position = this.positions.get(0)-1;       // use the starting position of teh inside of the measure minus one, so that it also captures the starting line of that measure
         int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
         int relEndPos = relStartPos + this.lines.get(0).length();
         return new Range(relStartPos, relEndPos);

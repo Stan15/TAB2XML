@@ -2,14 +2,18 @@ package org.openjfx;
 
 import converter.Score;
 import javafx.concurrent.Task;
+import javafx.scene.control.TextArea;
+import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 import utility.*;
 
+import java.awt.*;
 import java.time.Duration;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
