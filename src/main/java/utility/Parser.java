@@ -46,4 +46,8 @@ public class Parser {
     public int getMeasureAt(int index) {
         return 1;
     }
+
+    public boolean setMeasureTimeSignature(int measureNum) {
+        return true;
+    }
 }
