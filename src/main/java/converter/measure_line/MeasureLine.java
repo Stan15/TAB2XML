@@ -198,7 +198,7 @@ public abstract class MeasureLine implements ScoreComponent {
 
         //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
         //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + ")";
         return measureInsides;
     }
 

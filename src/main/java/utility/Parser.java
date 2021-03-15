@@ -42,4 +42,8 @@ public class Parser {
                 + xmlString;
         return xmlString;
     }
+
+    public int getMeasureAt(int index) {
+        return 1;
+    }
 }
