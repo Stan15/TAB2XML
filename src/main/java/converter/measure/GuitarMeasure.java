@@ -5,6 +5,11 @@ import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
 import models.measure.attributes.*;
+import models.measure.barline.BarLine;
+import models.measure.barline.Repeat;
+import models.measure.direction.Direction;
+import models.measure.direction.DirectionType;
+import models.measure.direction.Words;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,9 +83,8 @@ public class GuitarMeasure extends Measure{
      */
     @Override
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
         //-----------------Validate yourself-------------------------
-        result.addAll(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        List<HashMap<String,String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
@@ -113,7 +117,7 @@ public class GuitarMeasure extends Measure{
     private Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
-        if (measureCount==1 || !hasSameTimeSigAsPrevious)
+        //if (measureCount==1 || !hasSameTimeSigAsPrevious)
             attributes.setTime(new Time(this.beatCount, this.beatType));
         if (isFirstMeasureInGroup)
             attributes.setClef(new Clef("TAB", 5));
@@ -144,8 +148,46 @@ public class GuitarMeasure extends Measure{
         for (Note note : this.sortedNoteList) {
             noteModels.add(note.getModel());
         }
-
         measureModel.setNotes(noteModels);
+
+        List<BarLine> barLines = new ArrayList<>();
+        if (this.isRepeatStart()) {
+            BarLine barLine = new BarLine();
+            barLines.add(barLine);
+            barLine.setLocation("left");
+            barLine.setBarStyle("heavy-light");
+
+            Repeat repeat = new Repeat();
+            repeat.setDirection("forward");
+            barLine.setRepeat(repeat);
+
+            Direction direction = new Direction();
+            direction.setPlacement("above");
+            measureModel.setDirection(direction);
+
+            DirectionType directionType = new DirectionType();
+            direction.setDirectionType(directionType);
+
+            Words words = new Words();
+            words.setRelativeX(256.17);
+            words.setRelativeX(16.01);
+            words.setRepeatText("Repeat "+this.repeatCount+" times");
+            directionType.setWords(words);
+        }
+
+        if (this.isRepeatEnd()) {
+            BarLine barLine = new BarLine();
+            barLines.add(barLine);
+            barLine.setLocation("right");
+            barLine.setBarStyle("light-heavy");
+
+            Repeat repeat = new Repeat();
+            repeat.setDirection("backward");
+            barLine.setRepeat(repeat);
+        }
+
+        if (!barLines.isEmpty())
+            measureModel.setBarlines(barLines);
         return measureModel;
     }
 

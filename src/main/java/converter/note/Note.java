@@ -1,13 +1,14 @@
 package converter.note;
 
+import converter.ScoreComponent;
+
 import converter.Score;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class Note implements Comparable<Note> {
+public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
     public String line;
     public String name;
@@ -25,7 +26,7 @@ public abstract class Note implements Comparable<Note> {
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
+    public static String COMPONENT_PATTERN = "[0-9./\\\\~\\(\\)\\[\\]a-zA-Z]";
 
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;

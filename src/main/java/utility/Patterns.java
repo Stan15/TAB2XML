@@ -1,4 +1,4 @@
-package converter;
+package utility;
 
 public class Patterns {
     public static final String WHITESPACE = "[^\\S\\n\\r]";

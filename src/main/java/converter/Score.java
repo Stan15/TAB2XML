@@ -1,8 +1,5 @@
 package converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import converter.measure.Measure;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
@@ -17,14 +14,14 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Score {
+public class Score implements ScoreComponent {
     public List<MeasureCollection> measureCollectionList;
     // Score.ROOT_STRING is only public for the JUnit tester to work. Its access modifier should be protected so that
     // it will not be changed by anything outside the converter package as the "position" instance variable of other
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public String rootString;
+    public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
     public static String STRICT_TYPE;
     public static int DEFAULT_BEAT_TYPE = 4;
@@ -33,13 +30,11 @@ public class Score {
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
-        this.rootString = rootString;
+        ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
         if (STRICT_TYPE==null)
             STRICT_TYPE = "";
-
-        // TODO apply instructions (like time signature for specific measures) here. the time signature for each measure has to be set for the following code to be correct
 
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
@@ -105,7 +100,7 @@ public class Score {
 
         int previousBreakEndIdx = 0;
         while(textBreakMatcher.find()) {
-            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
+            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
             if (!fragment.strip().isEmpty()) {
                 int position = previousBreakEndIdx;
                 stringFragments.put(position, fragment);
@@ -133,7 +128,7 @@ public class Score {
 
         int prevEndIdx = 0;
         for (MeasureCollection msurCollction : this.measureCollectionList) {
-            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
+            String uninterpretedFragment = ROOT_STRING.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
@@ -142,7 +137,7 @@ public class Score {
             prevEndIdx = msurCollction.endIndex;
         }
 
-        String restOfDocument = this.rootString.substring(prevEndIdx);
+        String restOfDocument = ROOT_STRING.substring(prevEndIdx);
         if (!restOfDocument.isBlank()) {
             if (!errorRanges.isEmpty()) errorRanges.append(";");
             errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");
