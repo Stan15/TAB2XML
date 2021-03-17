@@ -9,6 +9,7 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -24,12 +25,6 @@ dependencies {
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
 }
 
-test {
-    useJUnitPlatform()
-    testLogging {
-        events 'passed', 'skipped', 'failed'
-    }
-}
 
 javafx {
     version = "15.0.1"
