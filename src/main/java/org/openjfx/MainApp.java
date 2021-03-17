@@ -1,5 +1,6 @@
 package org.openjfx;
 
+import converter.Score;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,7 +16,6 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         this.STAGE = stage;
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
-
         Scene scene = new Scene(root);
 
 
@@ -29,9 +29,14 @@ public class MainApp extends Application {
         stage.show();
     }
 
+    private void gracefulExit() {
+        this.stop();
+    }
+
     @Override
     public void stop() {
         TabInput.executor.shutdown();
+        TabPlayer.kill();
     }
 
     public static void main(String[] args) {

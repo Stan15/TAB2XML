@@ -95,17 +95,23 @@ public class Score implements ScoreComponent {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
-        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+|$");
+        Pattern textBreakPattern = Pattern.compile("((\\R|^)[ ]*(?=\\R)){2,}|^|$");
         Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
 
-        int previousBreakEndIdx = 0;
+        Integer previousTextBreakEnd = null;
         while(textBreakMatcher.find()) {
-            String fragment = ROOT_STRING.substring(previousBreakEndIdx,textBreakMatcher.start());
-            if (!fragment.strip().isEmpty()) {
-                int position = previousBreakEndIdx;
-                stringFragments.put(position, fragment);
+            if (previousTextBreakEnd==null) {
+                previousTextBreakEnd = textBreakMatcher.end();
+                continue;
             }
-            previousBreakEndIdx = textBreakMatcher.end();
+
+            int paragraphStart = previousTextBreakEnd;
+            int paragraphEnd = textBreakMatcher.start();
+            String fragment = ROOT_STRING.substring(previousTextBreakEnd,paragraphEnd);
+            if (!fragment.strip().isEmpty()) {
+                stringFragments.put(paragraphStart, fragment);
+            }
+            previousTextBreakEnd = textBreakMatcher.end();
         }
         return stringFragments;
     }
@@ -147,7 +153,7 @@ public class Score implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This text can't be understood.");
             response.put("positions", errorRanges.toString());
-            response.put("priority", "3");
+            response.put("priority", "4");
             result.add(response);
         }
 
@@ -254,5 +260,15 @@ public class Score implements ScoreComponent {
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        String outStr = "";
+        for (MeasureCollection measureCollection : this.measureCollectionList) {
+            outStr += measureCollection.toString();
+            outStr += "\n\n";
+        }
+        return outStr;
     }
 }

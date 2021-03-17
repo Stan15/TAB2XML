@@ -26,6 +26,7 @@ public class GuitarNote extends Note {
         }catch (Exception e) {
             this.fret = 0;
         }
+        this.sign = this.fret+"";
     }
 
     public List<HashMap<String, String>> validate() {

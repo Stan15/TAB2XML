@@ -18,6 +18,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     int position;
     public double duration;
     public double durationRatio;
+    public String sign;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -26,7 +27,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
+    public static String COMPONENT_PATTERN = "[0-9./\\\\~\\(\\)\\[\\]a-zA-Z]";
 
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;

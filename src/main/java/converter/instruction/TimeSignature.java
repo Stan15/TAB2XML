@@ -73,9 +73,11 @@ public class TimeSignature extends Instruction {
     }
 
     public static boolean isValid(int beatCount, int beatType) {
-        if (beatCount<=0 || beatType<=0)
-            return false;
-        // check for any unacceptable time signatures here and return false
         return true;
+//        return switch (beatCount + "/" + beatType) {
+//            case "2/4", "2/2", "3/8", "3/4", "3/2", "4/8", "4/4", "4/2", "6/8", "6/4", "9/8", "9/4", "12/8", "12/4" -> true;
+//            default -> false;
+//        };
+        // check for any unacceptable time signatures here and return false
     }
 }
