@@ -98,8 +98,8 @@ public class FXMLController {
 
         String userDirectoryString = System.getProperty("user.home");
         File openDirectory;
-        if (this.saveFile!=null && saveFile.canRead()) {
-            openDirectory = new File(this.saveFile.getParent());
+        if (saveFile!=null && saveFile.canRead()) {
+            openDirectory = new File(saveFile.getParent());
         }else
             openDirectory = new File(userDirectoryString);
 
@@ -269,7 +269,7 @@ public class FXMLController {
 
         if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
             initialDir = new File(System.getProperty("user.home"));
-        if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
+        if (!(initialDir.exists() && initialDir.canRead()))
             initialDir = new File("c:/");
 
         fileChooser.setInitialDirectory(initialDir);
@@ -359,19 +359,10 @@ public class FXMLController {
 
     private void changeErrorSensitivity(String prefValue) {
         switch (prefValue) {
-            case "Level 1 - Minimal Error Checking":
-                TabInput.ERROR_SENSITIVITY = 1;
-                break;
-            case "Level 3 - Advanced Error Checking":
-                TabInput.ERROR_SENSITIVITY = 3;
-                break;
-            case "Level 4 - Detailed Error Checking":
-                TabInput.ERROR_SENSITIVITY = 4;
-                break;
-            case "Level 2 - Standard Error Checking":
-            default:
-                TabInput.ERROR_SENSITIVITY = 2;
-                break;
+            case "Level 1 - Minimal Error Checking" -> TabInput.ERROR_SENSITIVITY = 1;
+            case "Level 3 - Advanced Error Checking" -> TabInput.ERROR_SENSITIVITY = 3;
+            case "Level 4 - Detailed Error Checking" -> TabInput.ERROR_SENSITIVITY = 4;
+            default -> TabInput.ERROR_SENSITIVITY = 2;
         }
 
         TEXT_AREA.replaceText(new IndexRange(0, TEXT_AREA.getText().length()), TEXT_AREA.getText()+" ");
