@@ -251,40 +251,38 @@ public abstract class MeasureLine implements ScoreComponent {
 
     @Override
     public String toString() {
-        return this.name.strip()+"|"+this.recreateLineString()+"|";
+        return this.name.strip()+"|"+this.recreateLineString(this.line.length())+"|";
     }
 
-    private String recreateLineString() {
+    public String recreateLineString(int maxMeasureLineLength) {
         StringBuilder outStr = new StringBuilder();
         if (this.noteList.isEmpty()) {
-            Matcher matcher = Pattern.compile("\\S").matcher(this.line);
-            while (matcher.find()) {
-                outStr.append("-");
+            for (int i=0; i<this.line.length(); i++) {
+                String str = String.valueOf(this.line.charAt(i));
+                if (str.matches("\s")) continue;
+                outStr.append(str);
             }
+            outStr.append("|");
             return outStr.toString();
         }
-        Iterator<Note> noteIterator = this.noteList.iterator();
-        Note previousNote = null;
-        while (noteIterator.hasNext()) {
-            Note currentNote = noteIterator.next();
-            if (currentNote.validate().isEmpty()) continue;
-            int dashCount = currentNote.distance;
-            if (previousNote!=null && currentNote.distance<(previousNote.distance+previousNote.line.length())) {
-                previousNote = currentNote;
-                continue;
-            }
-            if (previousNote!=null) {
-                dashCount -= previousNote.distance;
-            }
-            while (dashCount>0) {
-                outStr.append("-");
-                dashCount--;
-            }
-            outStr.append(currentNote.line.strip());
 
-            previousNote = currentNote;
+        double maxRatio = 0;
+        for (Note note : this.noteList) {
+            maxRatio = Math.max(maxRatio, note.durationRatio);
         }
+        int actualLineDistance = maxMeasureLineLength;
 
+
+        int prevNoteEndDist = 0;
+        for (Note note : this.noteList) {
+            if (!note.validate().isEmpty()) continue;
+            int dashCount = note.distance-prevNoteEndDist;
+            outStr.append("-".repeat(Math.max(0, dashCount)));
+            outStr.append(note.sign);
+            prevNoteEndDist = note.distance + note.sign.length();
+        }
+        outStr.append("-".repeat(Math.max(0, actualLineDistance - prevNoteEndDist)));
+        outStr.append("|");
         return outStr.toString();
     }
 

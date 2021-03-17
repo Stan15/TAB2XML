@@ -17,7 +17,11 @@
 .tool-bar {
     background-color: #000000;
 }
-#borderPane, #menuBar, #convertPane, #settingsPane, #timeSignaturePane {
+#borderPane, #menuBar, #convertPane, #settingsPane, #timeSignaturePane, #tabPlayerPane {
     -fx-background-color: rgb(50,50,50);
 
+}
+
+#tabPlayerDisplay {
+    -fx-font-family: Monospaced;
 }

@@ -18,6 +18,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     int position;
     public double duration;
     public double durationRatio;
+    public String sign;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"

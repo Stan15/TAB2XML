@@ -215,7 +215,8 @@ public class FXMLController {
 
             Stage stage = new Stage();
             stage.setTitle(windowName);
-            stage.initOwner(borderPane.getScene().getWindow());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(MainApp.STAGE);
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -308,14 +309,26 @@ public class FXMLController {
     }
 
     public void initialize() {
-        initializeTextAreaErrorPopups();
+        initializeTextArea();
         initializeSettings();
     }
 
-    private void initializeTextAreaErrorPopups() {
+    private void initializeTextArea() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
         }
+        initializeTextAreaErrorPopups();
+        ContextMenu context = new ContextMenu();
+        MenuItem menuItem = new MenuItem("Play Notes");
+        menuItem.setOnAction(e -> {
+            new TabPlayer(TEXT_AREA);
+        });
+        context.getItems().add(menuItem);
+        TEXT_AREA.setContextMenu(context);
+
+    }
+
+    private void initializeTextAreaErrorPopups() {
         TEXT_AREA.setParagraphGraphicFactory(LineNumberFactory.get(TEXT_AREA));
         new TabInput(TEXT_AREA).enableHighlighting();
 
@@ -352,11 +365,16 @@ public class FXMLController {
             case "Level 3 - Advanced Error Checking":
                 TabInput.ERROR_SENSITIVITY = 3;
                 break;
+            case "Level 4 - Detailed Error Checking":
+                TabInput.ERROR_SENSITIVITY = 4;
+                break;
             case "Level 2 - Standard Error Checking":
             default:
                 TabInput.ERROR_SENSITIVITY = 2;
                 break;
         }
+
+        TEXT_AREA.replaceText(new IndexRange(0, TEXT_AREA.getText().length()), TEXT_AREA.getText()+" ");
     }
     private void initializeSettings() {
         if (errorSensitivity != null && outputFolderField != null) {

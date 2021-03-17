@@ -367,10 +367,23 @@ public abstract class Measure implements ScoreComponent {
     @Override
     public String toString() {
         StringBuilder stringOut = new StringBuilder();
-        for (MeasureLine measureLine : this.measureLineList) {
-            stringOut.append(measureLine.toString());
+        if (TimeSignature.isValid(this.beatCount, this.beatType))
+            stringOut.append(this.beatCount+"/"+this.beatType+"\n");
+        for (int i=0; i<this.measureLineList.size()-1; i++) {
+            MeasureLine measureLine = this.measureLineList.get(i);
+            stringOut.append(measureLine.name);
+            stringOut.append("|");
+            stringOut.append(measureLine.recreateLineString(getMaxMeasureLineLength()));
             stringOut.append("\n");
         }
+        if (!this.measureLineList.isEmpty()) {
+            MeasureLine measureLine = this.measureLineList.get(this.measureLineList.size()-1);
+            stringOut.append(measureLine.name);
+            stringOut.append("|");
+            stringOut.append(measureLine.recreateLineString(getMaxMeasureLineLength()));
+            stringOut.append("\n");
+        }
+
         return stringOut.toString();
     }
 
@@ -380,9 +393,15 @@ public abstract class Measure implements ScoreComponent {
         if (this.isFirstMeasureInGroup)
             position = Integer.parseInt(lineNamesAndPositions.get(0)[1]);   // use the starting position of the name instead.
         else
-            position = this.positions.get(0)-1;       // use the starting position of teh inside of the measure minus one, so that it also captures the starting line of that measure
+            position = this.positions.get(0)-1;       // use the starting position of the inside of the measure minus one, so that it also captures the starting line of that measure "|"
         int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
-        int relEndPos = relStartPos + this.lines.get(0).length();
+        String line = this.lines.get(0);
+        int lineLength = 0;
+        if (line.matches("[^|]*\\|\\s*"))   //if it ends with a |
+            lineLength = line.length()-1;
+        else
+            lineLength = line.length();
+        int relEndPos = relStartPos + lineLength;
         return new Range(relStartPos, relEndPos);
     }
 

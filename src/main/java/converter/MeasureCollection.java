@@ -186,6 +186,9 @@ public class MeasureCollection implements ScoreComponent {
         for (MeasureGroup mGroup : this.measureGroupList) {
             result.addAll(mGroup.validate());
         }
+        for (Instruction instruction : this.instructionList) {
+            result.addAll(instruction.validate());
+        }
 
         return result;
     }
@@ -249,6 +252,19 @@ public class MeasureCollection implements ScoreComponent {
 
     public List<MeasureGroup> getMeasureGroupList() {
         return this.measureGroupList;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder outStr = new StringBuilder();
+        for (int i=0; i<this.measureGroupList.size()-1; i++) {
+            outStr.append(this.measureGroupList.get(i).toString());
+            outStr.append("\n\n");
+        }
+
+        if (!this.measureGroupList.isEmpty())
+            outStr.append(this.measureGroupList.get(this.measureGroupList.size()-1).toString());
+        return outStr.toString();
     }
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure

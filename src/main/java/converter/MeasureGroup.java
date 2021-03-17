@@ -253,4 +253,16 @@ public class MeasureGroup implements ScoreComponent {
         int relEndPos = relStartPos + this.lines.get(0).length();
         return new Range(relStartPos, relEndPos);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder outStr = new StringBuilder();
+        for (int i=0; i<this.measureList.size()-1; i++) {
+            outStr.append(this.measureList.get(i).toString());
+            outStr.append("\n\n");
+        }
+        if (!this.measureList.isEmpty())
+            outStr.append(this.measureList.get(this.measureList.size()-1).toString());
+        return outStr.toString();
+    }
 }

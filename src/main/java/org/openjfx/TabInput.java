@@ -2,6 +2,7 @@ package org.openjfx;
 
 import converter.Score;
 import javafx.concurrent.Task;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
@@ -23,7 +24,7 @@ public class TabInput {
     private static String PREVIOUS_TEXT_INPUT = "";
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 350;   //in milliseconds
-    protected static int ERROR_SENSITIVITY = 3;
+    protected static int ERROR_SENSITIVITY = 4;
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
@@ -146,6 +147,7 @@ public class TabInput {
             case 1: return "highPriorityError";
             case 2: return "mediumPriorityError";
             case 3: return "lowPriorityError";
+            case 4: return "unimportantError";
             default:
                 new Exception("TXT2XML: invalid validation error priority").printStackTrace();
                 return "";
