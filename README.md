@@ -120,7 +120,7 @@ This is used to identify text which were not identified to be a score object (i.
 
 -	Yellow highlight: “A guitar measure should have 6 lines.” (Figure 3).
 As a warning, if you get such an error on a measure which seems to be accurate, make sure no text is written on the side of the measure as this makes the system identify it as two different measures. Reference the Input Requirements section of this manual for more information regarding this.<br/>
-![image](https://user-images.githubusercontent.com/47716543/111568574-62993d80-8777-11eb-9380-5080c93a8395.png)
+![image](https://user-images.githubusercontent.com/47716543/111569807-d3d9f000-8779-11eb-8d15-3d1d73a51154.png)
  <br/><br/>
 
 
