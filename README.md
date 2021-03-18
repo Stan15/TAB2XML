@@ -4,7 +4,7 @@
 
 1.1 Product Name and Intended Use
 
-TAB2XML is a tool designed to convert musical tablature in a text format into MusicXML, a popular open-source file format used for exchanging digital sheet music.  TAB2XML is currently a simple java-based application with more features being added every week.  
+TAB2XML is a tool designed to convert musical tablature in a text format into MusicXML, a popular open-source file format used for exchanging digital sheet music.  TAB2XML is a java-based application that is currently actively supported, with more features being added every week. 
   
 1.2 Features of Product
 
@@ -103,40 +103,53 @@ project should be saved. <br/>
 2. To put your input, click file-open and choose your file, or copy and paste your text file in text field. <br/>
 
 
-3. Once you put your text input, system tells which information is not able to be recognized and which information should be fixed for appropriate converting. It shows message when the mouse pointer hovers over it. <br/>
+3. Once you put your text input, the system identifies errors in your input if any exists, and it notates them using a color-coded highlighting system. <br/>
+
+There are 4 levels of highlighting:<br/>
+i.	Red highlight: This is used to identify errors which may critically affect the output of the conversion.
+ii.	Yellow highlight: Errors with this highlight are less critical, but we do not guarantee an accurate output with these errors.
+iii.	Grey highlight: This highlight is used to identify content which may have little to no effect on the output.
+
+Detailed below are a few examples of different error highlighting scenarios:<br/>
 
 
--	Blue highlight: “This text can’t be understood.” (Figure 2). <br/>
-![image](https://user-images.githubusercontent.com/76922658/111505030-92682700-871e-11eb-8958-36007991c9d5.png) <br/><br/>
+-	Grey highlight: “This text can’t be understood.” (Figure 2).
+This is used to identify text which were not identified to be a score object (i.e measure, note, repeat instruction, e.t.c.) <br/>
+![image](https://user-images.githubusercontent.com/47716543/111568520-4bf2e680-8777-11eb-9308-d6bdfbd5b9aa.png) <br/><br/>
 
 
--	Yellow highlight: “A guitar measure should have 6 lines.” (Figure 3). <br/>
-![image](https://user-images.githubusercontent.com/76922658/111505099-a6ac2400-871e-11eb-94da-bb9487002a7f.png) <br/><br/>
+-	Yellow highlight: “A guitar measure should have 6 lines.” (Figure 3).
+As a warning, if you get such an error on a measure which seems to be accurate, make sure no text is written on the side of the measure as this makes the system identify it as two different measures. Reference the Input Requirements section of this manual for more information regarding this.<br/>
+![image](https://user-images.githubusercontent.com/47716543/111568574-62993d80-8777-11eb-9380-5080c93a8395.png)
+ <br/><br/>
 
 
--	Red highlight: “This annotation is either unsupported or invalid.” (Figure 4). <br/>
-![image](https://user-images.githubusercontent.com/76922658/111505129-af045f00-871e-11eb-9df7-7d3b89d9bf07.png) <br/><br/>
+-	Red highlight: “This annotation is either unsupported or invalid” This is used to identify  elements which are either not supported or not identified as valid measure annotations.<br/>
+![image](https://user-images.githubusercontent.com/47716543/111568625-7644a400-8777-11eb-95f1-b3a37a6a11a6.png)
+
+<br/><br/>
 
 
-Note: Notations which program can support are limited, as of now. It will be updated gradually.
+Note: There are more error scenarios which may occur, but they are all categorized into the three groups identified above.
 
 
-Note: When you load your file (not copying and paste), there may not be highlights. It will be updated. <br/>
+4. For a more accurate output, be sure to resolve any errors highlighted red or yellow. The grey errors can usually be ignored without consequence. <br/>
 
 
-4. For proper expected result, just be sure if there is no yellow highlight in your guitar 
-tablature. Blue highlight outside tablature can be ignored. <br/>
+How to resolve errors:
+- Be sure the number of lines of instrument is right.<br/>
+- Remove all unrecognizable notations in tablature and replace with dash ‘-’.<br/>
+- Remove all text placed around measures, except for measure instructions (time signature and repeats)<br/>
 
+How to resolve errors: instructional video: https://drive.google.com/file/d/174oWzswHkvnTvyask_AUpYKRjKmuz3_m/view?usp=sharing
 
-How to fix: 
 - Be sure the number of lines of instrument is right. <br/>
 - Remove all unrecognizable notations in tablature and replace with dash ‘-’. <br/>
 - Remove all texts which is placed around score bars except for key notation. <br/>
 - (How to fix instruction video: https://drive.google.com/file/d/174oWzswHkvnTvyask_AUpYKRjKmuz3_m/view?usp=sharing <br/>
 
 
-Note: If you removed all yellow and red highlight, it is ready to be converted.
-(If there is no yellow and red highlight in score bars information, you can skip this step) <br/>
+Note: If you removed all yellow and red highlights, the score is ready to be converted. However, if there are no yellow or red highlights in the score, you can skip this step. <br/>
 
 
 5. Click the “Convert” button. This opens new window for some option (Figure5). <br/>
@@ -145,11 +158,10 @@ Note: If you removed all yellow and red highlight, it is ready to be converted.
 
 Title – You can set the title of song. <br/>
 Artist – You can set the artist name. <br/>
-Conversion Method – You can choose your score type. Piano or Tablature type. <br/>
 File Name – You can name your file. <br/>
 
 
-Note: All of functions has not been implemented. It will be updated gradually.
+Note: Not all functions have been implemented. Updates will roll out gradually.
 
 
 If you set all of them, click save button. <br/>
@@ -162,26 +174,52 @@ If you set all of them, click save button. <br/>
 
 ## 5. Input Requirements
 
+This program allows for the application of repeats and time signatures to individual measures. Here, we will go over the input restrictions governing these features.
 
-5.1 Guitar
+For instructions in general, the following requirements are outlined:
 
+1.	For a line to be interpreted as having instructions, it must only be composed of valid instructions separated by spaces and nothing else.
+2.	The ‘tab’ button should not be used in your instruction lines as this might result in the system not applying the instructions to the correct measure.
+3.	For your instructions to be recognized, the line directly below the instruction line must be a measure line or another instruction line (instruction chaining is allowed).
+4.	Lines of instructions are chained by connecting the lines by one new line.
+5.	The order of priority for applying instructions is left to right, up to down.
+
+
+
+
+
+
+
+Repeats:
+For repeats, the following input requirements must be followed for repeats to be correctly applied
+
+1.	Repeats must start and end with a vertical bar, and can have any combination of spaces or dashes “-“ in-between, as seen below.<br/>
+![image](https://user-images.githubusercontent.com/47716543/111568991-329e6a00-8778-11eb-81a4-1d99b5c178cc.png)<br/><br/>
+
+2.	Repeats can be notated in any one of the three below stated ways.<br/>
+![image](https://user-images.githubusercontent.com/47716543/111569288-b8bab080-8778-11eb-9ac8-e39102911eea.png)<br/><br/>
+
+Time Signatures:
+1.	The list of possible time signatures has been artificially restricted to the following generally accepted time signatures: 2/4, 2/2, 3/8, 3/4, 4/8, 4/4, 4/2, 6/8, 6/4, 9/8, 9/4, 12/8, and 12/4.
+2.	If an invalid time signature is provided, the following error is received:<br/>
+![image](https://user-images.githubusercontent.com/47716543/111569347-d2f48e80-8778-11eb-8bfa-4f66d2a8ee8b.png)<br/><br/>
+3.	The default time signature is 4/4 if no time signature instruction is provided.
+4.	Time signatures with a beat or beat count consisting of three or more values are not recognized as instructions and will make the line of instructions invalid.
+
+
+Note Player:
+You can also select measures and play them through our note player:
+|------------------|----------|
+![image](https://user-images.githubusercontent.com/47716543/111569389-ec95d600-8778-11eb-8ed3-52c35a4819ff.png) | ![image](https://user-images.githubusercontent.com/47716543/111569410-f7506b00-8778-11eb-9f19-b97951bcd79c.png) <br/><br/>
+
+5.2 Guitar
 
 Some sample tablature text files that meet the below requirements can be found in the project folder in the directory TAB2XML/src/test/resources/test_tab_files. The tablature file input into the program must meet the following requirements:
-
 
 1.	The tablature file must start with a vertical line after the string name.
 2.	you may not have text by the side of a measure which itself is not a measure.
 3.	The line names must all be lower caps, except for the E string which can be lower caps to distinguish the lower e string from the upper E string.
-4.	For a line to be interpreted as having instructions, it must only be composed of valid instructions separated by spaces and nothing else.
-5.	The ‘tab’ button should not be used in your instruction lines as this might result in the system not applying the instructions to the correct measure.
-6.	For your instructions to be recognized, the line directly below the instruction line must be a measure line or another instruction line (instruction chaining is allowed).
-7.	Lines of instructions are chained by connecting the lines by one new line.
-8.	The order of priority for applying instructions is left to right, up to down.
-9.	The default time signature is 4/4 if no time signature instruction is provided. <br/>
-
-
 Note: System does not guarantee an accurate output if measure collections do not contain blank 
 line dividing’s, and if they do not have clear line names specified. (i.e string names/drum names).
-
 
 Note: Information of other instruments will be updated gradually.
