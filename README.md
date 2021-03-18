@@ -210,7 +210,7 @@ Time Signatures:
 Note Player:
 You can also select measures and play them through our note player:
 |------------------|----------|
-![image](https://user-images.githubusercontent.com/47716543/111569389-ec95d600-8778-11eb-8ed3-52c35a4819ff.png) | ![image](https://user-images.githubusercontent.com/47716543/111569410-f7506b00-8778-11eb-9f19-b97951bcd79c.png) <br/><br/>
+|![image](https://user-images.githubusercontent.com/47716543/111569389-ec95d600-8778-11eb-8ed3-52c35a4819ff.png) | ![image](https://user-images.githubusercontent.com/47716543/111569410-f7506b00-8778-11eb-9f19-b97951bcd79c.png) |<br/><br/>
 
 5.2 Guitar
 
