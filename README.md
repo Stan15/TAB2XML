@@ -215,10 +215,11 @@ You can also select measures and play them through our note player:
 
 Some sample tablature text files that meet the below requirements can be found in the project folder in the directory TAB2XML/src/test/resources/test_tab_files. The tablature file input into the program must meet the following requirements:
 
-1.	The tablature file must start with a vertical line after the string name.
+1.	A measure must start with a vertical line after the string name.
 2.	you may not have text by the side of a measure which itself is not a measure.
-3.	The line names must all be lower caps, except for the E string which can be lower caps to distinguish the lower e string from the upper E string.
+
 Note: System does not guarantee an accurate output if measure collections do not contain blank 
 line dividing’s, and if they do not have clear line names specified. (i.e string names/drum names).
+
 
 Note: Information of other instruments will be updated gradually.
