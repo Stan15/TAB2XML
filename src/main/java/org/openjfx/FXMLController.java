@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import converter.GuitarConverter.GuitarConvert;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -29,8 +28,6 @@ import utility.Parser;
 
 public class FXMLController {
 
-    @FXML private CheckBox conversionMethodCheckbox;
-    public static boolean usePiano;
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
@@ -84,11 +81,6 @@ public class FXMLController {
         if (!userOkToGoAhead) return;
         this.TEXT_AREA.clear();
         isEditingSavedFile = false;
-    }
-
-    @FXML
-    public void toggleUsePiano() {
-        usePiano = conversionMethodCheckbox.isSelected();
     }
 
     @FXML
@@ -236,13 +228,8 @@ public class FXMLController {
 
     @FXML
     private void saveConvertedButtonHandle() {
-        if (usePiano) {
-            Parser.createScore(TEXT_AREA.getText());
-            generatedOutput = Parser.parse();
-        }else {
-            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
-            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
-        }
+        Parser.createScore(TEXT_AREA.getText());
+        generatedOutput = Parser.parse();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.xml", "*.mxl", "*.musicxml");
@@ -281,7 +268,6 @@ public class FXMLController {
             saveToXMLFile(generatedOutput, file);
             saveFile = file;
             cancelConvertButtonHandle();
-            usePiano = false;
         }
     }
 
