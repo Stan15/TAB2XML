@@ -6,7 +6,6 @@ import java.util.*;
 
 public class GuitarMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
-    public static String COMPONENT_PATTERN = createLineComponentPattern();
 
     public GuitarMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
@@ -19,17 +18,13 @@ public class GuitarMeasureLine extends MeasureLine {
         return nameSet;
     }
 
-    private static String createLineComponentPattern() {
-        return "[0-9]+|h|p|/|\\";
-    }
 
     public List<HashMap<String,String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
-        if (!isGuitar(this.line, this.name.strip())) {
+        if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
-            if (isDrum(this.line, this.name.strip()))
+            if (isDrumName(this.name))
                 response.put("message", "A guitar string name is expected here.");
             else
                 response.put("message", "Invalid measure line name.");

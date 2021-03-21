@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="timeSignaturePane" prefHeight="105.0" prefWidth="340.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.TimeSignatureWindow">
+   <children>
+      <Button layoutX="169.0" layoutY="69.0" mnemonicParsing="false" text="Save Measure Information" />
+      <Label layoutX="14.0" layoutY="14.0" text="Measure #8 Time Signature" />
+      <ComboBox fx:id="timeSignatureCmb" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="309.0" />
+   </children>
+</AnchorPane>

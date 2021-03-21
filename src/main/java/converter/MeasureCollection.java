@@ -1,19 +1,23 @@
 package converter;
 
+import com.sun.javafx.collections.ElementObservableListDecorator;
 import converter.instruction.Instruction;
+import utility.Patterns;
+import utility.Range;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MeasureCollection {
+public class MeasureCollection implements ScoreComponent {
     String origin;  //the string that was passed to the constructor upon the instantiation of this class
     int position;   //the index in Score.rootString at which the String "MeasureCollection().origin" is located
     int endIndex;
-    Map<String, List<String>> components;
     List<MeasureGroup> measureGroupList;
     public static String PATTERN = createMeasureCollectionPattern();
     public static String LINE_PATTERN = createLinePattern();
+    boolean isFirstCollection;
+    private List<Instruction> instructionList = new ArrayList<>();
 
     /**
      * Static factory method which verifies that the input String "origin" can be recognised as a measure collection
@@ -24,22 +28,24 @@ public class MeasureCollection {
      * @return a MeasureCollection object if the input String "origin" is properly recognised to be a representation of
      * a measure group(regardless of if the measure group it is representing is valid or not). null otherwise
      */
-    public static List<MeasureCollection> getInstances(String origin, int position) {
+    public static List<MeasureCollection> getInstances(String origin, int position, boolean isFirstCollection) {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
         Matcher matcher = Pattern.compile(MeasureCollection.PATTERN).matcher(origin);
         while (matcher.find())
-            msurCollectionList.add(new MeasureCollection(matcher.group(), position+matcher.start()));
+            msurCollectionList.add(new MeasureCollection(matcher.group(), position+matcher.start(), isFirstCollection));
 
         return msurCollectionList;
     }
 
-    private MeasureCollection(String origin, int position) {
+    private MeasureCollection(String origin, int position, boolean isFirstCollection) {
         this.origin = origin;
         this.position = position;
         this.endIndex = position+this.origin.length();
-        this.components = this.separateComponents(origin);
-        this.measureGroupList = this.createMeasureGroupList(this.components.get("measure-group-collection").get(0));    //there is only one measure group collection per measure collection, so it is the only item in the list of measure group collections. because the type that other components map to is a List<String>, I had to make this a list too.
+        this.isFirstCollection = isFirstCollection;
+        createMeasureGroupAndInstructionList(origin);
+        for (Instruction instruction : this.instructionList)
+            instruction.applyTo(this);
     }
 
     /**
@@ -88,8 +94,10 @@ public class MeasureCollection {
                 measureGroupLines.add(measureGroupLine);
             }
         }
+        boolean isFirstGroup = true;
         for (List<String> measureGroupString : measureGroupStringList) {
-            measureGroupList.add(new MeasureGroup(measureGroupString));
+            measureGroupList.add(new MeasureGroup(measureGroupString, isFirstGroup));
+            isFirstGroup = false;
         }
         return measureGroupList;
     }
@@ -104,7 +112,7 @@ public class MeasureCollection {
      * containing a List<String> of the comments in the origin String. Each String stored in this Map begins with a tag
      * (i.e "[startIdx]stringContent" ) specifying the start index of the String in Score.rootString
      */
-    private Map<String, List<String>> separateComponents(String origin) {
+    private Map<String, List<String>> createMeasureGroupAndInstructionList(String origin) {
         Map<String, List<String>> componentsMap = new HashMap<>();
         List<String> measureGroupCollctn = new ArrayList<>();
         List<String> instructionList = new ArrayList<>();
@@ -113,29 +121,46 @@ public class MeasureCollection {
         componentsMap.put("instructions", instructionList);
         componentsMap.put("comments", commentList);
 
-        HashSet<Integer> identifiedComponents = new HashSet<>();    //to prevent the same thing being identified as two different components (e.g being identified as both a comment and an instruction)
+        //HashSet<Integer> identifiedComponents = new HashSet<>();
+        List<Range> identifiedComponents = new ArrayList<>();       //to prevent the same thing being identified as two different components (e.g being identified as both a comment and an instruction)
 
-        //extract the measure group collection
+        //extract the measure group collection and create the list of MeasureGroup objects with it
         Matcher matcher = Pattern.compile("((^|\\n)"+MeasureCollection.LINE_PATTERN+")+").matcher(origin);
-        matcher.find(); // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
-        measureGroupCollctn.add("["+(this.position+matcher.start())+"]"+matcher.group());
-        identifiedComponents.add(matcher.start());
+        if(matcher.find()) { // we don't use while loop because we are guaranteed that there is going to be just one of this pattern in this.origin. Look at the static factory method and the createMeasureCollectionPattern method
+            this.measureGroupList = this.createMeasureGroupList("[" + (this.position + matcher.start()) + "]" + matcher.group());
+            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
+        }
 
         //extract the instruction
         matcher = Pattern.compile("((^|\\n)"+ Instruction.LINE_PATTERN+")+").matcher(origin);
         while(matcher.find()) {
-            if (identifiedComponents.contains(matcher.start())) continue;
-            instructionList.add("["+(this.position+matcher.start())+"]"+matcher.group());
-            identifiedComponents.add(matcher.start());
+            //first make sure that what was identified as one thing is not being identified as a different thing.
+            Range instructionLineRange = new Range(matcher.start(), matcher.end());
+            boolean continueWhileLoop = false;
+            boolean isTopInstruction = true;
+            for (Range range : identifiedComponents) {
+                if (range.overlaps(instructionLineRange)) {
+                    continueWhileLoop = true;
+                    break;
+                }
+                if (range.getEnd()<=instructionLineRange.getStart())
+                    isTopInstruction = false;
+            }
+            if (continueWhileLoop) continue;
+            if (isTopInstruction)
+                this.instructionList.addAll(Instruction.from(matcher.group(), this.position+matcher.start(), Instruction.TOP));
+            else
+                this.instructionList.addAll(Instruction.from(matcher.group(), this.position+matcher.start(), Instruction.BOTTOM));
+            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
         }
 
-        //extract the comments
-        matcher = Pattern.compile("((^|\\n)"+Patterns.COMMENT+")+").matcher(origin);
-        while(matcher.find()) {
-            if (identifiedComponents.contains(matcher.start())) continue;
-            commentList.add("["+(this.position+matcher.start())+"]"+matcher.group());
-            identifiedComponents.add(matcher.start());
-        }
+//        //extract the comments
+//        matcher = Pattern.compile("((^|\\n)"+Patterns.COMMENT+")+").matcher(origin);
+//        while(matcher.find()) {
+//            if (identifiedComponents.contains(matcher.start())) continue;
+//            commentList.add("["+(this.position+matcher.start())+"]"+matcher.group());
+//            identifiedComponents.add(new Range(matcher.start(), matcher.end()));
+//        }
         return componentsMap;
     }
 
@@ -161,12 +186,15 @@ public class MeasureCollection {
         for (MeasureGroup mGroup : this.measureGroupList) {
             result.addAll(mGroup.validate());
         }
+        for (Instruction instruction : this.instructionList) {
+            result.addAll(instruction.validate());
+        }
 
         return result;
     }
 
     private static String createLinePattern() {
-        return "("+Patterns.WHITESPACE+"*("+MeasureGroup.LINE_PATTERN+Patterns.WHITESPACE+"*)+)";
+        return "("+ Patterns.WHITESPACE+"*("+MeasureGroup.LINE_PATTERN+Patterns.WHITESPACE+"*)+)";
     }
 
     /**
@@ -175,12 +203,68 @@ public class MeasureCollection {
      */
     private static String createMeasureCollectionPattern() {
         // zero or more instructions, followed by one or more measure group lines, followed by zero or more instructions
-        return "((^|\\n)"+ Instruction.LINE_PATTERN+"+|"+Patterns.COMMENT+")*"          // 0 or more lines separated by newlines, each containing a group of instructions or comments
+        return "((^|\\n)"+ Instruction.LINE_PATTERN+")*"          // 0 or more lines separated by newlines, each containing a group of instructions or comments
                 + "("                                                                   // then the measure collection line, which is made of...
                 +       "(^|\\n)"                                                           // a start of line or a new line
                 +       MeasureCollection.createLinePattern()                               // a measure group line followed by whitespace, all repeated one or more times
                 + ")+"                                                                  // the measure collection line I just described is repeated one or more times.
-                + "(\\n"+ Instruction.LINE_PATTERN+"+)*";
+                + "(\\n"+ Instruction.LINE_PATTERN+")*";
+    }
+
+    public List<models.measure.Measure> getMeasureModels() {
+        List<models.measure.Measure> measureModels = new ArrayList<>();
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            measureModels.addAll(measureGroup.getMeasureModels());
+        }
+        return measureModels;
+    }
+
+    public boolean isGuitar(boolean strictCheck) {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            if (!measureGroup.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean isDrum(boolean strictCheck) {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            if (!measureGroup.isDrum(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
+    public int getDivisions() {
+        int divisions = 0;
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            divisions = Math.max(divisions,  measureGroup.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            measureGroup.setDurations();
+        }
+    }
+
+    public List<MeasureGroup> getMeasureGroupList() {
+        return this.measureGroupList;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder outStr = new StringBuilder();
+        for (int i=0; i<this.measureGroupList.size()-1; i++) {
+            outStr.append(this.measureGroupList.get(i).toString());
+            outStr.append("\n\n");
+        }
+
+        if (!this.measureGroupList.isEmpty())
+            outStr.append(this.measureGroupList.get(this.measureGroupList.size()-1).toString());
+        return outStr.toString();
     }
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure

@@ -13,8 +13,7 @@ public class DrumMeasureLine extends MeasureLine {
 
     protected static Set<String> createLineNameSet() {
         String[] names = {"CC", "Ch", "C2", "HH", "Rd", "R", "SN", "T1", "T2", "FT", "BD", "Hf", "FH", "C", "H", "s", "S", "B", "Hh", "F", "F2", "Ht", "Mt", "f1", "f2", "Hhf"};
-        HashSet<String> nameSet = new HashSet<>();
-        nameSet.addAll(Arrays.asList(names));
+        HashSet<String> nameSet = new HashSet<>(Arrays.asList(names));
         return nameSet;
     }
 
@@ -30,10 +29,9 @@ public class DrumMeasureLine extends MeasureLine {
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
-        if (!isGuitar(this.line, this.name)) {
+        if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "A drum measure line name is expected here.");
             response.put("positions", "["+this.namePosition+"]");
