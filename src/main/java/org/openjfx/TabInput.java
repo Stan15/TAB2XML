@@ -2,14 +2,19 @@ package org.openjfx;
 
 import converter.Score;
 import javafx.concurrent.Task;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.TextArea;
+import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 import utility.*;
 
+import java.awt.*;
 import java.time.Duration;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -19,7 +24,7 @@ public class TabInput {
     private static String PREVIOUS_TEXT_INPUT = "";
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 350;   //in milliseconds
-    protected static int ERROR_SENSITIVITY = 3;
+    protected static int ERROR_SENSITIVITY = 4;
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
@@ -47,7 +52,7 @@ public class TabInput {
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
-        String strippedText = text.strip();
+        String strippedText = text.replaceFirst("\\s++$", "");
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) {
             spansBuilder.add(Collections.emptyList(), text.length());
@@ -142,6 +147,7 @@ public class TabInput {
             case 1: return "highPriorityError";
             case 2: return "mediumPriorityError";
             case 3: return "lowPriorityError";
+            case 4: return "unimportantError";
             default:
                 new Exception("TXT2XML: invalid validation error priority").printStackTrace();
                 return "";

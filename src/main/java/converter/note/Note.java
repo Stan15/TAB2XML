@@ -1,19 +1,24 @@
 package converter.note;
 
+import converter.ScoreComponent;
+
+import converter.Score;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class Note implements Comparable<Note> {
+public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
     public String line;
     public String name;
+    public int dotCount;
     int stringNumber;
     public int distance;
     int position;
-    public int duration;
-    public int divisions = 1;
+    public double duration;
+    public double durationRatio;
+    public String sign;
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -22,9 +27,9 @@ public abstract class Note implements Comparable<Note> {
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String CHARACTER_SET_PATTERN = "[0-9./\\\\~\\(\\)a-zA-Z]";
+    public static String COMPONENT_PATTERN = "[0-9./\\\\~\\(\\)\\[\\]a-zA-Z]";
 
-    public Note(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
+    public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
         this.name = lineName;
         this.position = position;
@@ -54,15 +59,48 @@ public abstract class Note implements Comparable<Note> {
      * @param position
      * @return
      */
-    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
+    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
         List<Note> noteList = new ArrayList<>();
         try {
-            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, measureLineLength, position));
+            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
         }catch (Exception e) {
             e.printStackTrace();
         }
 
         return noteList;
+    }
+
+    protected String getType() {
+        double noteVal = (4.0 * (double) Score.GLOBAL_DIVISIONS)/this.duration;
+        if (noteVal>=1024)
+            return "1024th";
+        else if (noteVal>=512)
+            return "512th";
+        else if (noteVal>=256)
+            return "256th";
+        else if (noteVal>=128)
+            return "128th";
+        else if (noteVal>=64)
+            return "64th";
+        else if (noteVal>=32)
+            return "32nd";
+        else if (noteVal>=16)
+            return "16th";
+        else if (noteVal>=8)
+            return "eighth";
+        else if (noteVal>=4)
+            return "quarter";
+        else if (noteVal>=2)
+            return "half";
+        else if (noteVal>=1)
+            return "whole";
+        else if (noteVal>=0.5)
+            return "breve";
+        else if (noteVal>=0.25)
+            return "long";
+        else if (noteVal>=0.125)
+            return "maxima";
+        return "";
     }
 
     public int convertNameToNumber(String lineName) {
@@ -82,32 +120,6 @@ public abstract class Note implements Comparable<Note> {
         }
         return 0;
     }
-
-    //I made only pitch part for now.
-    //reference: https://theacousticguitarist.com/all-notes-on-guitar/
-    //make script
-    public String pitchScript() {
-        int fret = Integer.parseInt(this.line);
-        String key = Note.key(this.stringNumber, fret);
-        int octave = octave(this.stringNumber,fret);
-
-        String octaveString = "<octave>" + octave + "</octave>\n";
-        String stepString;
-        if(!key.contains("#")) {
-            stepString = "<step>" + key + "</step>\n";
-        }
-        else {
-            stepString = "<step>" + key.charAt(0) + "</step>\n"
-                    + "<alter>" + 1 + "</alter>\n";
-            //In musicxml, # is expressed as <alter>1</alter>
-        }
-
-        return "<pitch>\n"
-                + stepString
-                + octaveString
-                + "</pitch>\n";
-    }
-
 
     //decide octave of note
     protected static int octave(int stringNumber, int fret) {
@@ -170,29 +182,6 @@ public abstract class Note implements Comparable<Note> {
             }
         }
         return octave;
-    }
-
-    //decide key of note
-    public static String key(int stringNumber, int fret) {
-        String[] keys = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-        if(stringNumber == 6) {
-            return keys[(fret + 4) % 12];
-        }
-        else if(stringNumber == 5) {
-            return keys[(fret + 9) % 12];
-        }
-        else if(stringNumber == 4) {
-            return keys[(fret + 2) % 12];
-        }
-        else if(stringNumber == 3) {
-            return keys[(fret + 7) % 12];
-        }
-        else if(stringNumber == 2) {
-            return keys[(fret + 11) % 12];
-        }
-        else {
-            return keys[(fret + 4) % 12];
-        }
     }
 
     public boolean isGuitar() {

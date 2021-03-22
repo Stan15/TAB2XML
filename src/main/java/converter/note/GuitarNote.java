@@ -1,6 +1,8 @@
 package converter.note;
 
+import converter.Score;
 import models.measure.note.Chord;
+import models.measure.note.Dot;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
 import models.measure.note.notations.Technical;
@@ -17,18 +19,18 @@ public class GuitarNote extends Note {
     }
 
     public int fret;
-    public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int measureLineLength, int position) {
-        super(line, lineName, distanceFromMeasureStart, measureLineLength, position);
+    public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int position) {
+        super(line, lineName, distanceFromMeasureStart, position);
         try {
             this.fret = Integer.parseInt(this.line.strip());
         }catch (Exception e) {
             this.fret = 0;
         }
+        this.sign = this.fret+"";
     }
 
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
         if (line.strip().matches("[0-9]+")) return result;
         HashMap<String, String> response = new HashMap<>();
@@ -44,11 +46,12 @@ public class GuitarNote extends Note {
         if (this.startsWithPreviousNote)
             noteModel.setChord(new Chord());
         noteModel.setPitch(new Pitch(GuitarNote.step(this.stringNumber, this.fret), GuitarNote.alter(this.stringNumber, this.fret), Note.octave(this.stringNumber, fret)));
-        noteModel.setDuration(this.duration);
         noteModel.setVoice(1);
         String noteType = this.getType();
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
+
+        noteModel.setDuration((int)Math.round(this.duration));  //we are guaranteed this.duration is greater or equal ot 1. look at Measure.setDurations()
 
         Technical technical = new Technical();
         technical.setString(this.stringNumber);
@@ -58,41 +61,15 @@ public class GuitarNote extends Note {
         notations.setTechnical(technical);
 
         noteModel.setNotations(notations);
+        //dot's don't work for some reason
+        List<Dot> dots = new ArrayList<>();
+//        for (int i=0; i<this.dotCount; i++){
+//            dots.add(new Dot());
+//        }
+//        if (!dots.isEmpty())
+//            noteModel.setDots(dots);
 
         return noteModel;
-    }
-
-    protected String getType() {
-        double noteVal = (4.0*(double)this.divisions)/((double)this.duration);
-        if (noteVal>=1024)
-            return "1024th";
-        else if (noteVal>=512)
-            return "512th";
-        else if (noteVal>=256)
-            return "256th";
-        else if (noteVal>=128)
-            return "128th";
-        else if (noteVal>=64)
-            return "64th";
-        else if (noteVal>=32)
-            return "32th";
-        else if (noteVal>=16)
-            return "16th";
-        else if (noteVal>=8)
-            return "eighth";
-        else if (noteVal>=4)
-            return "quarter";
-        else if (noteVal>=2)
-            return "half";
-        else if (noteVal>=1)
-            return "whole";
-        else if (noteVal>=0.5)
-            return "breve";
-        else if (noteVal>=0.25)
-            return "long";
-        else if (noteVal>=0.125)
-            return "maxima";
-        return "";
     }
 
     private static String step(int stringNum, int fret) {

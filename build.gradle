@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'jacoco'
 }
 
 group 'org.openjfx'
@@ -9,6 +10,15 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
+    jcenter()
+}
+jacoco {
+    toolVersion = "0.8.6"
+}
+
+jacocoTestReport {
+    dependsOn test
 }
 
 dependencies {
@@ -22,6 +32,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
     
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
+    implementation 'com.github.JensPiegsa:jfugue:5.0.9'
 }
 
 test {
@@ -29,6 +40,7 @@ test {
     testLogging {
         events 'passed', 'skipped', 'failed'
     }
+    finalizedBy jacocoTestReport
 }
 
 javafx {

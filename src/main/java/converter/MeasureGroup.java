@@ -5,6 +5,8 @@ import converter.measure.DrumMeasure;
 import converter.measure.GuitarMeasure;
 import converter.measure.Measure;
 import converter.measure_line.MeasureLine;
+import utility.Patterns;
+import utility.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,16 +14,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MeasureGroup {
+public class MeasureGroup implements ScoreComponent {
 
     //                           a measure line at start of line(with name)          zero or more middle measure lines       (optional |'s and spaces then what's ahead is end of line)
-    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";
+    public static String LINE_PATTERN = "("+MeasureLine.PATTERN_SOL          +          MeasureLine.PATTERN_MIDL+"*"    +   "("+ Patterns.DIVIDER+"*"+Patterns.WHITESPACE+"*)"     +  ")";
     public List<Integer> positions = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
     public List<Measure> measureList;
     public List<Instruction> instructionList;
-    public int defaultBeatCount = 4;
-    public int defaultBeatType = 4;
+    boolean isFirstGroup;
 
     /**
      * Creates a MeasureGroup object from a List of Strings which represent the lines in the measure group
@@ -34,7 +35,8 @@ public class MeasureGroup {
      *               guaranteed to be a valid representation of a measure group(i.e it looks like a measure group), the
      *               measure group which it is representing is not guaranteed to be valid itself.
      */
-    public MeasureGroup(List<String> origin) {
+    public MeasureGroup(List<String> origin, boolean isFirstGroup) {
+        this.isFirstGroup = isFirstGroup;
         for (String lineWithTag : origin) {
             Matcher tagMatcher = Pattern.compile("^\\[[0-9]+\\]").matcher(lineWithTag);
             tagMatcher.find();
@@ -101,14 +103,14 @@ public class MeasureGroup {
                 measureNames.add(lineName);
             }
         }
+        boolean isFirstMeasureInGroup = true;
         for (int i=0; i<measureStringList.size(); i++) {
             List<String> measureLineList = measureStringList.get(i);
             List<Integer> measureLinePositionList = measurePositionsList.get(i);
             List<String[]> measureLineNameList = measureNamesList.get(i);
-            boolean isFirstMeasure = false;
-            if (i==0)
-                isFirstMeasure = true;
-            measureList.add(Measure.from(measureLineList, measureLineNameList, measureLinePositionList, isFirstMeasure));
+
+            measureList.add(Measure.from(measureLineList, measureLineNameList, measureLinePositionList, isFirstMeasureInGroup));
+            isFirstMeasureInGroup = false;
         }
         return measureList;
     }
@@ -225,4 +227,42 @@ public class MeasureGroup {
         return true;
     }
 
+    public int getDivisions() {
+        int divisions = 0;
+        for (Measure measure : this.measureList) {
+            divisions = Math.max(divisions,  measure.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (Measure measure : this.measureList) {
+            measure.setDurations();
+        }
+    }
+
+    public List<Measure> getMeasureList() {
+        return this.measureList;
+    }
+
+    public Range getRelativeRange() {
+        if (this.lines.isEmpty()) return null;
+        int position = this.positions.get(0);
+        int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
+        int relEndPos = relStartPos + this.lines.get(0).length();
+        return new Range(relStartPos, relEndPos);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder outStr = new StringBuilder();
+        for (int i=0; i<this.measureList.size()-1; i++) {
+            outStr.append(this.measureList.get(i).toString());
+            outStr.append("\n\n");
+        }
+        if (!this.measureList.isEmpty())
+            outStr.append(this.measureList.get(this.measureList.size()-1).toString());
+        return outStr.toString();
+    }
 }

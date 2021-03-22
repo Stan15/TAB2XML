@@ -9,10 +9,12 @@ import java.util.List;
 
 public class DrumMeasure extends Measure {
 
-    public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
-        super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
+    public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
+        super(lines, lineNamesAndPositions, linePositions, isFirstMeasureInGroup);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.sortedNoteList = this.getSortedNoteList();
+        setChords();
+        calcDurationRatios();
     }
     /**
      * Validates that all MeasureLine objects in this GuitarMeasure are GuitarMeasureLine objects, and validates its
@@ -29,10 +31,9 @@ public class DrumMeasure extends Measure {
      */
     @Override
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
 
         //-----------------Validate yourself-------------------------
-        result.addAll(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
 
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures

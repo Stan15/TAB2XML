@@ -1,8 +1,5 @@
 package converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import converter.measure.Measure;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
@@ -17,29 +14,50 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Score {
+public class Score implements ScoreComponent {
     public List<MeasureCollection> measureCollectionList;
     // Score.ROOT_STRING is only public for the JUnit tester to work. Its access modifier should be protected so that
     // it will not be changed by anything outside the converter package as the "position" instance variable of other
     // classes in this package (e.g MeasureLine) shows the position of the measure line in this String, thus they depend
     // on this String staying the same. It cannot be final as we will want to create different Score objects to convert
     // different Strings.
-    public String rootString;
+    public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
     public static String STRICT_TYPE;
+    public static int DEFAULT_BEAT_TYPE = 4;
+    public static int DEFAULT_BEAT_COUNT = 4;
+    public static int GLOBAL_DIVISIONS = 1;
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
-        this.rootString = rootString;
+        ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
         if (STRICT_TYPE==null)
             STRICT_TYPE = "";
+
+        GLOBAL_DIVISIONS = getDivisions();
+        setDurations();
     }
 
     public Score(String rootString, String strictType) {
         this(rootString);
         STRICT_TYPE = strictType;
+    }
+
+    public int getDivisions() {
+        int divisions = 0;
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            divisions = Math.max(divisions,  msurCollection.getDivisions());
+        }
+
+        return divisions;
+    }
+
+    public void setDurations() {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            msurCollection.setDurations();
+        }
     }
 
     /**
@@ -54,8 +72,10 @@ public class Score {
     private List<MeasureCollection> createMeasureCollectionList(Map<Integer, String> stringFragments) {
         List<MeasureCollection> msurCollectionList = new ArrayList<>();
 
+        boolean isFirstCollection = true;
         for (Map.Entry<Integer, String> fragment : stringFragments.entrySet()) {
-            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey());
+            List<MeasureCollection> msurCollectionSubList = MeasureCollection.getInstances(fragment.getValue(), fragment.getKey(), isFirstCollection);
+            isFirstCollection = false;
             //it may be that the text is completely not understood in the slightest as a measure collection
             //and the MeasureCollection.getInstance() returns null
             for (MeasureCollection msurCollection : msurCollectionSubList)
@@ -75,17 +95,23 @@ public class Score {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
-        Pattern textBreakPattern = Pattern.compile("(\\n[ ]*(?=\\n))+|$");
+        Pattern textBreakPattern = Pattern.compile("((\\R|^)[ ]*(?=\\R)){2,}|^|$");
         Matcher textBreakMatcher = textBreakPattern.matcher(rootStr);
 
-        int previousBreakEndIdx = 0;
+        Integer previousTextBreakEnd = null;
         while(textBreakMatcher.find()) {
-            String fragment = rootString.substring(previousBreakEndIdx,textBreakMatcher.start());
-            if (!fragment.strip().isEmpty()) {
-                int position = previousBreakEndIdx;
-                stringFragments.put(position, fragment);
+            if (previousTextBreakEnd==null) {
+                previousTextBreakEnd = textBreakMatcher.end();
+                continue;
             }
-            previousBreakEndIdx = textBreakMatcher.end();
+
+            int paragraphStart = previousTextBreakEnd;
+            int paragraphEnd = textBreakMatcher.start();
+            String fragment = ROOT_STRING.substring(previousTextBreakEnd,paragraphEnd);
+            if (!fragment.strip().isEmpty()) {
+                stringFragments.put(paragraphStart, fragment);
+            }
+            previousTextBreakEnd = textBreakMatcher.end();
         }
         return stringFragments;
     }
@@ -108,7 +134,7 @@ public class Score {
 
         int prevEndIdx = 0;
         for (MeasureCollection msurCollction : this.measureCollectionList) {
-            String uninterpretedFragment = this.rootString.substring(prevEndIdx,msurCollction.position);
+            String uninterpretedFragment = ROOT_STRING.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
@@ -117,7 +143,7 @@ public class Score {
             prevEndIdx = msurCollction.endIndex;
         }
 
-        String restOfDocument = this.rootString.substring(prevEndIdx);
+        String restOfDocument = ROOT_STRING.substring(prevEndIdx);
         if (!restOfDocument.isBlank()) {
             if (!errorRanges.isEmpty()) errorRanges.append(";");
             errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");
@@ -127,7 +153,7 @@ public class Score {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This text can't be understood.");
             response.put("positions", errorRanges.toString());
-            response.put("priority", "3");
+            response.put("priority", "4");
             result.add(response);
         }
 
@@ -236,22 +262,13 @@ public class Score {
         return true;
     }
 
-    public String toXML() throws TXMLException {
-        XmlMapper mapper = new XmlMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String xmlString = "";
-        try {
-            xmlString = mapper.writeValueAsString(this.getModel());
-        }catch (JsonProcessingException e) {
-            e.printStackTrace();
+    @Override
+    public String toString() {
+        String outStr = "";
+        for (MeasureCollection measureCollection : this.measureCollectionList) {
+            outStr += measureCollection.toString();
+            outStr += "\n\n";
         }
-
-        xmlString = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
-                """
-                + xmlString;
-
-        return xmlString;
+        return outStr;
     }
 }

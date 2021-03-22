@@ -42,7 +42,8 @@ public class MeasureTest {
         for (int i=1; i<noteList.size(); i++) {
             Note previousNote = noteList.get(i-1);
             Note currentNote = noteList.get(i);
-            if (previousNote.distance==currentNote.distance)
+            //if (previousNote.distance==currentNote.distance)
+
                 //assertTrue();
 
                 //assertFalse();

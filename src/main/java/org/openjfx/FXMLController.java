@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import converter.GuitarConverter.GuitarConvert;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -28,9 +27,6 @@ import org.fxmisc.richtext.event.MouseOverTextEvent;
 import utility.Parser;
 
 public class FXMLController {
-
-    @FXML private CheckBox conversionMethodCheckbox;
-    public static boolean usePiano;
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
@@ -87,19 +83,14 @@ public class FXMLController {
     }
 
     @FXML
-    public void toggleUsePiano() {
-        usePiano = conversionMethodCheckbox.isSelected();
-    }
-
-    @FXML
     private void handleOpen() {
         boolean userOkToGoAhead = promptSave();
         if (!userOkToGoAhead) return;
 
         String userDirectoryString = System.getProperty("user.home");
         File openDirectory;
-        if (this.saveFile!=null && saveFile.canRead()) {
-            openDirectory = new File(this.saveFile.getParent());
+        if (saveFile!=null && saveFile.canRead()) {
+            openDirectory = new File(saveFile.getParent());
         }else
             openDirectory = new File(userDirectoryString);
 
@@ -215,7 +206,8 @@ public class FXMLController {
 
             Stage stage = new Stage();
             stage.setTitle(windowName);
-            stage.initOwner(borderPane.getScene().getWindow());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(MainApp.STAGE);
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
@@ -235,13 +227,8 @@ public class FXMLController {
 
     @FXML
     private void saveConvertedButtonHandle() {
-        if (usePiano) {
-            Parser.createScore(TEXT_AREA.getText());
-            generatedOutput = Parser.parse();
-        }else {
-            ArrayList<String> arrForTempConverter = GuitarConvert.tempConvert(TEXT_AREA.getText());
-            generatedOutput = new GuitarConvert(arrForTempConverter).makeScript();
-        }
+        Parser.createScore(TEXT_AREA.getText());
+        generatedOutput = Parser.parse();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MusicXML files", "*.xml", "*.mxl", "*.musicxml");
@@ -268,7 +255,7 @@ public class FXMLController {
 
         if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
             initialDir = new File(System.getProperty("user.home"));
-        if (initialDir==null || !(initialDir.exists() && initialDir.canRead()))
+        if (!(initialDir.exists() && initialDir.canRead()))
             initialDir = new File("c:/");
 
         fileChooser.setInitialDirectory(initialDir);
@@ -280,7 +267,6 @@ public class FXMLController {
             saveToXMLFile(generatedOutput, file);
             saveFile = file;
             cancelConvertButtonHandle();
-            usePiano = false;
         }
     }
 
@@ -308,14 +294,26 @@ public class FXMLController {
     }
 
     public void initialize() {
-        initializeTextAreaErrorPopups();
+        initializeTextArea();
         initializeSettings();
     }
 
-    private void initializeTextAreaErrorPopups() {
+    private void initializeTextArea() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
         }
+        initializeTextAreaErrorPopups();
+        ContextMenu context = new ContextMenu();
+        MenuItem menuItem = new MenuItem("Play Notes");
+        menuItem.setOnAction(e -> {
+            new TabPlayer(TEXT_AREA);
+        });
+        context.getItems().add(menuItem);
+        TEXT_AREA.setContextMenu(context);
+
+    }
+
+    private void initializeTextAreaErrorPopups() {
         TEXT_AREA.setParagraphGraphicFactory(LineNumberFactory.get(TEXT_AREA));
         new TabInput(TEXT_AREA).enableHighlighting();
 
@@ -346,17 +344,13 @@ public class FXMLController {
 
     private void changeErrorSensitivity(String prefValue) {
         switch (prefValue) {
-            case "Level 1 - Minimal Error Checking":
-                TabInput.ERROR_SENSITIVITY = 1;
-                break;
-            case "Level 3 - Advanced Error Checking":
-                TabInput.ERROR_SENSITIVITY = 3;
-                break;
-            case "Level 2 - Standard Error Checking":
-            default:
-                TabInput.ERROR_SENSITIVITY = 2;
-                break;
+            case "Level 1 - Minimal Error Checking" -> TabInput.ERROR_SENSITIVITY = 1;
+            case "Level 3 - Advanced Error Checking" -> TabInput.ERROR_SENSITIVITY = 3;
+            case "Level 4 - Detailed Error Checking" -> TabInput.ERROR_SENSITIVITY = 4;
+            default -> TabInput.ERROR_SENSITIVITY = 2;
         }
+
+        TEXT_AREA.replaceText(new IndexRange(0, TEXT_AREA.getText().length()), TEXT_AREA.getText()+" ");
     }
     private void initializeSettings() {
         if (errorSensitivity != null && outputFolderField != null) {

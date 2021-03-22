@@ -1,15 +1,16 @@
 package converter.measure_line;
 
+import converter.ScoreComponent;
 import converter.note.DrumNote;
 import converter.note.GuitarNote;
 import converter.note.Note;
-import converter.Patterns;
+import utility.Patterns;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class MeasureLine {
+public abstract class MeasureLine implements ScoreComponent {
     public String line;
     public String name;
     int namePosition;
@@ -73,7 +74,7 @@ public abstract class MeasureLine {
 
             if ((currentChar=='-' || i==line.length()-1)) {
                 if (!noteStrCollector.toString().isBlank())
-                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, line.length(), position+noteStrStartIdx));
+                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, position+noteStrStartIdx));
                 noteStrCollector.delete(0, noteStrCollector.length());
             }
             distance++;
@@ -197,7 +198,7 @@ public abstract class MeasureLine {
 
         //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
         //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + ")";
         return measureInsides;
     }
 
@@ -250,40 +251,38 @@ public abstract class MeasureLine {
 
     @Override
     public String toString() {
-        return this.name.strip()+"|"+this.recreateLineString()+"|";
+        return this.name.strip()+"|"+this.recreateLineString(this.line.length())+"|";
     }
 
-    private String recreateLineString() {
+    public String recreateLineString(int maxMeasureLineLength) {
         StringBuilder outStr = new StringBuilder();
         if (this.noteList.isEmpty()) {
-            Matcher matcher = Pattern.compile("\\S").matcher(this.line);
-            while (matcher.find()) {
-                outStr.append("-");
+            for (int i=0; i<this.line.length(); i++) {
+                String str = String.valueOf(this.line.charAt(i));
+                if (str.matches("\s")) continue;
+                outStr.append(str);
             }
+            outStr.append("|");
             return outStr.toString();
         }
-        Iterator<Note> noteIterator = this.noteList.iterator();
-        Note previousNote = null;
-        while (noteIterator.hasNext()) {
-            Note currentNote = noteIterator.next();
-            if (currentNote.validate().isEmpty()) continue;
-            int dashCount = currentNote.distance;
-            if (previousNote!=null && currentNote.distance<(previousNote.distance+previousNote.line.length())) {
-                previousNote = currentNote;
-                continue;
-            }
-            if (previousNote!=null) {
-                dashCount -= previousNote.distance;
-            }
-            while (dashCount>0) {
-                outStr.append("-");
-                dashCount--;
-            }
-            outStr.append(currentNote.line.strip());
 
-            previousNote = currentNote;
+        double maxRatio = 0;
+        for (Note note : this.noteList) {
+            maxRatio = Math.max(maxRatio, note.durationRatio);
         }
+        int actualLineDistance = maxMeasureLineLength;
 
+
+        int prevNoteEndDist = 0;
+        for (Note note : this.noteList) {
+            if (!note.validate().isEmpty()) continue;
+            int dashCount = note.distance-prevNoteEndDist;
+            outStr.append("-".repeat(Math.max(0, dashCount)));
+            outStr.append(note.sign);
+            prevNoteEndDist = note.distance + note.sign.length();
+        }
+        outStr.append("-".repeat(Math.max(0, actualLineDistance - prevNoteEndDist)));
+        outStr.append("|");
         return outStr.toString();
     }
 
