@@ -1,6 +1,5 @@
-package org.openjfx;
+package GUI;
 
-import converter.Score;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,12 +13,12 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        this.STAGE = stage;
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
+        STAGE = stage;
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GUI/scene.fxml"));
         Scene scene = new Scene(root);
+        STAGE.setOnCloseRequest(e -> stop());
 
-
-        scene.getStylesheets().add(getClass().getClassLoader().getResource("org.openjfx/styles.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getClassLoader().getResource("GUI/styles.css").toExternalForm());
 
         stage.setTitle("TAB 2 XML");
         stage.setMinWidth(700);
@@ -27,10 +26,6 @@ public class MainApp extends Application {
         stage.setScene(scene);
         LoadScreen.run();
         stage.show();
-    }
-
-    private void gracefulExit() {
-        this.stop();
     }
 
     @Override

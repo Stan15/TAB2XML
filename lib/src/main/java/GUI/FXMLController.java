@@ -1,4 +1,4 @@
-package org.openjfx;
+package GUI;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -55,7 +55,7 @@ public class FXMLController {
 
     @FXML
     private void handleSettings() {
-        convertWindow = this.openNewWindow("org.openjfx/settingsWindow.fxml", "Program Settings");
+        convertWindow = this.openNewWindow("GUI/settingsWindow.fxml", "Program Settings");
     }
 
     @FXML
@@ -221,7 +221,7 @@ public class FXMLController {
 
     @FXML
     private void convertButtonHandle() throws IOException {
-        convertWindow = this.openNewWindow("org.openjfx/convertWindow.fxml", "ConversionOptions");
+        convertWindow = this.openNewWindow("GUI/convertWindow.fxml", "ConversionOptions");
     }
 
 

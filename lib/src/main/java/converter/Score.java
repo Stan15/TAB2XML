@@ -191,7 +191,7 @@ public class Score implements ScoreComponent {
             measures.addAll(measureCollection.getMeasureModels());
         }
         Part part = new Part("P1", measures);
-        List<models.Part> parts = new ArrayList<>();
+        List<Part> parts = new ArrayList<>();
         parts.add(part);
 
         PartList partList;

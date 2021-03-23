@@ -1,4 +1,4 @@
-package org.openjfx;
+package GUI;
 
 import converter.Score;
 import javafx.fxml.FXML;
@@ -18,7 +18,7 @@ import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
-import org.openjfx.MainApp;
+import GUI.MainApp;
 import org.staccato.StaccatoParserListener;
 import utility.Parser;
 
@@ -74,7 +74,7 @@ public class TabPlayer {
             STAGE.initOwner(MainApp.STAGE);
             STAGE.setOnCloseRequest(e -> TabPlayer.kill());
 
-            Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/tabPlayer.fxml"));
+            Parent root = FXMLLoader.load(TabPlayer.class.getClassLoader().getResource("GUI/tabPlayer.fxml"));
             Scene scene = new Scene(root);
             STAGE.setScene(scene);
             STAGE.setMinHeight(270);

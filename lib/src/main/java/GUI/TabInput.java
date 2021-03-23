@@ -1,4 +1,4 @@
-package org.openjfx;
+package GUI;
 
 import converter.Score;
 import javafx.concurrent.Task;
