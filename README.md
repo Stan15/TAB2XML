@@ -60,8 +60,9 @@ project should be saved. <br/>
 ‘TAB2XML [run]’. The program will now launch. <br/><br/>
 
 
-3.2	Eclipse
-<br/><br/>
+3.2	Eclipse<br/>
+Watch this short video on how to run the program using eclipse. The video is more up to date. The outdated instructions will be updated soon.
+<br/>
 [![instructions for running TAB2XML with Eclipse](http://img.youtube.com/vi/YSPMNJX8yFQ/0.jpg)](http://www.youtube.com/watch?v=YSPMNJX8yFQ "Eclipse instructions")
 <br/><br/>
 1. Like with IntelliJ, we want to clone the project from the GitHub repository. To do this, we select File > Import. <br/>
