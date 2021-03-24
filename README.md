@@ -61,7 +61,9 @@ project should be saved. <br/>
 
 
 3.2	Eclipse
-
+<br/><br/>
+[![instructions for running TAB2XML with Eclipse](http://img.youtube.com/vi/YSPMNJX8yFQ/0.jpg)](http://www.youtube.com/watch?v=YSPMNJX8yFQ "Eclipse instructions")
+<br/><br/>
 1. Like with IntelliJ, we want to clone the project from the GitHub repository. To do this, we select File > Import. <br/>
 ![image](https://user-images.githubusercontent.com/76922658/111523398-a0737300-8731-11eb-9d44-f9db034994fc.png) <br/><br/>
  
