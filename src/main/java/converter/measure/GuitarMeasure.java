@@ -119,10 +119,9 @@ public class GuitarMeasure extends Measure{
         attributes.setKey(new Key(0));
         //if (measureCount==1 || !hasSameTimeSigAsPrevious)
             attributes.setTime(new Time(this.beatCount, this.beatType));
-        if (isFirstMeasureInGroup)
-            attributes.setClef(new Clef("TAB", 5));
 
         if (this.measureCount == 1) {
+            attributes.setClef(new Clef("TAB", 5));
             attributes.setDivisions(Score.GLOBAL_DIVISIONS);
             List<StaffTuning> staffTunings = new ArrayList<>();
             staffTunings.add(new StaffTuning(1, "E", 2));
