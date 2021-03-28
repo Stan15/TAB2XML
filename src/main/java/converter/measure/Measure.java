@@ -24,7 +24,6 @@ public abstract class Measure implements ScoreComponent {
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasureInGroup;
     List<Note> sortedNoteList;
-    public boolean hasSameTimeSigAsPrevious = true;
 
     boolean repeatStart = false;
     boolean repeatEnd = false;
