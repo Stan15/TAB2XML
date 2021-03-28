@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/TAB2XML.iml" filepath="$PROJECT_DIR$/.idea/TAB2XML.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/TAB2XML_G14.lib.main.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/TAB2XML_G14.lib.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/TAB2XML_G14.lib.test.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/TAB2XML_G14.lib.test.iml" />
     </modules>
   </component>
 </project>
