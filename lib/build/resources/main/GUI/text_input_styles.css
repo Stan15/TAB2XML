@@ -1,0 +1,16 @@
+.highPriorityError {
+    -rtfx-background-color: #ffa6a6;
+}
+
+.mediumPriorityError {
+    -rtfx-background-color: #ffe2a3;
+}
+
+.lowPriorityError {
+    -rtfx-background-color: #ccfffd;
+}
+
+.unimportantError  {
+    -rtfx-background-color: #00204020;
+    border: #cccccc;
+}
