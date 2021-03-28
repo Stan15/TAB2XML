@@ -92,7 +92,7 @@ public class Repeat extends Instruction {
     private static String getPattern() {
         String times = "[xX*]";
         String timesLong = "[Tt][Ii][Mm][Ee][Ss]";
-        String count = "[0-9][0-9]?";
+        String count = "[0-9]{1,2}";
         String repeatTextPattern = "[Rr][Ee][Pp][Ee][Aa][Tt]" + "([ -]{0,7}|[ \t]{0,2})"  +  "(" +"("+times+count+")|("+ count+times +")|("+ count + "([ -]{0,7}|[ \t]{0,3})"  + timesLong + ")" + ")";
         //     | or sol or whitespace   optional space or -                     optional space or -     | or eol or whitespace
         return "("+"((\\||^|"+ Patterns.WHITESPACE+")|(?<=\n))"  +        "[ -]*"       +   repeatTextPattern   +   "[ -]*"     +     "(($|\s)|\\|)" + ")";

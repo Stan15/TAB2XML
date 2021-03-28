@@ -3,9 +3,12 @@ package converter.note;
 import converter.Score;
 import models.measure.note.Chord;
 import models.measure.note.Dot;
+import models.measure.note.Grace;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
+import models.measure.note.notations.Slur;
 import models.measure.note.notations.Technical;
+import utility.Patterns;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +16,14 @@ import java.util.List;
 
 public class GuitarNote extends Note {
     public static String COMPONENT_PATTERN = createComponentPattern();
+    public static String FRET = "[0-9]{1,2}";
+    public static String GRACE = getGracePattern();
+    boolean isGrace;
+    boolean isGracePair;
 
+    private static String getGracePattern() {
+        return "(g"+FRET+"[hp]"+FRET+")";
+    }
     private static String createComponentPattern() {
         return "[0-9hpg\\/\\]";
     }
@@ -58,6 +68,14 @@ public class GuitarNote extends Note {
         technical.setFret(this.fret);
 
         Notations notations = new Notations();
+        if (isGrace) {
+            noteModel.setGrace(new Grace());
+            Slur slur = new Slur();
+            slur.setNumber(1);
+            slur.setPlacement("below");
+            slur.setType("start");
+            notations.setSlur(slur);
+        }
         notations.setTechnical(technical);
 
         noteModel.setNotations(notations);
@@ -68,6 +86,12 @@ public class GuitarNote extends Note {
 //        }
 //        if (!dots.isEmpty())
 //            noteModel.setDots(dots);
+        if (isGracePair) {
+            Slur slur = new Slur();
+            slur.setNumber(1);
+            slur.setType("stop");
+            notations.setSlur(slur);
+        }
 
         return noteModel;
     }

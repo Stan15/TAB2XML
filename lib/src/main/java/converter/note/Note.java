@@ -3,10 +3,13 @@ package converter.note;
 import converter.ScoreComponent;
 
 import converter.Score;
+import utility.Patterns;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
@@ -27,8 +30,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     //particular note. We thus will know the exact place where the problem is instead of the whole measure not being recognised as an
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
-    public static String COMPONENT_PATTERN = "[0-9./\\\\~\\(\\)\\[\\]a-zA-Z]";
-
+    public static String COMPONENT_PATTERN = "[^-\\n\\r"+Patterns.DIVIDER_COMPONENTS+"]";
     public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
         this.line = line;
         this.name = lineName;
@@ -61,6 +63,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
      */
     public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
         List<Note> noteList = new ArrayList<>();
+        Matcher graceMatcher = Pattern.compile(GuitarNote.GRACE).matcher(line);
         try {
             noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
         }catch (Exception e) {

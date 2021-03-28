@@ -17,6 +17,7 @@ public abstract class MeasureLine implements ScoreComponent {
     int position;
     public List<Note> noteList;
     public int noteCount;
+    public boolean hasRepeatSymbol;
 
     protected MeasureLine(String line, String[] namesAndPosition, int position) {
         this.line = line;

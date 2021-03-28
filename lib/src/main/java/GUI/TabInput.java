@@ -22,8 +22,10 @@ import java.util.regex.Pattern;
 
 public class TabInput {
     private static String PREVIOUS_TEXT_INPUT = "";
+    private static StyleSpans<Collection<String>> PREVIOUS_HIGHLIGHT;
+
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
-    protected static int HOVER_DELAY = 350;   //in milliseconds
+    protected static int HOVER_DELAY = 30;   //in milliseconds
     protected static int ERROR_SENSITIVITY = 4;
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
@@ -53,17 +55,18 @@ public class TabInput {
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
         String strippedText = text.replaceFirst("\\s++$", "");
+        if (strippedText.equals(PREVIOUS_TEXT_INPUT))
+            return PREVIOUS_HIGHLIGHT;
+        PREVIOUS_TEXT_INPUT = strippedText;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-        if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) {
-            spansBuilder.add(Collections.emptyList(), text.length());
-            return spansBuilder.create();
-        }
 
         TabInput.SCORE = new Score(text);
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
             spansBuilder.add(Collections.emptyList(), text.length());
-            return spansBuilder.create();
+            StyleSpans<Collection<String>> highlight = spansBuilder.create();
+            PREVIOUS_HIGHLIGHT = highlight;
+            return highlight;
         }
 
         PREVIOUS_TEXT_INPUT = text;
@@ -79,7 +82,9 @@ public class TabInput {
             lastErrorEnd = range.getEnd();
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastErrorEnd);
-        return spansBuilder.create();
+        StyleSpans<Collection<String>> highlight = spansBuilder.create();
+        PREVIOUS_HIGHLIGHT = highlight;
+        return highlight;
     }
 
     private TreeMap<Range, HashMap<String, String>> filterOverlappingRanges(TreeMap<Range, HashMap<String, String>> errors) {
