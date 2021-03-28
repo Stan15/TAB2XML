@@ -6,7 +6,7 @@ public class Patterns {
     public static final String DIVIDER = getDivider();
     public static final String DIVIDER_COMPONENTS = "|{}";
 
-
+ww
     private static String getDivider() {
         return "["+DIVIDER_COMPONENTS+"]";
     }
