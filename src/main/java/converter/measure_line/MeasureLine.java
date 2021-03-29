@@ -38,7 +38,7 @@ public abstract class MeasureLine implements ScoreComponent {
      * on the object returned.
      * @param line the contents of the MeasureLine
      * @param nameAndPosition the name of the MeasureLine
-     * @param position the index at which the contents of the measure line can be found in the root string from which it
+     * @param position  the index at which the contents of the measure line can be found in the root string from which it
      *                 was derived (i.e Score.ROOT_STRING)
      * @return a MeasureLine object derived from the information in the input Strings. Either of type GuitarMeasureLine
      * or DrumMeasureLine
