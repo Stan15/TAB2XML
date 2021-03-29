@@ -3,3 +3,10 @@
 
 # Ignore Gradle build output directory
 build
+/bin/.gitignore
+/.idea/.name
+/lib/.project
+/.idea/modules.xml
+/.settings/org.eclipse.jdt.core.prefs
+/.idea/modules/lib/TAB2XML_G14.lib.main.iml
+/.idea/modules/lib/TAB2XML_G14.lib.test.iml
