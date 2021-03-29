@@ -56,6 +56,14 @@ public class TimeSignature extends Instruction {
 
     private List<HashMap<String, String>> validateSelf() {
         List<HashMap<String, String>> result = new ArrayList<>();
+        if (!(this.getRelativeRange() instanceof Top)) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Time signatures should only be applied to the top of measures.");
+            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
+            response.put("priority", "3");
+            result.add(response);
+            return result;
+        }
         if (beatCount<=0 || beatType<=0) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Invalid beat " + (this.beatCount<=0?"count" : "type") + " value.");

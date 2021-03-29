@@ -3,6 +3,7 @@ package converter.measure;
 import converter.MeasureGroup;
 import converter.Score;
 import converter.ScoreComponent;
+import converter.instruction.Repeat;
 import converter.instruction.TimeSignature;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
@@ -81,7 +82,6 @@ public abstract class Measure implements ScoreComponent {
         boolean isGuitarMeasure = true;
         boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
-            String line = lineList.get(i);
             String[] nameAndPosition = lineNameList.get(i);
             isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
             isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
@@ -93,6 +93,42 @@ public abstract class Measure implements ScoreComponent {
         else
             return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
     }
+
+    private boolean checkRepeatStart(List<String> lines) {
+        boolean repeatStart = true;
+        int repeatStartMarkCount = 0;
+        for (String line : lines) {
+            repeatStart &= line.startsWith("|");
+            if (line.startsWith("|*")) repeatStartMarkCount++;
+        }
+        repeatStart &=
+    }
+
+//    String[] checkApplyRepeatSymbol(List<String> lineList) {
+//        int repeatStartCount = 0;
+//        int repeatEndCount = 0;
+//        for (int i=0; i<lineList.size(); i++) {
+//            String startRepRemoved = MeasureLine.checkRemoveRepeatSymbol(lineList.get(i), true);
+//            if (!lineList.get(i).equals(startRepRemoved)) repeatStartCount++;
+//            String endRepRemoved = MeasureLine.checkRemoveRepeatSymbol(startRepRemoved, false);
+//            if (!lineList.get(i).equals(endRepRemoved)) repeatEndCount++;
+//        }
+//        if (repeatStartCount>=2){
+//            String[] result = MeasureLine.extractPotentialRepeatCount(lineList.get(0));
+//            int repeatCount = 1;
+//            if (!result[0].equals(lineList.get(0))) {
+//                lineList.set(0, result[0]);
+//                repeatCount = Integer.parseInt(result[1]);
+//            }
+//
+//            if (repeatCount<0 || repeatCount>Repeat.MAX_REPEATS) return;
+//            this.repeatCount = repeatCount;
+//            this.repeatStart = true;
+//        }
+//        if (repeatEndCount>=2 && !repeatEnd){
+//            this.repeatEnd = true;
+//        }
+//    }
 
     public void calcDurationRatios() {
         List<List<Note>> chordList = getChordList();

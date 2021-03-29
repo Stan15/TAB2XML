@@ -17,15 +17,43 @@ public abstract class MeasureLine implements ScoreComponent {
     int position;
     public List<Note> noteList;
     public int noteCount;
-    public boolean hasRepeatSymbol;
 
     protected MeasureLine(String line, String[] namesAndPosition, int position) {
         this.line = line;
         this.name = namesAndPosition[0];
         this.namePosition = Integer.parseInt(namesAndPosition[1]);
         this.position = position;
-        this.noteList = this.createNoteList(line, name, position);
+        this.noteList = this.createNoteList(this.line, name, position);
         this.noteCount = this.noteList.size();
+    }
+
+    public static String checkRemoveRepeatSymbol(String line, boolean atStart) {
+        Matcher mtchr;
+        if (atStart)
+            mtchr = Pattern.compile("^[ ]*\\*(?=[- ])").matcher(line);
+        else
+            mtchr = Pattern.compile("(?<=[ -])\\*[ ]*(?=\\R|$)").matcher(line);
+        if (mtchr.find()) {
+            if (atStart)
+                line = line.substring(0, mtchr.end()-1)+"-"+line.substring(mtchr.end());
+            else
+                line = line.substring(0, mtchr.start())+"-"+line.substring(mtchr.start()+1);
+        }
+        return line;
+    }
+
+    public static String[] extractPotentialRepeatCount(String line) {
+        String repCount = "";
+        Matcher countMatcher;
+//        if (atStart)
+//            countMatcher = Pattern.compile("^[ ]*[0-9]{1,2}(?=[- ])").matcher(this.line);
+//        else
+            countMatcher = Pattern.compile("(?<=[ -])[0-9]{1,2}[ ]*(?=\\R|$)").matcher(line);
+        if (countMatcher.find()) {
+            line = line.substring(0,countMatcher.start());
+            repCount = countMatcher.group();
+        }
+        return new String[]{line, repCount};
     }
 
 
@@ -197,9 +225,9 @@ public abstract class MeasureLine implements ScoreComponent {
      */
     private static String createInsidesPattern() {
 
-        //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
-        //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + ")";
+        //                     behind it is (space or newline, followed by a measure name) or ("|")                                     then the line either starts with a - or *, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -        accomodates for stuff like ---| ||
+        //                                                      |                                                                                                    |                                                                                                                                      |
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"  + "("+Patterns.DIVIDER+")"+"{0,1}"+      "(([ ]*[-*])|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + "("+Patterns.DIVIDER+"(?="+Patterns.DIVIDER+")){0,1}"+ ")";
         return measureInsides;
     }
 

@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 public class Repeat extends Instruction {
     public static String PATTERN = getPattern();
+    public static int MAX_REPEATS = 10;
 
     private int repeatCount;
     private boolean startApplied = false;
@@ -64,7 +65,7 @@ public class Repeat extends Instruction {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This repeat was only partially applied for some reason.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "2");
+            response.put("priority", "1");
             result.add(response);
         }
         return result;
@@ -79,7 +80,7 @@ public class Repeat extends Instruction {
             response.put("priority", "3");
             result.add(response);
         }
-        if (this.repeatCount>10) {
+        if (this.repeatCount>MAX_REPEATS) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "only up to 10 repeats are allowed.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
