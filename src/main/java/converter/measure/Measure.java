@@ -9,9 +9,12 @@ import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import utility.Patterns;
 import utility.Range;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class Measure implements ScoreComponent {
     public static int GLOBAL_MEASURE_COUNT;
@@ -86,22 +89,110 @@ public abstract class Measure implements ScoreComponent {
             isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
             isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
         }
+
+        boolean repeatStart = checkRepeatStart(lineList);
+        boolean repeatEnd = checkRepeatEnd(lineList);
+        String repeatCountStr = extractRepeatCount(lineList);
+        removeRepeatMarkings(lineList, linePositionList, repeatStart, repeatEnd, repeatCountStr);
+        int repeatCount = 1;
+        if (!repeatCountStr.isEmpty()) {
+            Matcher numMatcher = Pattern.compile("(?<=\\])[0-9]+").matcher(repeatCountStr);
+            numMatcher.find();
+            repeatCountStr = numMatcher.group();
+            repeatCount = Integer.parseInt(repeatCountStr);
+        }
+
+        Measure measure;
         if (isDrumMeasure && !isGuitarMeasure)
-            return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+            measure = new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
         else if(isGuitarMeasure && !isDrumMeasure)
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
         else
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+
+        if (repeatStart)
+            measure.setRepeat(repeatCount, "start");
+        if (repeatEnd)
+            measure.setRepeat(repeatCount, "end");
+        return measure;
     }
 
-    private boolean checkRepeatStart(List<String> lines) {
+    private static boolean checkRepeatStart(List<String> lines) {
         boolean repeatStart = true;
         int repeatStartMarkCount = 0;
         for (String line : lines) {
-            repeatStart &= line.startsWith("|");
-            if (line.startsWith("|*")) repeatStartMarkCount++;
+            repeatStart &= line.strip().startsWith("|");
+            if (line.strip().startsWith("|*")) repeatStartMarkCount++;
         }
-        repeatStart &=
+        repeatStart &= repeatStartMarkCount>=2;
+        return repeatStart;
+    }
+    private static boolean checkRepeatEnd(List<String> lines) {
+        boolean repeatEnd = true;
+        int repeatEndMarkCount = 0;
+        for (int i=1; i<lines.size(); i++) {
+            String line = lines.get(i);
+            repeatEnd &= line.strip().endsWith("|");
+            if (line.strip().endsWith("*|")) repeatEndMarkCount++;
+        }
+        repeatEnd &= repeatEndMarkCount>=2;
+        return repeatEnd;
+    }
+    private static String extractRepeatCount(List<String> lines) {
+        if (!checkRepeatEnd(lines)) return "";
+        Matcher numMatcher = Pattern.compile("(?<=[ -])[0-9]+(?=[ ]|"+ Patterns.DIVIDER+"|$)").matcher(lines.get(0));
+        if (!numMatcher.find()) return "";
+        return "["+numMatcher.start()+"]"+numMatcher.group();
+    }
+
+    private static void removeRepeatMarkings(List<String> lines, List<Integer> linePositions, boolean repeatStart, boolean repeatEnd, String repeatCountStr) {
+        if (!repeatCountStr.isEmpty()){
+            Matcher posMatcher = Pattern.compile("(?<=\\[)[0-9]+(?=\\])").matcher(repeatCountStr);
+            Matcher numMatcher = Pattern.compile("(?<=\\])[0-9]+").matcher(repeatCountStr);
+            posMatcher.find();
+            numMatcher.find();
+            int position = Integer.parseInt(posMatcher.group());
+            int numLen = numMatcher.group().length();
+            String line = lines.get(0);
+            line = line.substring(0, position)+"-".repeat(Math.max(numLen-1, 0))+line.substring(position+numLen);
+            //remove extra - which overlaps with the |'s
+            /*
+            -----------4|
+            -----------||
+            ----------*||   we wanna remove the -'s on the same column as the *'s. we do that for the first measure line in the code right below. the code lower handles the case for the rest of the lines.
+            ----------*||
+            -----------||
+            -----------||
+             */
+            String tmp1 = line.substring(0, position-1);
+            String tmp2 = position>=line.length() ? "" : line.substring(position);
+            line = tmp1+tmp2;
+            lines.set(0, line);
+        }
+        for(int i=0; i<lines.size(); i++) {
+            String line = lines.get(i);
+            int linePosition = linePositions.get(i);
+            if (line.startsWith("|*")){
+                linePosition+=2;
+                line = line.substring(2);
+            }else if(line.startsWith("|")) {
+                int offset;
+                if (repeatStart) offset = 2;
+                else offset = 1;
+                linePosition += offset;
+                line = line.substring(offset);
+            }
+            if (line.endsWith("*|"))
+                line = line.substring(0, line.length()-2);
+            else if (line.endsWith("|")) {
+                int offset;
+                if (repeatEnd) offset = 2;
+                else offset = 1;
+                line = line.substring(0, line.length() - offset);
+            }
+            lines.set(i, line);
+            linePositions.set(i, linePosition);
+        }
     }
 
 //    String[] checkApplyRepeatSymbol(List<String> lineList) {
