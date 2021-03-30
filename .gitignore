@@ -3,3 +3,11 @@
 /build/
 /build/classes/java/main/
 /build/classes/java/test/
+/bin/.gitignore
+/lib/.project
+/lib/.settings/org.eclipse.buildship.core.prefs
+/.settings/org.eclipse.jdt.core.prefs
+/.idea/modules/TAB2XML_G14.iml
+/.idea/modules/lib/TAB2XML_G14.lib.iml
+/.idea/modules/TAB2XML_G14.main.iml
+/.idea/modules/TAB2XML_G14.test.iml
