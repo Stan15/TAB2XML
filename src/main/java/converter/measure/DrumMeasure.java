@@ -1,5 +1,6 @@
 package converter.measure;
 
+import GUI.TabInput;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.MeasureLine;
 
@@ -41,8 +42,10 @@ public class DrumMeasure extends Measure {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in this measure must be Drum measure lines.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         //-----------------Validate Aggregates (only if you are valid)------------------

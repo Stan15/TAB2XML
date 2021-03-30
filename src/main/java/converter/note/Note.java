@@ -1,5 +1,6 @@
 package converter.note;
 
+import GUI.TabInput;
 import converter.ScoreComponent;
 
 import converter.Score;
@@ -46,8 +47,10 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Adding whitespace might result in different timing than you expect.");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            response.put("priority", "3");
-            result.add(response);
+            int priority = 3;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         return result;
     }
@@ -122,69 +125,6 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
             return 6;
         }
         return 0;
-    }
-
-    //decide octave of note
-    protected static int octave(int stringNumber, int fret) {
-        int octave;
-        if(stringNumber == 6) {
-            if(fret >= 0 && fret <= 7) {
-                octave = 2;
-            }
-            else {
-                octave = 3;
-            }
-        }
-        else if(stringNumber == 5) {
-            if(fret >= 0 && fret <= 2) {
-                octave = 2;
-            }
-            else if(fret >= 3 && fret <= 14) {
-                octave = 3;
-            }
-            else {
-                octave = 4;
-            }
-        }
-        else if(stringNumber == 4) {
-            if(fret >=0 && fret <= 9) {
-                octave = 3;
-            }
-            else {
-                octave = 4;
-            }
-        }
-        else if(stringNumber == 3) {
-            if(fret >= 0 && fret <= 4) {
-                octave = 3;
-            }
-            else if(fret >= 5 && fret <= 16) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        else if(stringNumber == 2) {
-            if(fret == 0) {
-                octave = 3;
-            }
-            else if(fret >= 1 && fret <= 12) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        else {
-            if(fret >= 0 && fret <= 7) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        return octave;
     }
 
     public boolean isGuitar() {

@@ -1,5 +1,6 @@
 package converter.measure;
 
+import GUI.TabInput;
 import converter.Score;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
@@ -91,16 +92,20 @@ public class GuitarMeasure extends Measure{
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in this measure must be Guitar measure lines.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         if (this.measureLineList.size()!=6) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "A guitar measure should have 6 lines.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
 

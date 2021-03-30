@@ -1,5 +1,6 @@
 package converter.instruction;
 
+import GUI.TabInput;
 import converter.MeasureCollection;
 import converter.MeasureGroup;
 import converter.ScoreComponent;
@@ -60,22 +61,28 @@ public class TimeSignature extends Instruction {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Time signatures should only be applied to the top of measures.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "3");
-            result.add(response);
+            int priority = 3;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
             return result;
         }
         if (beatCount<=0 || beatType<=0) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Invalid beat " + (this.beatCount<=0?"count" : "type") + " value.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }else if (!isValid(this.beatCount, this.beatType)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Unsupported time signature.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         return result;
     }

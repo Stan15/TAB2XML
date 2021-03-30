@@ -1,5 +1,6 @@
 package converter;
 
+import GUI.TabInput;
 import converter.instruction.Instruction;
 import converter.measure.DrumMeasure;
 import converter.measure.GuitarMeasure;
@@ -153,8 +154,10 @@ public class MeasureGroup implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measures in a measure group must have the same number of lines");
             response.put("positions", failPoints.toString());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         boolean hasGuitarMeasures = true;
@@ -167,8 +170,10 @@ public class MeasureGroup implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         //--------------Validate your aggregates (only if you're valid)-------------------

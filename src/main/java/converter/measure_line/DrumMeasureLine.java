@@ -1,5 +1,6 @@
 package converter.measure_line;
 
+import GUI.TabInput;
 import converter.note.Note;
 
 import java.util.*;
@@ -35,8 +36,10 @@ public class DrumMeasureLine extends MeasureLine {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "A drum measure line name is expected here.");
             response.put("positions", "["+this.namePosition+"]");
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         for (Note note : this.noteList)

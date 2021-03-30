@@ -1,5 +1,6 @@
 package converter.measure_line;
 
+import GUI.TabInput;
 import converter.ScoreComponent;
 import converter.note.DrumNote;
 import converter.note.GuitarNote;
@@ -25,35 +26,6 @@ public abstract class MeasureLine implements ScoreComponent {
         this.position = position;
         this.noteList = this.createNoteList(this.line, name, position);
         this.noteCount = this.noteList.size();
-    }
-
-    public static String checkRemoveRepeatSymbol(String line, boolean atStart) {
-        Matcher mtchr;
-        if (atStart)
-            mtchr = Pattern.compile("^[ ]*\\*(?=[- ])").matcher(line);
-        else
-            mtchr = Pattern.compile("(?<=[ -])\\*[ ]*(?=\\R|$)").matcher(line);
-        if (mtchr.find()) {
-            if (atStart)
-                line = line.substring(0, mtchr.end()-1)+"-"+line.substring(mtchr.end());
-            else
-                line = line.substring(0, mtchr.start())+"-"+line.substring(mtchr.start()+1);
-        }
-        return line;
-    }
-
-    public static String[] extractPotentialRepeatCount(String line) {
-        String repCount = "";
-        Matcher countMatcher;
-//        if (atStart)
-//            countMatcher = Pattern.compile("^[ ]*[0-9]{1,2}(?=[- ])").matcher(this.line);
-//        else
-            countMatcher = Pattern.compile("(?<=[ -])[0-9]{1,2}[ ]*(?=\\R|$)").matcher(line);
-        if (countMatcher.find()) {
-            line = line.substring(0,countMatcher.start());
-            repCount = countMatcher.group();
-        }
-        return new String[]{line, repCount};
     }
 
 
@@ -129,25 +101,31 @@ public abstract class MeasureLine implements ScoreComponent {
         if (name==null) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line name.");
-            response.put("priority", "1");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line);
         if (!matcher.find() || !matcher.group().equals(this.line)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line.");
-            response.put("priority", "1");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         if (this.line.length()-this.line.replaceAll("\s", "").length() != 0) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Adding whitespace might result in different timing than you expect.");
-            response.put("priority", "3");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 3;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         return result;
@@ -169,7 +147,7 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return
      */
     public static boolean isGuitarName(String name) {
-        if (!GuitarMeasureLine.NAME_SET.contains(name.strip())) return false;
+        if (!GuitarMeasureLine.NAME_LIST.contains(name.strip())) return false;
         return true;
     }
 

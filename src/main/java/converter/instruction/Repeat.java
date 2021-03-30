@@ -1,5 +1,6 @@
 package converter.instruction;
 
+import GUI.TabInput;
 import converter.MeasureCollection;
 import converter.MeasureGroup;
 import converter.ScoreComponent;
@@ -65,8 +66,10 @@ public class Repeat extends Instruction {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This repeat was only partially applied for some reason.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         return result;
     }

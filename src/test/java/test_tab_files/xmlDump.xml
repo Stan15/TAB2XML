@@ -18,7 +18,7 @@
                     <beat-type>4</beat-type>
                 </time>
                 <clef>
-                    <sign>G</sign>
+                    <sign>TAB</sign>
                     <line>5</line>
                 </clef>
                 <staff-details>
@@ -91,21 +91,6 @@
                     <technical>
                         <string>4</string>
                         <fret>2</fret>
-                    </technical>
-                </notations>
-            </note>
-            <note>
-                <grace/>
-                <pitch>
-                    <step>G</step>
-                    <octave>3</octave>
-                </pitch>
-                <voice>1</voice>
-                <stem>none</stem>
-                <notations>
-                    <technical>
-                        <string>3</string>
-                        <fret>0</fret>
                     </technical>
                 </notations>
             </note>
@@ -188,14 +173,53 @@
             </note>
         </measure>
         <measure number="2">
+            <barline location="left">
+                <bar-style>heavy-light</bar-style>
+                <repeat direction="forward"/>
+            </barline>
+            <direction placement="above">
+                <direction-type>
+                    <words relative-x="256.17" relative-y="16.01">Repeat 4 times</words>
+                </direction-type>
+            </direction>
             <note>
                 <pitch>
                     <step>E</step>
                     <octave>2</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>2</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>quarter</type>
+                <notations>
+                    <technical>
+                        <string>6</string>
+                        <fret>0</fret>
+                    </technical>
+                </notations>
+            </note>
+            <note>
+                <pitch>
+                    <step>B</step>
+                    <octave>2</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>quarter</type>
+                <notations>
+                    <technical>
+                        <string>5</string>
+                        <fret>2</fret>
+                    </technical>
+                </notations>
+            </note>
+            <note>
+                <pitch>
+                    <step>E</step>
+                    <octave>2</octave>
+                </pitch>
+                <duration>4</duration>
+                <voice>1</voice>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>6</string>
@@ -209,9 +233,9 @@
                     <step>B</step>
                     <octave>2</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>4</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>5</string>
@@ -225,9 +249,9 @@
                     <step>E</step>
                     <octave>3</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>4</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>4</string>
@@ -242,9 +266,9 @@
                     <alter>1</alter>
                     <octave>3</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>4</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>3</string>
@@ -258,9 +282,9 @@
                     <step>B</step>
                     <octave>3</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>4</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>2</string>
@@ -274,9 +298,9 @@
                     <step>E</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>8</duration>
+                <duration>4</duration>
                 <voice>1</voice>
-                <type>whole</type>
+                <type>half</type>
                 <notations>
                     <technical>
                         <string>1</string>
@@ -286,6 +310,7 @@
             </note>
             <barline location="right">
                 <bar-style>light-heavy</bar-style>
+                <repeat direction="backward"/>
             </barline>
         </measure>
     </part>

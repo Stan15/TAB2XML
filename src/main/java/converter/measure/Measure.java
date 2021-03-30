@@ -1,5 +1,6 @@
 package converter.measure;
 
+import GUI.TabInput;
 import converter.MeasureGroup;
 import converter.Score;
 import converter.ScoreComponent;
@@ -195,32 +196,6 @@ public abstract class Measure implements ScoreComponent {
         }
     }
 
-//    String[] checkApplyRepeatSymbol(List<String> lineList) {
-//        int repeatStartCount = 0;
-//        int repeatEndCount = 0;
-//        for (int i=0; i<lineList.size(); i++) {
-//            String startRepRemoved = MeasureLine.checkRemoveRepeatSymbol(lineList.get(i), true);
-//            if (!lineList.get(i).equals(startRepRemoved)) repeatStartCount++;
-//            String endRepRemoved = MeasureLine.checkRemoveRepeatSymbol(startRepRemoved, false);
-//            if (!lineList.get(i).equals(endRepRemoved)) repeatEndCount++;
-//        }
-//        if (repeatStartCount>=2){
-//            String[] result = MeasureLine.extractPotentialRepeatCount(lineList.get(0));
-//            int repeatCount = 1;
-//            if (!result[0].equals(lineList.get(0))) {
-//                lineList.set(0, result[0]);
-//                repeatCount = Integer.parseInt(result[1]);
-//            }
-//
-//            if (repeatCount<0 || repeatCount>Repeat.MAX_REPEATS) return;
-//            this.repeatCount = repeatCount;
-//            this.repeatStart = true;
-//        }
-//        if (repeatEndCount>=2 && !repeatEnd){
-//            this.repeatEnd = true;
-//        }
-//    }
-
     public void calcDurationRatios() {
         List<List<Note>> chordList = getChordList();
         int maxMeasureLineLen = getMaxMeasureLineLength();
@@ -406,16 +381,20 @@ public abstract class Measure implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         if (!lineSizeEqual) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Unequal measure line lengths may lead to incorrect note durations.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
 

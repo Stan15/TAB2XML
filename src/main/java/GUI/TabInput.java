@@ -26,7 +26,7 @@ public class TabInput {
 
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 30;   //in milliseconds
-    protected static int ERROR_SENSITIVITY = 4;
+    public static int ERROR_SENSITIVITY = 4;
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
