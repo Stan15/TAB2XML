@@ -13,10 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-enum Instrument {
-    GUITAR, DRUM
-}
-
 public class NoteFactory {
     private String origin, lineName;
     private int distanceFromMeasureStart, position;
