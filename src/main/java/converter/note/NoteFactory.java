@@ -281,13 +281,13 @@ public class NoteFactory {
         List<Note> noteList = new ArrayList<>();
         if (!origin.matches(GRACE)) return noteList;
         Matcher graceNoteMatcher = Pattern.compile("(?<=g)"+FRET+"(?![0-9])").matcher(origin);
-        Matcher gracePairMatcher = Pattern.compile("(?<![0-9])"+FRET+"$").matcher(origin);
-        Matcher relationshipMatcher = Pattern.compile("(?<=[0-9])[^0-9](?=[0-9])$").matcher(origin);
+        Matcher gracePairMatcher = Pattern.compile("(?<!g])"+FRET+"$").matcher(origin);
+        Matcher relationshipMatcher = Pattern.compile("(?<=[0-9])[^0-9](?=[0-9])").matcher(origin);
         graceNoteMatcher.find();
         gracePairMatcher.find();
         relationshipMatcher.find();
-        Note graceNote = createFret(graceNoteMatcher.group(), position+graceNoteMatcher.start(), distanceFromMeasureStart);
-        Note gracePair = createFret(graceNoteMatcher.group(), position+gracePairMatcher.start(), distanceFromMeasureStart);
+        Note graceNote = createFret(graceNoteMatcher.group(), position+graceNoteMatcher.start(), distanceFromMeasureStart+graceNoteMatcher.start());
+        Note gracePair = createFret(gracePairMatcher.group(), position+gracePairMatcher.start(), distanceFromMeasureStart+gracePairMatcher.start());
         grace((GuitarNote) graceNote, (GuitarNote) gracePair, relationshipMatcher.group());
         noteList.add(graceNote);
         noteList.add(gracePair);
