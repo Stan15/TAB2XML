@@ -6,15 +6,13 @@ import converter.ScoreComponent;
 import converter.Score;
 import utility.Patterns;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
-    public String line;
+    public String origin;
     public String name;
     public int dotCount;
     int stringNumber;
@@ -23,6 +21,8 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     public double duration;
     public double durationRatio;
     public String sign;
+    protected Map<NoteFactory.NoteDecor, String> noteDecorMap = new LinkedHashMap<>();
+
 
     // A pattern that matches the note components of a measure line, like (2h7) or 8s3 or 12 or 4/2, etc.
     // It doesn't have to match the correct notation. It should be as vague as possible, so it matches anything that "looks"
@@ -32,8 +32,8 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     // actual measure just because of that error and we flag the whole measure as an error instead of this one, small, specific
     // area of hte measure (the pattern for detecting measure groups uses this pattern)
     public static String COMPONENT_PATTERN = "[^-\\n\\r"+Patterns.DIVIDER_COMPONENTS+"]";
-    public Note(String line, String lineName, int distanceFromMeasureStart, int position) {
-        this.line = line;
+    public Note(String origin, int position, String lineName, int distanceFromMeasureStart) {
+        this.origin = origin;
         this.name = lineName;
         this.position = position;
         this.stringNumber = this.convertNameToNumber(this.name);
@@ -43,10 +43,10 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     public List<HashMap<String,String>> validate() {
         List<HashMap<String, String>> result = new ArrayList<>();
-        if (!this.line.equals(this.line.strip())) {
+        if (!this.origin.equals(this.origin.strip())) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Adding whitespace might result in different timing than you expect.");
-            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
+            response.put("positions", "["+this.position+","+(this.position+this.origin.length())+"]");
             int priority = 3;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
@@ -58,22 +58,20 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY
-     * @param line
+     * @param origin
      * @param lineName
      * @param distanceFromMeasureStart
      * @param position
      * @return
      */
-    public static List<Note> from(String line, String lineName, int distanceFromMeasureStart, int position) {
-        List<Note> noteList = new ArrayList<>();
-        Matcher graceMatcher = Pattern.compile(GuitarNote.GRACE).matcher(line);
-        try {
-            noteList.add(new GuitarNote(line, lineName, distanceFromMeasureStart, position));
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static List<Note> from(String origin, int position, String lineName, int distanceFromMeasureStart) {
+        NoteFactory nf = new NoteFactory(origin, position, lineName, distanceFromMeasureStart);
+        return nf.getNotes();
+    }
 
-        return noteList;
+    public boolean addDecor(NoteFactory.NoteDecor noteDecor, String message) {
+        this.noteDecorMap.put(noteDecor, message);
+        return true;
     }
 
     protected String getType() {
@@ -134,7 +132,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     public boolean isDrum() {
         // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
-        return this.line.matches(DrumNote.COMPONENT_PATTERN+"+");
+        return this.origin.matches(DrumNote.COMPONENT_PATTERN+"+");
     }
 
     public abstract models.measure.note.Note getModel();

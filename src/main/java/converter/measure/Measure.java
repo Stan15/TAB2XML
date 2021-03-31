@@ -141,7 +141,7 @@ public abstract class Measure implements ScoreComponent {
     }
     private static String extractRepeatCount(List<String> lines) {
         if (!checkRepeatEnd(lines)) return "";
-        Matcher numMatcher = Pattern.compile("(?<=[ -])[0-9]+(?=[ ]|"+ Patterns.DIVIDER+"|$)").matcher(lines.get(0));
+        Matcher numMatcher = Pattern.compile("(?<=[^0-9])[0-9]+(?=[ ]|"+ Patterns.DIVIDER+"|$)").matcher(lines.get(0));
         if (!numMatcher.find()) return "";
         return "["+numMatcher.start()+"]"+numMatcher.group();
     }

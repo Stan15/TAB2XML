@@ -31,7 +31,7 @@ public class MainApp extends Application {
     @Override
     public void stop() {
         TabInput.executor.shutdown();
-        TabPlayer.kill();
+        NotePlayer.kill();
     }
 
     public static void main(String[] args) {

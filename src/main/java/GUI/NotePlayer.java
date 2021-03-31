@@ -8,8 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import nu.xom.ParsingException;
@@ -18,7 +16,6 @@ import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
-import GUI.MainApp;
 import org.staccato.StaccatoParserListener;
 import utility.Parser;
 
@@ -30,7 +27,7 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TabPlayer {
+public class NotePlayer {
     private static ManagedPlayer PLAYER = new ManagedPlayer();
     private static Stage STAGE;
     private static String DISPLAY_TEXT;
@@ -45,11 +42,11 @@ public class TabPlayer {
     private static String TAB_TEXT;
     private static Score SCORE;
 
-    public TabPlayer(){
+    public NotePlayer(){
         initialize();
     }
 
-    public TabPlayer(CodeArea textArea) {
+    public NotePlayer(CodeArea textArea) {
         this();
         String text = textArea.getSelectedText();
         SCORE = null;
@@ -72,9 +69,9 @@ public class TabPlayer {
             STAGE.setTitle("Note Player");
             STAGE.initModality(Modality.APPLICATION_MODAL);
             STAGE.initOwner(MainApp.STAGE);
-            STAGE.setOnCloseRequest(e -> TabPlayer.kill());
+            STAGE.setOnCloseRequest(e -> NotePlayer.kill());
 
-            Parent root = FXMLLoader.load(TabPlayer.class.getClassLoader().getResource("GUI/tabPlayer.fxml"));
+            Parent root = FXMLLoader.load(NotePlayer.class.getClassLoader().getResource("GUI/tabPlayer.fxml"));
             Scene scene = new Scene(root);
             STAGE.setScene(scene);
             STAGE.setMinHeight(270);

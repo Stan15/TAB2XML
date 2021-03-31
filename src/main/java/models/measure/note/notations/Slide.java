@@ -1,36 +1,37 @@
-package models.measure.note;
+package models.measure.note.notations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 import lombok.Data;
 import models.ScorePartwise;
 
 @Data
-public class Beam {
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class Slide {
+    @JacksonXmlProperty(isAttribute = true)
+    String type;
     @JacksonXmlProperty(isAttribute = true)
     int number;
 
-    @JacksonXmlText
-    String type;
     @JsonIgnore
     private static int NEXT_NUMBER = 1;
     @JsonIgnore
     private static int PREV_SCORE_COUNT = 0;
 
-    private Beam() {
-        if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT) {
+    private Slide() {
+        if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT || NEXT_NUMBER>6) {
             PREV_SCORE_COUNT = ScorePartwise.getScoreCount();
             NEXT_NUMBER = 1;
         }
     }
 
-    public Beam(String type) {
+    public Slide(String type) {
         this();
         this.type = type;
         this.number = NEXT_NUMBER++;
     }
-    public Beam(String type, int number) {
+    public Slide(String type, int number) {
         this.type = type;
         this.number = number;
     }

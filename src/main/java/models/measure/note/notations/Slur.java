@@ -1,7 +1,9 @@
 package models.measure.note.notations;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
+import models.ScorePartwise;
 
 @Data
 public class Slur {
@@ -13,4 +15,26 @@ public class Slur {
 
     @JacksonXmlProperty(isAttribute = true)
     String type;
+
+    @JsonIgnore
+    private static int NEXT_NUMBER = 1;
+    @JsonIgnore
+    private static int PREV_SCORE_COUNT = 0;
+
+    private Slur() {
+        if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT || NEXT_NUMBER>6) {
+            PREV_SCORE_COUNT = ScorePartwise.getScoreCount();
+            NEXT_NUMBER = 1;
+        }
+    }
+
+    public Slur(String type) {
+        this();
+        this.type = type;
+        this.number = NEXT_NUMBER++;
+    }
+    public Slur(String type, int number) {
+        this.type = type;
+        this.number = number;
+    }
 }

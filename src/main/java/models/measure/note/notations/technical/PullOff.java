@@ -1,4 +1,4 @@
-package models.measure.note;
+package models.measure.note.notations.technical;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -7,30 +7,34 @@ import lombok.Data;
 import models.ScorePartwise;
 
 @Data
-public class Beam {
+public class PullOff {
     @JacksonXmlProperty(isAttribute = true)
     int number;
 
-    @JacksonXmlText
+    @JacksonXmlProperty(isAttribute = true)
     String type;
+
+    @JacksonXmlText
+    String symbol = "P";
+
     @JsonIgnore
     private static int NEXT_NUMBER = 1;
     @JsonIgnore
     private static int PREV_SCORE_COUNT = 0;
 
-    private Beam() {
-        if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT) {
+    private PullOff() {
+        if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT || NEXT_NUMBER>6) {
             PREV_SCORE_COUNT = ScorePartwise.getScoreCount();
             NEXT_NUMBER = 1;
         }
     }
 
-    public Beam(String type) {
+    public PullOff(String type) {
         this();
         this.type = type;
         this.number = NEXT_NUMBER++;
     }
-    public Beam(String type, int number) {
+    public PullOff(String type, int number) {
         this.type = type;
         this.number = number;
     }

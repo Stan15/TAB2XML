@@ -75,7 +75,7 @@ public abstract class MeasureLine implements ScoreComponent {
 
             if ((currentChar=='-' || i==line.length()-1)) {
                 if (!noteStrCollector.toString().isBlank())
-                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, position+noteStrStartIdx));
+                    noteList.addAll(Note.from(noteStrCollector.toString(), position+noteStrStartIdx, name, noteNonWSstartIdx));
                 noteStrCollector.delete(0, noteStrCollector.length());
             }
             distance++;

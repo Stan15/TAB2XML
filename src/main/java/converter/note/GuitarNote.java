@@ -1,26 +1,31 @@
 package converter.note;
 
 import GUI.TabInput;
-import converter.measure_line.GuitarMeasureLine;
 import models.measure.note.Chord;
 import models.measure.note.Dot;
 import models.measure.note.Grace;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
 import models.measure.note.notations.Slur;
-import models.measure.note.notations.Technical;
+import models.measure.note.notations.technical.Technical;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GuitarNote extends Note {
     public static String COMPONENT_PATTERN = createComponentPattern();
-    public static String FRET = "[0-9]{1,2}";
-    public static String GRACE = getGracePattern();
+    public static String FRET_PATTERN = "([0-9]{1,2})";
+    public static String GRACE_PATTERN = getGracePattern();
+    public static String PATTERN = getPattern();
+
+
+    private static String getPattern() {
+        return "("+ FRET_PATTERN +"|"+ GRACE_PATTERN +")";
+    }
+
     private String step;
     private int alter;
     private int octave;
@@ -29,20 +34,16 @@ public class GuitarNote extends Note {
     public static String[] KEY_LIST = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
     private static String getGracePattern() {
-        return "(g"+FRET+"[hp]"+FRET+")";
+        return "(g"+ FRET_PATTERN +"[hp]"+ FRET_PATTERN +")";
     }
     private static String createComponentPattern() {
         return "[0-9hpg\\/\\]";
     }
 
     public int fret;
-    public GuitarNote(String line, String lineName, int distanceFromMeasureStart, int position) {
-        super(line, lineName, distanceFromMeasureStart, position);
-        try {
-            this.fret = Integer.parseInt(this.line.strip());
-        }catch (Exception e) {
-            this.fret = 0;
-        }
+    public GuitarNote(String origin, int position, int fret, int fretPosition, String lineName, int distanceFromMeasureStart) {
+        super(origin, position, lineName, distanceFromMeasureStart);
+        this.fret = fret;
         String noteDetails = noteDetails(this.name, this.fret);
         this.step = GuitarNote.step(noteDetails);
         this.alter = GuitarNote.alter(noteDetails);
@@ -53,15 +54,28 @@ public class GuitarNote extends Note {
     public List<HashMap<String, String>> validate() {
         List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
-        if (line.strip().matches("[0-9]+")) return result;
-        HashMap<String, String> response = new HashMap<>();
-        response.put("message", "This annotation is either unsupported or invalid.");
-        response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-        int priority = 1;
-        response.put("priority", ""+priority);
-        if (TabInput.ERROR_SENSITIVITY>=priority)
-            result.add(response);
+        for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
+            String resp = noteDecorMap.get(noteDecor);
+            if (resp.equals("success")) continue;
+            Matcher matcher = Pattern.compile("(?<=\\[)[0-9](?=\\])").matcher(resp);
+            matcher.find();
+            int priority = Integer.parseInt(matcher.group());
+            matcher = Pattern.compile("(?<=\\]).*").matcher(resp);
+            matcher.find();
+            String message = matcher.group();
+
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", message);
+            response.put("positions", "["+this.position+","+(this.position+this.origin.length())+"]");
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
         return result;
+    }
+
+    public int getFret() {
+        return this.fret;
     }
 
     public models.measure.note.Note getModel() {
@@ -81,14 +95,6 @@ public class GuitarNote extends Note {
         technical.setFret(this.fret);
 
         Notations notations = new Notations();
-        if (isGrace) {
-            noteModel.setGrace(new Grace());
-            Slur slur = new Slur();
-            slur.setNumber(1);
-            slur.setPlacement("below");
-            slur.setType("start");
-            notations.setSlur(slur);
-        }
         notations.setTechnical(technical);
 
         noteModel.setNotations(notations);
@@ -99,13 +105,10 @@ public class GuitarNote extends Note {
 //        }
 //        if (!dots.isEmpty())
 //            noteModel.setDots(dots);
-        if (isGracePair) {
-            Slur slur = new Slur();
-            slur.setNumber(1);
-            slur.setType("stop");
-            notations.setSlur(slur);
+        for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
+            if (noteDecorMap.get(noteDecor).equals("success"))
+                noteDecor.applyTo(noteModel);
         }
-
         return noteModel;
     }
 

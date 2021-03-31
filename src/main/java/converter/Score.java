@@ -168,7 +168,10 @@ public class Score implements ScoreComponent {
         return result;
     }
 
-    public ScorePartwise getModel() throws TXMLException {
+    // TODO synchronized because the ScorePartwise model has an instance counter which has to remain the same for all
+    // which has to remain the same for all the sub-elements it has as they use that counter. this may turn out to be
+    // a bad idea cuz it might clash with the NotePlayer class
+    synchronized public ScorePartwise getModel() throws TXMLException {
         boolean isGuitar;
         boolean isDrum = false;
 

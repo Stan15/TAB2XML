@@ -306,7 +306,7 @@ public class FXMLController {
         ContextMenu context = new ContextMenu();
         MenuItem menuItem = new MenuItem("Play Notes");
         menuItem.setOnAction(e -> {
-            new TabPlayer(TEXT_AREA);
+            new NotePlayer(TEXT_AREA);
         });
         context.getItems().add(menuItem);
         TEXT_AREA.setContextMenu(context);
