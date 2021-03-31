@@ -2,6 +2,7 @@ package org.openjfx;
 
 import converter.Score;
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.TextFlow;
@@ -28,14 +29,17 @@ public class TabInput {
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
+    private Button convertButton;
     protected static ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public TabInput(CodeArea TEXT_AREA) {
+    public TabInput(CodeArea TEXT_AREA, Button convertButton) {
         this.TEXT_AREA = TEXT_AREA;
+        this.convertButton = convertButton;
     }
 
     public Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         String text = TEXT_AREA.getText();
+
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
             protected StyleSpans<Collection<String>> call() {
@@ -52,6 +56,11 @@ public class TabInput {
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
+        if (text.isBlank()) {
+            convertButton.setDisable(true);
+        } else {
+            convertButton.setDisable(false);
+        }
         String strippedText = text.replaceFirst("\\s++$", "");
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         if (strippedText.equals(PREVIOUS_TEXT_INPUT.strip()) || strippedText.isBlank()) {
