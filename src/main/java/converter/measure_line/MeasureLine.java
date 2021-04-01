@@ -44,15 +44,18 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return a MeasureLine object derived from the information in the input Strings. Either of type GuitarMeasureLine
      * or DrumMeasureLine
      */
-    public static MeasureLine from(String line, String[] nameAndPosition, int position) {
+    public static MeasureLine from(String line, String[] nameAndPosition, int position, boolean useBass) {
         String name = nameAndPosition[0];
         boolean isGuitarLine = MeasureLine.isGuitarName(name);
         boolean isDrumLine = MeasureLine.isDrumName(name);
         if (isDrumLine && !isGuitarLine)
             return new DrumMeasureLine(line, nameAndPosition, position);
-        else if(isGuitarLine && !isDrumLine)
-            return new GuitarMeasureLine(line, nameAndPosition, position);
-        else
+        else if(isGuitarLine && !isDrumLine) {
+            if (useBass)
+                return new BassMeasureLine(line, nameAndPosition, position);
+            else
+                return new GuitarMeasureLine(line, nameAndPosition, position);
+        }else
             return new GuitarMeasureLine(line, nameAndPosition, position); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)return null;
     }
 

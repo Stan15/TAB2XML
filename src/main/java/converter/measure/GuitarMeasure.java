@@ -87,7 +87,7 @@ public class GuitarMeasure extends Measure{
         //-----------------Validate yourself-------------------------
         List<HashMap<String,String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
-        //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
+        // Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in this measure must be Guitar measure lines.");

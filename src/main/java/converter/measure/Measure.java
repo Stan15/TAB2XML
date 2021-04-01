@@ -72,7 +72,7 @@ public abstract class Measure implements ScoreComponent {
             String line = lines.get(i);
             String[] nameAndPosition = namesAndPosition.get(i);
             int position = linePositions.get(i);
-            measureLineList.add(MeasureLine.from(line, nameAndPosition, position));
+            measureLineList.add(MeasureLine.from(line, nameAndPosition, position, this instanceof BassMeasure));
         }
         return measureLineList;
     }
@@ -96,6 +96,7 @@ public abstract class Measure implements ScoreComponent {
     public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasureInGroup) {
         boolean isGuitarMeasure = isGuitarMeasure(lineList, lineNameList);
         boolean isDrumMeasure = isDrumMeasure(lineList, lineNameList);
+        boolean isBassMeasure = isBassMeasure(lineList, lineNameList);
 
         boolean repeatStart = checkRepeatStart(lineList);
         boolean repeatEnd = checkRepeatEnd(lineList);
@@ -112,9 +113,12 @@ public abstract class Measure implements ScoreComponent {
         Measure measure;
         if (isDrumMeasure && !isGuitarMeasure)
             measure = new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        else if(isGuitarMeasure && !isDrumMeasure)
-            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        else
+        else if(isGuitarMeasure && !isDrumMeasure) {
+            if (isBassMeasure)
+                measure = new BassMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+            else
+                measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        }else
             measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
 
         if (repeatStart)
@@ -146,6 +150,19 @@ public abstract class Measure implements ScoreComponent {
             isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
         }
         return isDrumMeasure;
+    }
+
+    private static boolean isBassMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (!Score.STRICT_TYPE.isEmpty()) {
+            return Score.STRICT_TYPE.equalsIgnoreCase("bass");
+        }
+        boolean isBassMeasure = true;
+        for (int i=0; i<lineList.size(); i++) {
+            String[] nameAndPosition = lineNameList.get(i);
+            isBassMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
+        }
+        isBassMeasure &= lineList.size()>=BassMeasure.MIN_LINE_COUNT && lineList.size()<=BassMeasure.MAX_LINE_COUNT;
+        return isBassMeasure;
     }
 
     private static boolean checkRepeatStart(List<String> lines) {
