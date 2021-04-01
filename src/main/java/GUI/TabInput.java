@@ -1,9 +1,11 @@
 package GUI;
 
 import converter.Score;
+import converter.measure.Measure;
 import javafx.concurrent.Task;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextArea;
+import javafx.scene.shape.MoveTo;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -178,6 +180,17 @@ public class TabInput {
     public void disableHighlighting() {
         // TODO implement method stub
         return;
+    }
+
+    public boolean goToMeasure(int measureCount) {
+        Measure measure = new Score(TEXT_AREA.getText()).getMeasure(measureCount);
+        if (measure==null) return false;
+        String linePositions = measure.getLinePositions();
+        Matcher matcher = Pattern.compile("(?<![0-9])[0-9]+(?![0-9])").matcher(linePositions);
+        matcher.find();
+        TEXT_AREA.moveTo(Integer.parseInt(matcher.group()));
+        TEXT_AREA.requestFollowCaret();
+        return true;
     }
 }
 

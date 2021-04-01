@@ -1,6 +1,7 @@
 package converter.measure_line;
 
 import GUI.TabInput;
+import converter.Score;
 import converter.ScoreComponent;
 import converter.note.DrumNote;
 import converter.note.GuitarNote;
@@ -58,29 +59,12 @@ public abstract class MeasureLine implements ScoreComponent {
 
     private List<Note> createNoteList(String line, String name, int position) {
         List<Note> noteList = new ArrayList<>();
-
-        StringBuilder noteStrCollector = new StringBuilder();
-        int noteStrStartIdx = 0;
-        int noteNonWSstartIdx = 0;
-        int distance = 0;
-        int nonWhitespaceDistance = 0;
-        for (int i=0; i<line.length(); i++) {
-            char currentChar = line.charAt(i);
-
-            if (currentChar!='-') {
-                if (noteStrCollector.isEmpty()) noteStrStartIdx = distance;
-                if (noteStrCollector.toString().isBlank() && !String.valueOf(currentChar).matches("\s")) noteNonWSstartIdx = nonWhitespaceDistance;
-                noteStrCollector.append(currentChar);
-            }
-
-            if ((currentChar=='-' || i==line.length()-1)) {
-                if (!noteStrCollector.toString().isBlank())
-                    noteList.addAll(Note.from(noteStrCollector.toString(), position+noteStrStartIdx, name, noteNonWSstartIdx));
-                noteStrCollector.delete(0, noteStrCollector.length());
-            }
-            distance++;
-            if (!String.valueOf(currentChar).isBlank())
-                nonWhitespaceDistance++;
+        Matcher noteMatcher = Pattern.compile(Note.PATTERN).matcher(line);
+        while(noteMatcher.find()) {
+            String match = noteMatcher.group();
+            String leadingStr = line.substring(0, noteMatcher.start()).replaceAll("\s", "");
+            int distanceFromMeasureStart = leadingStr.length();
+            noteList.addAll(Note.from(match, position+noteMatcher.start(), this.name, distanceFromMeasureStart));
         }
         return noteList;
     }
@@ -152,6 +136,9 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isGuitar(boolean strictCheck) {
+        if (!strictCheck && !Score.STRICT_TYPE.isEmpty()) {
+             return Score.STRICT_TYPE.equalsIgnoreCase("guitar");
+        }
         if (!isGuitarName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {
@@ -162,6 +149,9 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isDrum(boolean strictCheck) {
+        if (!strictCheck && !Score.STRICT_TYPE.isEmpty()) {
+            return Score.STRICT_TYPE.equalsIgnoreCase("drum");
+        }
         if (!isDrumName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {
@@ -181,7 +171,6 @@ public abstract class MeasureLine implements ScoreComponent {
     //|--------------------- when it is in between other measures (middle of line, MIDL)
     public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
     public static Set<String> NAME_SET = createLineNameSet();
-    public static String COMPONENT_PATTERN = createLineComponentPattern();
 
     public static String[] nameOf(String measureLineStr, int lineStartIdx) {
         Pattern measureLineNamePttrn = Pattern.compile(createMeasureNameExtractPattern());
@@ -250,10 +239,6 @@ public abstract class MeasureLine implements ScoreComponent {
         nameSet.addAll(GuitarMeasureLine.createLineNameSet());
         nameSet.addAll(DrumMeasureLine.createLineNameSet());
         return nameSet;
-    }
-
-    private static String createLineComponentPattern() {
-        return "(" + GuitarNote.COMPONENT_PATTERN + "|" + DrumNote.COMPONENT_PATTERN + ")";
     }
 
     @Override

@@ -24,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static String STRICT_TYPE;
+    public static String STRICT_TYPE = "guitar";
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
@@ -39,6 +39,54 @@ public class Score implements ScoreComponent {
 
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
+        fixTrailingTimeSignatures();
+    }
+
+    public Measure getMeasure(int measureCount) {
+        for (MeasureCollection mCol : this.getMeasureCollectionList()) {
+            for (MeasureGroup mGroup : mCol.getMeasureGroupList()) {
+                for (Measure measure : mGroup.getMeasureList()) {
+                    int count = measure.getCount();
+                    if (count==measureCount)
+                        return measure;
+                    if (count > measureCount)
+                        return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getErrorLevel() {
+        List<HashMap<String, String>> errors = this.validate();
+        if (errors.isEmpty()) return 0;
+        int errorLevel = 10;
+        for (HashMap<String, String> error : errors) {
+            int priority = Integer.parseInt(error.get("priority"));
+            errorLevel = Math.min(errorLevel, priority);
+        }
+        return errorLevel;
+    }
+
+    private void fixTrailingTimeSignatures() {
+        int currBeatCount = DEFAULT_BEAT_COUNT;
+        int currBeatType = DEFAULT_BEAT_TYPE;
+        for (MeasureCollection measureCollection : this.getMeasureCollectionList()) {
+            for (MeasureGroup mGroup : measureCollection.getMeasureGroupList()) {
+                for (Measure measure : mGroup.getMeasureList()) {
+                    if (measure.isTimeSigOverridden()) {
+                        currBeatCount = measure.getBeatCount();
+                        currBeatType = measure.getBeatType();
+                        continue;
+                    }
+                    measure.setTimeSignature(currBeatCount, currBeatType);
+                }
+            }
+        }
+    }
+
+    private List<MeasureCollection> getMeasureCollectionList() {
+        return this.measureCollectionList;
     }
 
     public Score(String rootString, String strictType) {

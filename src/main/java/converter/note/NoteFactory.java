@@ -38,15 +38,15 @@ public class NoteFactory {
     }
 
     private static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();
-    private static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
+    public static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
     private static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
 
     private static final String DRUM_NOTE_PATTERN = "";
-    private static final String DRUM_NOTE_GROUP_PATTERN = "";
+    public static final String DRUM_NOTE_GROUP_PATTERN = "";
     private static final String DRUM_NOTE_CONNECTOR = "";
 
     private static String getGuitarNoteGroupPattern() {
-        return "("+GUITAR_NOTE_PATTERN+"("+GUITAR_NOTE_CONNECTOR+GUITAR_NOTE_PATTERN+")*)";
+        return "("+GUITAR_NOTE_PATTERN+"(-*"+GUITAR_NOTE_CONNECTOR+GUITAR_NOTE_PATTERN+")*)";
     }
     public static String getGuitarNotePattern() {
         return "("+GRACE+"|"+HARMONIC+"|"+ FRET +")";
@@ -89,7 +89,7 @@ public class NoteFactory {
         }else {
             List<Note> notes = createNote(noteMatcher.group(), position+idx+noteMatcher.start(), distanceFromMeasureStart+idx+noteMatcher.start());
             noteList.addAll(notes);
-            note1 = notes.get(notes.size()-1);
+            note1 = notes.get(notes.size()-1);  //you dont wanna get the grace note. you wanna get the grace pair because it is what will be creating a relationship with other notes
         }
 
         Matcher connectorMatcher = Pattern.compile(patternPackage.get("connector-pattern")).matcher(origin.substring(idx+noteMatcher.end(), endIdx));
@@ -128,9 +128,9 @@ public class NoteFactory {
 
     private void addRelationship(Note note1, Note note2, String relationship) {
         switch (relationship.toLowerCase()) {
-            case "h" -> hammerOn((GuitarNote) note1, (GuitarNote) note2);
-            case "p" -> pullOff((GuitarNote) note1, (GuitarNote) note2);
-            case "/", "\\", "s" -> slide((GuitarNote) note1, (GuitarNote) note2, relationship);
+            case "h" -> hammerOn((GuitarNote) note1, (GuitarNote) note2, false);
+            case "p" -> pullOff((GuitarNote) note1, (GuitarNote) note2, false);
+            case "/", "\\", "s" -> slide((GuitarNote) note1, (GuitarNote) note2, relationship, false);
         }
     }
 
@@ -172,13 +172,20 @@ public class NoteFactory {
         return note;
     }
 
-    private boolean slide(GuitarNote note1, GuitarNote note2, String symbol) {
+    private boolean slide(GuitarNote note1, GuitarNote note2, String symbol, boolean onlyMessage) {
         String message = "success";
         if (symbol.equals("/") && note1.getFret()>note2.getFret()) {
             message = "[2]Slide up \"/\" should go from a lower to a higher note.";
         }else if (symbol.equals("\\") && note1.getFret()<note2.getFret()) {
             message = "[2]Slide down \"/\" should go from a higher to a lower note.";
         }
+
+        if (onlyMessage) {
+            note1.addDecor((noteModel) -> true, message);
+            note2.addDecor((noteModel) -> true, message);
+            return true;
+        }
+
 
         AtomicInteger slideNum = new AtomicInteger();
         note1.addDecor((noteModel) -> {
@@ -221,13 +228,20 @@ public class NoteFactory {
         return true;
     }
 
-    private boolean hammerOn(GuitarNote note1, GuitarNote note2) {
+    private boolean hammerOn(GuitarNote note1, GuitarNote note2, boolean onlyMessage) {
         String message = "success";
         boolean success = true;
         if (note1.getFret()>note2.getFret()) {
             message = "[2]Hammer on \"h\" should go from a lower to a higher note.";
             success = false;
         }
+
+        if (onlyMessage) {
+            note1.addDecor((noteModel) -> true, message);
+            note2.addDecor((noteModel) -> true, message);
+            return true;
+        }
+
         AtomicInteger hammerOnNum = new AtomicInteger();
         note1.addDecor((noteModel) -> {
             Technical technical = noteModel.getNotations().getTechnical();
@@ -249,13 +263,20 @@ public class NoteFactory {
         return success;
     }
 
-    private boolean pullOff(GuitarNote note1, GuitarNote note2) {
+    private boolean pullOff(GuitarNote note1, GuitarNote note2, boolean onlyMessage) {
         String message = "success";
         boolean success = true;
         if (note1.getFret()<note2.getFret()) {
-            message = "[2]Pull off \"h\" should go from a higher to a lower note.";
+            message = "[2]Pull off \"p\" should go from a higher to a lower note.";
             success = false;
         }
+
+        if (onlyMessage) {
+            note1.addDecor((noteModel) -> true, message);
+            note2.addDecor((noteModel) -> true, message);
+            return true;
+        }
+
         AtomicInteger pullOffNum = new AtomicInteger();
         note1.addDecor((noteModel) -> {
             Technical technical = noteModel.getNotations().getTechnical();
@@ -286,8 +307,13 @@ public class NoteFactory {
         graceNoteMatcher.find();
         gracePairMatcher.find();
         relationshipMatcher.find();
-        Note graceNote = createFret(graceNoteMatcher.group(), position+graceNoteMatcher.start(), distanceFromMeasureStart+graceNoteMatcher.start());
-        Note gracePair = createFret(gracePairMatcher.group(), position+gracePairMatcher.start(), distanceFromMeasureStart+gracePairMatcher.start());
+        GuitarNote graceNote = createFret(graceNoteMatcher.group(), position+graceNoteMatcher.start(), distanceFromMeasureStart+graceNoteMatcher.start());
+        GuitarNote gracePair = createFret(gracePairMatcher.group(), position+gracePairMatcher.start(), distanceFromMeasureStart+gracePairMatcher.start());
+        String relationship = relationshipMatcher.group();
+        if (relationship.equals("h"))
+            hammerOn(graceNote, gracePair, true);
+        else if (relationship.equals("p"))
+            pullOff(graceNote, gracePair, true);
         grace((GuitarNote) graceNote, (GuitarNote) gracePair, relationshipMatcher.group());
         noteList.add(graceNote);
         noteList.add(gracePair);
@@ -301,13 +327,14 @@ public class NoteFactory {
 
     private boolean grace(GuitarNote graceNote, GuitarNote gracePair, String relationship) {
         boolean success = true;
-        if (relationship.equals("h"))
+        if (relationship.equalsIgnoreCase("h"))
             success = slur(graceNote, gracePair);
-        else if (relationship.equals("p"))
+        else if (relationship.equalsIgnoreCase("p"))
             success = slur(graceNote, gracePair);
         if (success) {
             graceNote.addDecor((noteModel) -> {
                 noteModel.setGrace(new Grace());
+                noteModel.setDuration(null);
                 return true;
             }, "success");
         }

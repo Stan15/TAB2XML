@@ -33,6 +33,17 @@ public abstract class Measure implements ScoreComponent {
     boolean repeatStart = false;
     boolean repeatEnd = false;
     int repeatCount = 0;
+    private boolean timeSigOverridden;
+    public boolean isTimeSigOverridden() {
+        return this.timeSigOverridden;
+    }
+
+    public int getBeatCount() {
+        return this.beatCount;
+    }
+    public int getBeatType() {
+        return this.beatType;
+    }
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         this.measureCount = ++GLOBAL_MEASURE_COUNT;
@@ -83,13 +94,8 @@ public abstract class Measure implements ScoreComponent {
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
      */
     public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasureInGroup) {
-        boolean isGuitarMeasure = true;
-        boolean isDrumMeasure = true;
-        for (int i=0; i<lineList.size(); i++) {
-            String[] nameAndPosition = lineNameList.get(i);
-            isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
-            isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
-        }
+        boolean isGuitarMeasure = isGuitarMeasure(lineList, lineNameList);
+        boolean isDrumMeasure = isDrumMeasure(lineList, lineNameList);
 
         boolean repeatStart = checkRepeatStart(lineList);
         boolean repeatEnd = checkRepeatEnd(lineList);
@@ -116,6 +122,30 @@ public abstract class Measure implements ScoreComponent {
         if (repeatEnd)
             measure.setRepeat(repeatCount, "end");
         return measure;
+    }
+
+    private static boolean isGuitarMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (!Score.STRICT_TYPE.isEmpty()) {
+            return Score.STRICT_TYPE.equalsIgnoreCase("guitar");
+        }
+        boolean isGuitarMeasure = true;
+        for (int i=0; i<lineList.size(); i++) {
+            String[] nameAndPosition = lineNameList.get(i);
+            isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
+        }
+        return isGuitarMeasure;
+    }
+
+    private static boolean isDrumMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (!Score.STRICT_TYPE.isEmpty()) {
+            return Score.STRICT_TYPE.equalsIgnoreCase("drum");
+        }
+        boolean isDrumMeasure = true;
+        for (int i=0; i<lineList.size(); i++) {
+            String[] nameAndPosition = lineNameList.get(i);
+            isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
+        }
+        return isDrumMeasure;
     }
 
     private static boolean checkRepeatStart(List<String> lines) {
@@ -338,6 +368,7 @@ public abstract class Measure implements ScoreComponent {
             return false;
         this.beatCount = beatCount;
         this.beatType = beatType;
+        this.timeSigOverridden = true;
         return true;
     }
 
@@ -511,4 +542,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     public abstract models.measure.Measure getModel();
+
+    public int getCount() {
+        return this.measureCount;
+    };
 }
