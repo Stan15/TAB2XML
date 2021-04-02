@@ -24,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static Instrument INSTRUMENT = Instrument.AUTO;
+    public static Instrument INSTRUMENT = Instrument.BASS;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
@@ -219,21 +219,25 @@ public class Score implements ScoreComponent {
     synchronized public ScorePartwise getModel() throws TXMLException {
         boolean isGuitar;
         boolean isDrum = false;
+        boolean isBass = false;
 
         if (INSTRUMENT ==Instrument.GUITAR)
             isGuitar = true;
         else if (INSTRUMENT ==Instrument.DRUM)
             isDrum = true;
+        else if (INSTRUMENT ==Instrument.BASS)
+            isBass = true;
         else {
             isGuitar = this.isGuitar(false);
             isDrum = this.isDrum(false);
+            isBass = this.isBass(false);
             if (isDrum && isGuitar) {
                 isDrum = this.isDrum(true);
                 isGuitar = this.isGuitar(true);
             }
-            if (isDrum && isGuitar && INSTRUMENT ==Instrument.AUTO)
+            if (INSTRUMENT == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass) || (isBass && isGuitar)))
                 throw new MixedScoreTypeException("A score must be only of one type");
-            if (!isDrum && !isGuitar)
+            if (!isDrum && !isGuitar && !isBass)
                 throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");
         }
 
@@ -248,6 +252,8 @@ public class Score implements ScoreComponent {
         PartList partList;
         if (isDrum)
             partList = this.getDrumPartList();
+        else if (isBass)
+            partList = this.getBassPartList();
         else
             partList = this.getGuitarPartList();
 
@@ -297,6 +303,12 @@ public class Score implements ScoreComponent {
         return new PartList(scoreParts);
     }
 
+    private PartList getBassPartList() {
+        List<ScorePart> scoreParts = new ArrayList<>();
+        scoreParts.add(new ScorePart("P1", "Bass"));
+        return new PartList(scoreParts);
+    }
+
     public boolean isGuitar(boolean strictCheck) {
         for (MeasureCollection msurCollection : this.measureCollectionList) {
             if (!msurCollection.isGuitar(strictCheck))
@@ -313,6 +325,14 @@ public class Score implements ScoreComponent {
         return true;
     }
 
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            if (!msurCollection.isBass(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         String outStr = "";
@@ -322,4 +342,5 @@ public class Score implements ScoreComponent {
         }
         return outStr;
     }
+
 }

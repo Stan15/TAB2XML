@@ -232,6 +232,14 @@ public class MeasureGroup implements ScoreComponent {
         return true;
     }
 
+    public boolean isBass(boolean strictCheck) {
+        for (Measure measure : this.measureList) {
+            if (!measure.isBass(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
     public int getDivisions() {
         int divisions = 0;
         for (Measure measure : this.measureList) {
@@ -270,4 +278,5 @@ public class MeasureGroup implements ScoreComponent {
             outStr.append(this.measureList.get(this.measureList.size()-1).toString());
         return outStr.toString();
     }
+
 }

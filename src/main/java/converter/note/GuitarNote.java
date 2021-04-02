@@ -26,9 +26,9 @@ public class GuitarNote extends Note {
         return "("+ FRET_PATTERN +"|"+ GRACE_PATTERN +")";
     }
 
-    private String step;
-    private int alter;
-    private int octave;
+    protected String step;
+    protected int alter;
+    protected int octave;
     boolean isGrace;
     boolean isGracePair;
     public static String[] KEY_LIST = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
@@ -40,10 +40,10 @@ public class GuitarNote extends Note {
         return "[0-9hpg\\/\\]";
     }
 
-    public int fret;
-    public GuitarNote(String origin, int position, int fret, int fretPosition, String lineName, int distanceFromMeasureStart) {
+    protected int fret;
+    public GuitarNote(String origin, int position, String lineName, int distanceFromMeasureStart) {
         super(origin, position, lineName, distanceFromMeasureStart);
-        this.fret = fret;
+        this.fret = Integer.parseInt(origin);
         String noteDetails = noteDetails(this.name, this.fret);
         this.step = GuitarNote.step(noteDetails);
         this.alter = GuitarNote.alter(noteDetails);
@@ -97,9 +97,9 @@ public class GuitarNote extends Note {
         Notations notations = new Notations();
         notations.setTechnical(technical);
 
-        noteModel.setNotations(notations);
-        //dot's don't work for some reason
-        List<Dot> dots = new ArrayList<>();
+//        noteModel.setNotations(notations);
+//        //dot's don't work for some reason
+//        List<Dot> dots = new ArrayList<>();
 //        for (int i=0; i<this.dotCount; i++){
 //            dots.add(new Dot());
 //        }
@@ -112,7 +112,7 @@ public class GuitarNote extends Note {
         return noteModel;
     }
 
-    private static String noteDetails(String lineName, int fret) {
+    protected static String noteDetails(String lineName, int fret) {
         String noteDetails = "";
         String name = lineName.strip();
         String[] nameList = GuitarNote.KEY_LIST;
@@ -123,7 +123,7 @@ public class GuitarNote extends Note {
             name = name.substring(0, lineOctaveMatcher.start());
             currentOctave = Integer.parseInt(lineOctaveMatcher.group());
         }else
-            currentOctave = GuitarNote.getDefaultOctave(name);
+            currentOctave = GuitarNote.getDefaultOctave(name, 0);
 
         boolean nameFound = false;
         for (int i=0; i< nameList.length*2; i++){
@@ -146,23 +146,23 @@ public class GuitarNote extends Note {
         return noteDetails+currentOctave;
     }
 
-    private static int getDefaultOctave(String name) {
+    protected static int getDefaultOctave(String name, int offset) {
         if (name.equals("e"))
-            return 4;
+            return 4+offset;
         else if (name.equalsIgnoreCase("B"))
-            return 3;
+            return 3+offset;
         else if (name.equalsIgnoreCase("G"))
-            return 3;
+            return 3+offset;
         else if (name.equalsIgnoreCase("D"))
-            return 3;
+            return 3+offset;
         else if (name.equalsIgnoreCase("A"))
-            return 2;
+            return 2+offset;
         else if (name.equalsIgnoreCase("E"))
-            return 2;
+            return 2+offset;
         return -1;
     }
 
-    private static String step(String noteDetails) {
+    protected static String step(String noteDetails) {
         Matcher matcher = Pattern.compile("^[a-zA-Z]+").matcher(noteDetails);
         if (matcher.find())
             return matcher.group().toUpperCase();
@@ -232,14 +232,14 @@ public class GuitarNote extends Note {
         return octave;
     }
 
-    private static int alter(String noteDetails) {
+    protected static int alter(String noteDetails) {
         if (noteDetails.contains("#"))
             return 1;
         return 0;
     }
 
     //decide octave of note
-    private static int octave(String noteDetails) {
+    protected static int octave(String noteDetails) {
         Matcher lineOctaveMatcher = Pattern.compile("(?<=[^0-9])[0-9]+$").matcher(noteDetails);
         lineOctaveMatcher.find();
         return Integer.parseInt(lineOctaveMatcher.group());

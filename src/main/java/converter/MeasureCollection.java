@@ -235,6 +235,14 @@ public class MeasureCollection implements ScoreComponent {
         return true;
     }
 
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureGroup measureGroup : this.measureGroupList) {
+            if (!measureGroup.isBass(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
     public int getDivisions() {
         int divisions = 0;
         for (MeasureGroup measureGroup : this.measureGroupList) {
@@ -266,5 +274,6 @@ public class MeasureCollection implements ScoreComponent {
             outStr.append(this.measureGroupList.get(this.measureGroupList.size()-1).toString());
         return outStr.toString();
     }
+
 }
 // TODO limit the number of consecutive whitespaces there are inside a measure

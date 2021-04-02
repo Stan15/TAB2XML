@@ -1,5 +1,6 @@
 package converter.note;
 
+import converter.Instrument;
 import models.measure.note.Grace;
 import models.measure.note.notations.Slur;
 import models.measure.note.notations.technical.*;
@@ -16,9 +17,11 @@ import java.util.regex.Pattern;
 public class NoteFactory {
     private String origin, lineName;
     private int distanceFromMeasureStart, position;
-    public NoteFactory(String origin, int position, String lineName, int distanceFromMeasureStart) {
+    Instrument instrument;
+    public NoteFactory(String origin, int position, Instrument instrument, String lineName, int distanceFromMeasureStart) {
         this.origin = origin;
         this.lineName = lineName;
+        this.instrument = instrument;
         this.distanceFromMeasureStart = distanceFromMeasureStart;
         this.position = position;
     }
@@ -322,7 +325,12 @@ public class NoteFactory {
 
     private GuitarNote createFret(String origin, int position, int distanceFromMeasureStart) {
         if (!origin.matches(FRET)) return null;
-        return new GuitarNote(origin, position, Integer.parseInt(origin), position, lineName, distanceFromMeasureStart);
+        if (this.instrument == Instrument.GUITAR)
+            return new GuitarNote(origin, position, lineName, distanceFromMeasureStart);
+        else if (this.instrument == Instrument.BASS)
+            return new BassNote(origin, position, lineName, distanceFromMeasureStart);
+        else
+            return null;
     }
 
     private boolean grace(GuitarNote graceNote, GuitarNote gracePair, String relationship) {

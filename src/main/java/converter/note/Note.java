@@ -1,6 +1,7 @@
 package converter.note;
 
 import GUI.TabInput;
+import converter.Instrument;
 import converter.ScoreComponent;
 
 import converter.Score;
@@ -70,8 +71,8 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
      * @param position
      * @return
      */
-    public static List<Note> from(String origin, int position, String lineName, int distanceFromMeasureStart) {
-        NoteFactory nf = new NoteFactory(origin, position, lineName, distanceFromMeasureStart);
+    public static List<Note> from(String origin, int position, Instrument instrument, String lineName, int distanceFromMeasureStart) {
+        NoteFactory nf = new NoteFactory(origin, position, instrument, lineName, distanceFromMeasureStart);
         return nf.getNotes();
     }
 

@@ -3,6 +3,7 @@ package GUI;
 import converter.Score;
 import converter.measure.Measure;
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextArea;
 import javafx.scene.shape.MoveTo;
@@ -13,7 +14,6 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 import utility.*;
 
-import java.awt.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.List;
@@ -32,14 +32,17 @@ public class TabInput {
     protected static boolean AUTO_HIGHLIGHT;
     protected static Score SCORE = new Score("");
     private CodeArea TEXT_AREA;
+    private Button convertButton;
     protected static ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public TabInput(CodeArea TEXT_AREA) {
+    public TabInput(CodeArea TEXT_AREA, Button convertButton) {
         this.TEXT_AREA = TEXT_AREA;
+        this.convertButton = convertButton;
     }
 
     public Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         String text = TEXT_AREA.getText();
+
         Task<StyleSpans<Collection<String>>> task = new Task<>() {
             @Override
             protected StyleSpans<Collection<String>> call() {
@@ -56,6 +59,11 @@ public class TabInput {
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
+        if (text.isBlank()) {
+            convertButton.setDisable(true);
+        } else {
+            convertButton.setDisable(false);
+        }
         String strippedText = text.replaceFirst("\\s++$", "");
         if (strippedText.equals(PREVIOUS_TEXT_INPUT))
             return PREVIOUS_HIGHLIGHT;

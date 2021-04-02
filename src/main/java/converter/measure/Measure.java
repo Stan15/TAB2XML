@@ -110,14 +110,13 @@ public abstract class Measure implements ScoreComponent {
         }
 
         Measure measure;
-        if (isDrumMeasure && !isGuitarMeasure)
+        if (isDrumMeasure && !isGuitarMeasure && !isBassMeasure)
             measure = new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        else if(isGuitarMeasure && !isDrumMeasure) {
-            if (isBassMeasure)
-                measure = new BassMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-            else
-                measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        }else
+        else if(isGuitarMeasure && !isDrumMeasure && !isBassMeasure)
+            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        else if (isBassMeasure)
+            measure = new BassMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        else
             measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
 
         if (repeatStart)
@@ -515,6 +514,13 @@ public abstract class Measure implements ScoreComponent {
         }
         return true;
     }
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            if (!measureLine.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
 
     @Override
     public String toString() {
@@ -561,5 +567,5 @@ public abstract class Measure implements ScoreComponent {
 
     public int getCount() {
         return this.measureCount;
-    };
+    }
 }

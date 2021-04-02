@@ -32,6 +32,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
+
+    testCompile "org.testfx:testfx-core:4.0.16-alpha"
+    testCompile "org.testfx:testfx-junit5:4.0.16-alpha"
+
     implementation 'com.github.JensPiegsa:jfugue:5.0.9'
 }
 

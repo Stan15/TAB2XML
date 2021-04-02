@@ -3,12 +3,16 @@
   <component name="NewModuleRootManager">
     <output-test url="file://$MODULE_DIR$/../../build/classes/java/test" />
     <exclude-output />
+    <content url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/test" isTestSource="true" generated="true" />
+    </content>
     <content url="file://$MODULE_DIR$/../../src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="org.openjfx.TAB2XML.main" />
     <orderEntry type="library" name="Gradle: org.fxmisc.richtext:richtextfx:0.10.5" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9" level="project" />
     <orderEntry type="library" name="Gradle: com.github.JensPiegsa:jfugue:5.0.9" level="project" />
