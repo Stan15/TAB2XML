@@ -66,7 +66,14 @@ public abstract class MeasureLine implements ScoreComponent {
             String match = noteMatcher.group();
             String leadingStr = line.substring(0, noteMatcher.start()).replaceAll("\s", "");
             int distanceFromMeasureStart = leadingStr.length();
-            noteList.addAll(Note.from(match, position+noteMatcher.start(), this.name, distanceFromMeasureStart));
+            Instrument instrument = null;
+            if (this instanceof BassMeasureLine)
+                instrument = Instrument.BASS;
+            else if (this instanceof GuitarMeasureLine)
+                instrument = Instrument.GUITAR;
+            else if (this instanceof DrumMeasureLine)
+                instrument = Instrument.DRUM;
+            noteList.addAll(Note.from(match, position+noteMatcher.start(), instrument, this.name, distanceFromMeasureStart));
         }
         return noteList;
     }

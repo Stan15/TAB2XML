@@ -514,6 +514,13 @@ public abstract class Measure implements ScoreComponent {
         }
         return true;
     }
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            if (!measureLine.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
 
     @Override
     public String toString() {
@@ -560,5 +567,5 @@ public abstract class Measure implements ScoreComponent {
 
     public int getCount() {
         return this.measureCount;
-    };
+    }
 }

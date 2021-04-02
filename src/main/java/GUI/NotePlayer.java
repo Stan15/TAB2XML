@@ -55,8 +55,8 @@ public class NotePlayer {
             DISPLAY_TEXT = "Select a measure to play it.";
         else if (scoreTmp.measureCollectionList.isEmpty())
             DISPLAY_TEXT = "No measure detected in selection.";
-        else if (!scoreTmp.isGuitar(false))
-            DISPLAY_TEXT = "Only guitar measures can be played.";
+        else if (!scoreTmp.isGuitar(true) && !scoreTmp.isBass(true))
+            DISPLAY_TEXT = "Only guitar and bass measures can be played.";
         else {
             DISPLAY_TEXT = scoreTmp.toString();
             SCORE = scoreTmp;
@@ -91,8 +91,7 @@ public class NotePlayer {
     }
 
     public static boolean play(Score score) throws ParserConfigurationException, MidiUnavailableException, URISyntaxException, ParsingException, IOException, InvalidMidiDataException {
-        kill();
-        if (!score.isGuitar(false)) return false;
+        if (!score.isGuitar(false) && !score.isBass(false)) return false;
         MusicXmlParser parser = new MusicXmlParser();
         StaccatoParserListener listener = new StaccatoParserListener();
         parser.addParserListener(listener);
@@ -119,7 +118,7 @@ public class NotePlayer {
             seekSlider.setValue(PLAYER.getTickLength());
         } catch (Exception e) {
             e.printStackTrace();
-            tabPlayerDisplay.setText("This measure could not be played for some reason.");
+            tabPlayerDisplay.setText("Measure could not be played.");
             disableControls();
             kill();
         }

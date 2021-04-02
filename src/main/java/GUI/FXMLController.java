@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ public class FXMLController {
     @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
+    @FXML private Button convertButton;
 
     @FXML TextField titleField;
     @FXML TextField artistField;
@@ -114,7 +116,7 @@ public class FXMLController {
 
         saveFile = openedFile;
         isEditingSavedFile = true;
-        new TabInput(TEXT_AREA).computeHighlightingAsync();
+        new TabInput(TEXT_AREA, convertButton).computeHighlightingAsync();
 
     }
 
@@ -273,7 +275,7 @@ public class FXMLController {
     @FXML
     private void cancelConvertButtonHandle()  {
         convertWindow.hide();
-        new TabInput(TEXT_AREA).enableHighlighting();
+        new TabInput(TEXT_AREA,convertButton).enableHighlighting();
     }
 
 
@@ -315,7 +317,7 @@ public class FXMLController {
 
     private void initializeTextAreaErrorPopups() {
         TEXT_AREA.setParagraphGraphicFactory(LineNumberFactory.get(TEXT_AREA));
-        new TabInput(TEXT_AREA).enableHighlighting();
+        new TabInput(TEXT_AREA, convertButton).enableHighlighting();
 
         savedTextArea = TEXT_AREA;
 
