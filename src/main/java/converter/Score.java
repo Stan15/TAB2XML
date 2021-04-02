@@ -24,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static Instrument INSTRUMENT = Instrument.AUTO;
+    public static Instrument INSTRUMENT = Instrument.BASS;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
