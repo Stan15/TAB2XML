@@ -1,5 +1,6 @@
 package converter.measure;
 
+import GUI.TabInput;
 import converter.Score;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
@@ -16,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GuitarMeasure extends Measure{
+    private static final int MIN_LINE_COUNT = 6;
+    private static final int MAX_LINE_COUNT = 6;
+
     public GuitarMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
@@ -24,6 +28,7 @@ public class GuitarMeasure extends Measure{
         setChords();
         calcDurationRatios();
     }
+
 
     private List<String[]>  fixNamingOfE(List<String[]> lineNamesAndPositions) {
         int lowerEcount = 0;
@@ -81,26 +86,32 @@ public class GuitarMeasure extends Measure{
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    @Override
     public List<HashMap<String, String>> validate() {
         //-----------------Validate yourself-------------------------
         List<HashMap<String,String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
-        //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
+        // Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in this measure must be Guitar measure lines.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "1");
-            result.add(response);
-        }
-
-        if (this.measureLineList.size()!=6) {
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }else if (this.measureLineList.size()<MIN_LINE_COUNT || this.measureLineList.size()>MAX_LINE_COUNT) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "A guitar measure should have 6 lines.");
+            String rangeMsg;
+            if (MIN_LINE_COUNT==MAX_LINE_COUNT)
+                rangeMsg = ""+MIN_LINE_COUNT;
+            else
+                rangeMsg = "between "+MIN_LINE_COUNT+" and "+MAX_LINE_COUNT;
+            response.put("message", "A Guitar measure should have "+rangeMsg+" lines.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
 

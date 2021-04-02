@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import models.part_list.PartList;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -14,6 +15,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JacksonXmlRootElement(localName = "score-partwise")
 public class ScorePartwise {
+    @JsonIgnore
+    private static int SCORE_COUNT = 1;
+
     @JacksonXmlProperty(isAttribute = true)
     public String version;
 
@@ -24,9 +28,18 @@ public class ScorePartwise {
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<Part> parts;
 
+    ScorePartwise() {
+        SCORE_COUNT++;
+    }
+
     public ScorePartwise(String version, PartList partList, List<Part> parts) {
+        this();
         this.version = version;
         this.partList = partList;
         this.parts = parts;
+    }
+
+    public static int getScoreCount() {
+        return SCORE_COUNT;
     }
 }

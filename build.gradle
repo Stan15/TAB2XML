@@ -5,7 +5,7 @@ plugins {
     id 'jacoco'
 }
 
-group 'org.openjfx'
+group 'GUI'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -30,7 +30,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
-    
+
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
 
     testCompile "org.testfx:testfx-core:4.0.16-alpha"
@@ -59,4 +59,4 @@ run {
     }
 }
 
-mainClassName = 'org.openjfx.MainApp'
+mainClassName = 'GUI.MainApp'
