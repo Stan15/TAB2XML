@@ -1,10 +1,9 @@
 package converter.measure;
 
 import GUI.TabInput;
-import converter.MeasureGroup;
+import converter.Instrument;
 import converter.Score;
 import converter.ScoreComponent;
-import converter.instruction.Repeat;
 import converter.instruction.TimeSignature;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
@@ -129,8 +128,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isGuitarMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (!Score.STRICT_TYPE.isEmpty()) {
-            return Score.STRICT_TYPE.equalsIgnoreCase("guitar");
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.GUITAR;
         }
         boolean isGuitarMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -141,8 +140,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isDrumMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (!Score.STRICT_TYPE.isEmpty()) {
-            return Score.STRICT_TYPE.equalsIgnoreCase("drum");
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.DRUM;
         }
         boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -153,8 +152,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isBassMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (!Score.STRICT_TYPE.isEmpty()) {
-            return Score.STRICT_TYPE.equalsIgnoreCase("bass");
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.BASS;
         }
         boolean isBassMeasure = true;
         for (int i=0; i<lineList.size(); i++) {

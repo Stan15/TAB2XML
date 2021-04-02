@@ -24,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static String STRICT_TYPE = "guitar";
+    public static Instrument INSTRUMENT = Instrument.AUTO;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
@@ -34,8 +34,6 @@ public class Score implements ScoreComponent {
         ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
-        if (STRICT_TYPE==null)
-            STRICT_TYPE = "";
 
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
@@ -89,9 +87,9 @@ public class Score implements ScoreComponent {
         return this.measureCollectionList;
     }
 
-    public Score(String rootString, String strictType) {
+    public Score(String rootString, Instrument instrument) {
         this(rootString);
-        STRICT_TYPE = strictType;
+        INSTRUMENT = instrument;
     }
 
     public int getDivisions() {
@@ -188,7 +186,6 @@ public class Score implements ScoreComponent {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
             }
-
             prevEndIdx = msurCollction.endIndex;
         }
 
@@ -223,9 +220,9 @@ public class Score implements ScoreComponent {
         boolean isGuitar;
         boolean isDrum = false;
 
-        if (STRICT_TYPE.equals("guitar"))
+        if (INSTRUMENT ==Instrument.GUITAR)
             isGuitar = true;
-        else if (STRICT_TYPE.equals("drum"))
+        else if (INSTRUMENT ==Instrument.DRUM)
             isDrum = true;
         else {
             isGuitar = this.isGuitar(false);
@@ -234,7 +231,7 @@ public class Score implements ScoreComponent {
                 isDrum = this.isDrum(true);
                 isGuitar = this.isGuitar(true);
             }
-            if (isDrum && isGuitar && STRICT_TYPE.isEmpty())
+            if (isDrum && isGuitar && INSTRUMENT ==Instrument.AUTO)
                 throw new MixedScoreTypeException("A score must be only of one type");
             if (!isDrum && !isGuitar)
                 throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");

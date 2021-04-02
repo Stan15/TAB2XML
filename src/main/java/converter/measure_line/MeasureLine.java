@@ -1,10 +1,9 @@
 package converter.measure_line;
 
 import GUI.TabInput;
+import converter.Instrument;
 import converter.Score;
 import converter.ScoreComponent;
-import converter.note.DrumNote;
-import converter.note.GuitarNote;
 import converter.note.Note;
 import utility.Patterns;
 
@@ -139,8 +138,8 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isGuitar(boolean strictCheck) {
-        if (!strictCheck && !Score.STRICT_TYPE.isEmpty()) {
-             return Score.STRICT_TYPE.equalsIgnoreCase("guitar");
+        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.GUITAR;
         }
         if (!isGuitarName(this.name)) return false;
         if (!strictCheck) return true;
@@ -152,8 +151,8 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isDrum(boolean strictCheck) {
-        if (!strictCheck && !Score.STRICT_TYPE.isEmpty()) {
-            return Score.STRICT_TYPE.equalsIgnoreCase("drum");
+        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.DRUM;
         }
         if (!isDrumName(this.name)) return false;
         if (!strictCheck) return true;

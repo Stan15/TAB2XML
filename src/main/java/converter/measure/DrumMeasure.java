@@ -10,6 +10,9 @@ import java.util.List;
 
 public class DrumMeasure extends Measure {
 
+    private static final int MIN_LINE_COUNT = 3;
+    private static final int MAX_LINE_COUNT = 6;
+
     public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasureInGroup);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
@@ -43,6 +46,21 @@ public class DrumMeasure extends Measure {
             response.put("message", "All measure lines in this measure must be Drum measure lines.");
             response.put("positions", this.getLinePositions());
             int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
+
+        if (this.measureLineList.size()<MIN_LINE_COUNT || this.measureLineList.size()>MAX_LINE_COUNT) {
+            HashMap<String, String> response = new HashMap<>();
+            String rangeMsg;
+            if (MIN_LINE_COUNT==MAX_LINE_COUNT)
+                rangeMsg = ""+MIN_LINE_COUNT;
+            else
+                rangeMsg = "between "+MIN_LINE_COUNT+" and "+MAX_LINE_COUNT;
+            response.put("message", "A Drum measure should have "+rangeMsg+" lines.");
+            response.put("positions", this.getLinePositions());
+            int priority = 2;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);

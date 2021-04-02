@@ -2,6 +2,7 @@ package converter.measure;
 
 import GUI.TabInput;
 import converter.measure_line.BassMeasureLine;
+import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 
@@ -18,8 +19,42 @@ public class BassMeasure extends GuitarMeasure {
     }
     @Override
     public List<HashMap<String, String>> validate() {
-        //-----------------Validate yourself-------------------------
-        List<HashMap<String,String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        //------------------the below is copy paste of Measure.validate()------------------------------------------------
+        List<HashMap<String, String>> result = new ArrayList<>();
+
+        boolean hasGuitarMeasureLines = true;
+        boolean hasDrumMeasureLines = true;
+        boolean lineSizeEqual = true;
+
+        int previousLineLength = -1;
+        for (MeasureLine measureLine : this.measureLineList) {
+            hasGuitarMeasureLines &= measureLine instanceof GuitarMeasureLine;
+            hasDrumMeasureLines &= measureLine instanceof DrumMeasureLine;
+
+            int currentLineLength = measureLine.line.replace("\s", "").length();
+            lineSizeEqual &= (previousLineLength<0) || previousLineLength==currentLineLength;
+            previousLineLength = currentLineLength;
+        }
+        if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
+            response.put("positions", this.getLinePositions());
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
+
+        if (!lineSizeEqual) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "Unequal measure line lengths may lead to incorrect note durations.");
+            response.put("positions", this.getLinePositions());
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
+        //------------------the above is copy paste of Measure.validate()------------------------------------------------
 
         // Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof BassMeasureLine)) {
