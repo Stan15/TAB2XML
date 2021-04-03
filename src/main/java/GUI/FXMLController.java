@@ -40,7 +40,7 @@ public class FXMLController {
     @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
-    @FXML private Button convertButton;
+    @FXML private Button convertButton = new Button();
 
     @FXML TextField titleField;
     @FXML TextField artistField;
@@ -210,6 +210,7 @@ public class FXMLController {
             stage.setTitle(windowName);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(MainApp.STAGE);
+            stage.setResizable(false);
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
