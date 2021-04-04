@@ -19,11 +19,11 @@ public class DrumNote extends Note{
             return "P1-I50";
         else if (lineName.equalsIgnoreCase("R")) // ride Cymbal
             return "P1-I52";
-        else if (lineName.equals("HT")) //High Tom
-            return "P1-I51";
-        else if (lineName.equals("t")) // medium Tom ??? there are two; low-mid Tom and high-mid Tom
+        else if (lineName.equals("HT")) // Low Mid Tom = High Tom
             return "P1-I48";
-        else if (lineName.equals("FT")) // floor Tom ; there are two ; high and low floor tom
+        else if (lineName.equals("MT")) // Low Tom = Medium Tom
+            return "P1-I46";
+        else if (lineName.equals("FT")) // Low Floor Tom = Low Tom
             return "P1-I42";
         else if (lineName.equals("HH")) { // High Hat there are two types
             /**
@@ -51,15 +51,52 @@ public class DrumNote extends Note{
     public models.measure.note.Note getModel(){ //toXML
         // linename
         // getType   of note (eighth, quarter etc)
+
         models.measure.note.Note noteModel = new models.measure.note.Note();
+
+        noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
         noteModel.setInstrument(new Instrument(this.DrumId));
         noteModel.setVoice(1);
-        //noteModel.setUnpitched(new Unpitched());
+
 
 
         return noteModel;
 
     }
+
+    public Unpitched IDtoDisplayStepAndDisplayOctave(){
+
+        if (this.DrumId == "P1-I36"){ //bass drum
+            return new Unpitched("F", 4);
+        }
+        if (this.DrumId == "P1-I39"){ //snare
+            return new Unpitched("C", 5);
+        }
+        if ((this.DrumId == "P1-I43") || (this.DrumId == "P1-I47")){ // high hat - closed or open
+            return new Unpitched("G", 5);
+        }
+        if (this.DrumId == "P1-I52"){ //ride cymbal
+            return new Unpitched("F", 5);
+        }
+        if (this.DrumId == "P1-I50"){
+            return new Unpitched("A", 5);
+        }
+        if (this.DrumId == "P1-I48"){
+            return new Unpitched("E", 5);
+        }
+        if (this.DrumId == "P1-I46"){
+            return new Unpitched("D", 5);
+        }
+        if (this.DrumId == "P1-I42"){
+            return new Unpitched("A", 4);
+        }
+
+        return new Unpitched("invalid", 0);
+    }
+
+
+
+
 
 
 
