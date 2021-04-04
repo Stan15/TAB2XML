@@ -1,5 +1,6 @@
 package converter.note;
 
+import models.measure.note.Beam;
 import models.measure.note.Instrument;
 import models.measure.note.Unpitched;
 
@@ -55,8 +56,14 @@ public class DrumNote extends Note{
         models.measure.note.Note noteModel = new models.measure.note.Note();
 
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
+        noteModel.setDuration(2); //to-do
         noteModel.setInstrument(new Instrument(this.DrumId));
         noteModel.setVoice(1);
+        noteModel.setType("");// to-do
+        noteModel.setStem(""); // to-do
+        noteModel.setNotehead("X/O"); // to do
+        noteModel.setBeam(new Beam());
+
 
 
 
