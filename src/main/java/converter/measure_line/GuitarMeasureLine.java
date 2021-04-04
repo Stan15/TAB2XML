@@ -1,27 +1,39 @@
 package converter.measure_line;
 
+import GUI.TabInput;
+import converter.note.GuitarNote;
 import converter.note.Note;
 
 import java.util.*;
 
 public class GuitarMeasureLine extends MeasureLine {
-    public static Set<String> NAME_SET = createLineNameSet();
+    public static List<String> NAME_LIST = createLineNameSet();
+    public static List<String> OCTAVE_LIST = createOctaveList();
+
+    private static ArrayList<String> createOctaveList() {
+        String[] names = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+        ArrayList<String> nameList = new ArrayList<>();
+        nameList.addAll(Arrays.asList(names));
+        return nameList;
+    }
 
     public GuitarMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
     }
 
-    protected static Set<String> createLineNameSet() {
-        String[] names = {"E", "A", "D", "G", "B", "e", "a", "d", "g", "b"};
-        HashSet<String> nameSet = new HashSet<>();
-        nameSet.addAll(Arrays.asList(names));
-        return nameSet;
+    protected static List<String> createLineNameSet() {
+        String[] names = GuitarNote.KEY_LIST;
+        ArrayList<String> nameList = new ArrayList<>();
+        nameList.addAll(Arrays.asList(names));
+        for (String name : names) {
+            nameList.add(name.toLowerCase());
+        }
+        return nameList;
     }
 
 
     public List<HashMap<String,String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
@@ -30,8 +42,10 @@ public class GuitarMeasureLine extends MeasureLine {
             else
                 response.put("message", "Invalid measure line name.");
             response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         for (Note note : this.noteList)

@@ -1,15 +1,23 @@
 package converter.measure;
 
-import converter.MeasureGroup;
+import GUI.TabInput;
+import converter.Instrument;
 import converter.Score;
+import converter.ScoreComponent;
+import converter.instruction.RepeatType;
+import converter.instruction.TimeSignature;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import utility.Patterns;
+import utility.Range;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public abstract class Measure {
+public abstract class Measure implements ScoreComponent {
     public static int GLOBAL_MEASURE_COUNT;
     protected int measureCount;
     int beatCount = Score.DEFAULT_BEAT_COUNT;
@@ -21,7 +29,21 @@ public abstract class Measure {
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasureInGroup;
     List<Note> sortedNoteList;
-    public boolean hasSameTimeSigAsPrevious = true;
+
+    boolean repeatStart = false;
+    boolean repeatEnd = false;
+    int repeatCount = 0;
+    private boolean timeSigOverridden;
+    public boolean isTimeSigOverridden() {
+        return this.timeSigOverridden;
+    }
+
+    public int getBeatCount() {
+        return this.beatCount;
+    }
+    public int getBeatType() {
+        return this.beatType;
+    }
 
     public Measure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         this.measureCount = ++GLOBAL_MEASURE_COUNT;
@@ -50,7 +72,7 @@ public abstract class Measure {
             String line = lines.get(i);
             String[] nameAndPosition = namesAndPosition.get(i);
             int position = linePositions.get(i);
-            measureLineList.add(MeasureLine.from(line, nameAndPosition, position));
+            measureLineList.add(MeasureLine.from(line, nameAndPosition, position, this instanceof BassMeasure));
         }
         return measureLineList;
     }
@@ -72,20 +94,152 @@ public abstract class Measure {
      * measure, or of type DrumMeasure if the measure was understood to be of type DrumMeasure
      */
     public static Measure from(List<String> lineList, List<String[]> lineNameList, List<Integer> linePositionList, boolean isFirstMeasureInGroup) {
+        boolean isGuitarMeasure = isGuitarMeasure(lineList, lineNameList);
+        boolean isDrumMeasure = isDrumMeasure(lineList, lineNameList);
+        boolean isBassMeasure = isBassMeasure(lineList, lineNameList);
+
+        boolean repeatStart = checkRepeatStart(lineList);
+        boolean repeatEnd = checkRepeatEnd(lineList);
+        String repeatCountStr = extractRepeatCount(lineList);
+        removeRepeatMarkings(lineList, linePositionList, repeatStart, repeatEnd, repeatCountStr);
+        int repeatCount = 1;
+        if (!repeatCountStr.isEmpty()) {
+            Matcher numMatcher = Pattern.compile("(?<=\\])[0-9]+").matcher(repeatCountStr);
+            numMatcher.find();
+            repeatCountStr = numMatcher.group();
+            repeatCount = Integer.parseInt(repeatCountStr);
+        }
+
+        Measure measure;
+        if (isDrumMeasure && !isGuitarMeasure && !isBassMeasure)
+            measure = new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        else if(isGuitarMeasure && !isDrumMeasure && !isBassMeasure)
+            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        else if (isBassMeasure)
+            measure = new BassMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
+        else
+            measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+
+        if (repeatStart)
+            measure.setRepeat(repeatCount, RepeatType.START);
+        if (repeatEnd)
+            measure.setRepeat(repeatCount, RepeatType.END);
+        return measure;
+    }
+
+    private static boolean isGuitarMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.GUITAR;
+        }
         boolean isGuitarMeasure = true;
-        boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
-            String line = lineList.get(i);
             String[] nameAndPosition = lineNameList.get(i);
             isGuitarMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
+        }
+        return isGuitarMeasure;
+    }
+
+    private static boolean isDrumMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.DRUM;
+        }
+        boolean isDrumMeasure = true;
+        for (int i=0; i<lineList.size(); i++) {
+            String[] nameAndPosition = lineNameList.get(i);
             isDrumMeasure &= MeasureLine.isDrumName(nameAndPosition[0]);
         }
-        if (isDrumMeasure && !isGuitarMeasure)
-            return new DrumMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        else if(isGuitarMeasure && !isDrumMeasure)
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup);
-        else
-            return new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
+        return isDrumMeasure;
+    }
+
+    private static boolean isBassMeasure(List<String> lineList, List<String[]> lineNameList) {
+        if (Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.BASS;
+        }
+        boolean isBassMeasure = true;
+        for (int i=0; i<lineList.size(); i++) {
+            String[] nameAndPosition = lineNameList.get(i);
+            isBassMeasure &= MeasureLine.isGuitarName(nameAndPosition[0]);
+        }
+        isBassMeasure &= lineList.size()>=BassMeasure.MIN_LINE_COUNT && lineList.size()<=BassMeasure.MAX_LINE_COUNT;
+        return isBassMeasure;
+    }
+
+    private static boolean checkRepeatStart(List<String> lines) {
+        boolean repeatStart = true;
+        int repeatStartMarkCount = 0;
+        for (String line : lines) {
+            repeatStart &= line.strip().startsWith("|");
+            if (line.strip().startsWith("|*")) repeatStartMarkCount++;
+        }
+        repeatStart &= repeatStartMarkCount>=2;
+        return repeatStart;
+    }
+    private static boolean checkRepeatEnd(List<String> lines) {
+        boolean repeatEnd = true;
+        int repeatEndMarkCount = 0;
+        for (int i=1; i<lines.size(); i++) {
+            String line = lines.get(i);
+            repeatEnd &= line.strip().endsWith("|");
+            if (line.strip().endsWith("*|")) repeatEndMarkCount++;
+        }
+        repeatEnd &= repeatEndMarkCount>=2;
+        return repeatEnd;
+    }
+    private static String extractRepeatCount(List<String> lines) {
+        if (!checkRepeatEnd(lines)) return "";
+        Matcher numMatcher = Pattern.compile("(?<=[^0-9])[0-9]+(?=[ ]|"+ Patterns.DIVIDER+"|$)").matcher(lines.get(0));
+        if (!numMatcher.find()) return "";
+        return "["+numMatcher.start()+"]"+numMatcher.group();
+    }
+
+    private static void removeRepeatMarkings(List<String> lines, List<Integer> linePositions, boolean repeatStart, boolean repeatEnd, String repeatCountStr) {
+        if (!repeatCountStr.isEmpty()){
+            Matcher posMatcher = Pattern.compile("(?<=\\[)[0-9]+(?=\\])").matcher(repeatCountStr);
+            Matcher numMatcher = Pattern.compile("(?<=\\])[0-9]+").matcher(repeatCountStr);
+            posMatcher.find();
+            numMatcher.find();
+            int position = Integer.parseInt(posMatcher.group());
+            int numLen = numMatcher.group().length();
+            String line = lines.get(0);
+            line = line.substring(0, position)+"-".repeat(Math.max(numLen-1, 0))+line.substring(position+numLen);
+            //remove extra - which overlaps with the |'s
+            /*
+            -----------4|
+            -----------||
+            ----------*||   we wanna remove the -'s on the same column as the *'s. we do that for the first measure line in the code right below. the code lower handles the case for the rest of the lines.
+            ----------*||
+            -----------||
+            -----------||
+             */
+            String tmp1 = line.substring(0, position-1);
+            String tmp2 = position>=line.length() ? "" : line.substring(position);
+            line = tmp1+tmp2;
+            lines.set(0, line);
+        }
+        for(int i=0; i<lines.size(); i++) {
+            String line = lines.get(i);
+            int linePosition = linePositions.get(i);
+            if (line.startsWith("|*")){
+                linePosition+=2;
+                line = line.substring(2);
+            }else if(line.startsWith("|")) {
+                int offset;
+                if (repeatStart) offset = 2;
+                else offset = 1;
+                linePosition += offset;
+                line = line.substring(offset);
+            }
+            if (line.endsWith("*|"))
+                line = line.substring(0, line.length()-2);
+            else if (line.endsWith("|")) {
+                int offset;
+                if (repeatEnd) offset = 2;
+                else offset = 1;
+                line = line.substring(0, line.length() - offset);
+            }
+            lines.set(i, line);
+            linePositions.set(i, linePosition);
+        }
     }
 
     public void calcDurationRatios() {
@@ -204,6 +358,36 @@ public abstract class Measure {
         }
     }
 
+    public boolean setRepeat(int repeatCount, RepeatType repeatType) {
+        if (repeatCount<0)
+            return false;
+        if (!(repeatType == RepeatType.START || repeatType == RepeatType.END))
+            return false;
+        this.repeatCount = repeatCount;
+        if (repeatType == RepeatType.START)
+            this.repeatStart = true;
+        if (repeatType == RepeatType.END)
+            this.repeatEnd = true;
+        return true;
+    }
+
+    public boolean isRepeatStart() {
+        return this.repeatStart;
+    }
+
+    public boolean isRepeatEnd() {
+        return this.repeatEnd;
+    }
+
+    public boolean setTimeSignature(int beatCount, int beatType) {
+        if (!TimeSignature.isValid(beatCount, beatType))
+            return false;
+        this.beatCount = beatCount;
+        this.beatType = beatType;
+        this.timeSigOverridden = true;
+        return true;
+    }
+
     public int getMaxMeasureLineLength() {
         int maxLen = 0;
         for (MeasureLine mLine : this.measureLineList) {
@@ -244,16 +428,20 @@ public abstract class Measure {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "1");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         if (!lineSizeEqual) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Unequal measure line lengths may lead to incorrect note durations.");
             response.put("positions", this.getLinePositions());
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
 
@@ -327,16 +515,58 @@ public abstract class Measure {
         }
         return true;
     }
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureLine measureLine : this.measureLineList) {
+            if (!measureLine.isGuitar(strictCheck))
+                return false;
+        }
+        return true;
+    }
 
     @Override
     public String toString() {
         StringBuilder stringOut = new StringBuilder();
-        for (MeasureLine measureLine : this.measureLineList) {
-            stringOut.append(measureLine.toString());
+        if (TimeSignature.isValid(this.beatCount, this.beatType))
+            stringOut.append(this.beatCount+"/"+this.beatType+"\n");
+        for (int i=0; i<this.measureLineList.size()-1; i++) {
+            MeasureLine measureLine = this.measureLineList.get(i);
+            stringOut.append(measureLine.name);
+            stringOut.append("|");
+            stringOut.append(measureLine.recreateLineString(getMaxMeasureLineLength()));
             stringOut.append("\n");
         }
+        if (!this.measureLineList.isEmpty()) {
+            MeasureLine measureLine = this.measureLineList.get(this.measureLineList.size()-1);
+            stringOut.append(measureLine.name);
+            stringOut.append("|");
+            stringOut.append(measureLine.recreateLineString(getMaxMeasureLineLength()));
+            stringOut.append("\n");
+        }
+
         return stringOut.toString();
     }
 
+    public Range getRelativeRange() {
+        if (this.lines.isEmpty()) return null;
+        int position;
+        if (this.isFirstMeasureInGroup)
+            position = Integer.parseInt(lineNamesAndPositions.get(0)[1]);   // use the starting position of the name instead.
+        else
+            position = this.positions.get(0)-1;       // use the starting position of the inside of the measure minus one, so that it also captures the starting line of that measure "|"
+        int relStartPos = position-Score.ROOT_STRING.substring(0,position).lastIndexOf("\n");
+        String line = this.lines.get(0);
+        int lineLength = 0;
+        if (line.matches("[^|]*\\|\\s*"))   //if it ends with a |
+            lineLength = line.length()-1;
+        else
+            lineLength = line.length();
+        int relEndPos = relStartPos + lineLength;
+        return new Range(relStartPos, relEndPos);
+    }
+
     public abstract models.measure.Measure getModel();
+
+    public int getCount() {
+        return this.measureCount;
+    }
 }

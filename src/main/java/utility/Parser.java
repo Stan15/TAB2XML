@@ -24,12 +24,12 @@ public class Parser {
             e.printStackTrace();
         }
     }
-    public static String parse() {
+    public static String parse(Score score) {
         XmlMapper mapper = new XmlMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         String xmlString = "";
         try {
-            xmlString = mapper.writeValueAsString(SCORE.getModel());
+            xmlString = mapper.writeValueAsString(score.getModel());
         }catch (JsonProcessingException | TXMLException e) {
             e.printStackTrace();
             return "";
@@ -41,5 +41,16 @@ public class Parser {
                 """
                 + xmlString;
         return xmlString;
+    }
+    public static String parse() {
+        return parse(SCORE);
+    }
+
+    public int getMeasureAt(int index) {
+        return 1;
+    }
+
+    public boolean setMeasureTimeSignature(int measureNum) {
+        return true;
     }
 }

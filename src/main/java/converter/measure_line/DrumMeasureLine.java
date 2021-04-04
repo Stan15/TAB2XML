@@ -1,5 +1,6 @@
 package converter.measure_line;
 
+import GUI.TabInput;
 import converter.note.Note;
 
 import java.util.*;
@@ -13,8 +14,7 @@ public class DrumMeasureLine extends MeasureLine {
 
     protected static Set<String> createLineNameSet() {
         String[] names = {"CC", "Ch", "C2", "HH", "Rd", "R", "SN", "T1", "T2", "FT", "BD", "Hf", "FH", "C", "H", "s", "S", "B", "Hh", "F", "F2", "Ht", "Mt", "f1", "f2", "Hhf"};
-        HashSet<String> nameSet = new HashSet<>();
-        nameSet.addAll(Arrays.asList(names));
+        HashSet<String> nameSet = new HashSet<>(Arrays.asList(names));
         return nameSet;
     }
 
@@ -30,15 +30,16 @@ public class DrumMeasureLine extends MeasureLine {
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     public List<HashMap<String, String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
-        result.addAll(super.validate());
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "A drum measure line name is expected here.");
             response.put("positions", "["+this.namePosition+"]");
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 2;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         for (Note note : this.noteList)

@@ -1,15 +1,17 @@
 package converter.measure_line;
 
-import converter.note.DrumNote;
-import converter.note.GuitarNote;
+import GUI.TabInput;
+import converter.Instrument;
+import converter.Score;
+import converter.ScoreComponent;
 import converter.note.Note;
-import converter.Patterns;
+import utility.Patterns;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class MeasureLine {
+public abstract class MeasureLine implements ScoreComponent {
     public String line;
     public String name;
     int namePosition;
@@ -22,7 +24,7 @@ public abstract class MeasureLine {
         this.name = namesAndPosition[0];
         this.namePosition = Integer.parseInt(namesAndPosition[1]);
         this.position = position;
-        this.noteList = this.createNoteList(line, name, position);
+        this.noteList = this.createNoteList(this.line, name, position);
         this.noteCount = this.noteList.size();
     }
 
@@ -36,49 +38,42 @@ public abstract class MeasureLine {
      * on the object returned.
      * @param line the contents of the MeasureLine
      * @param nameAndPosition the name of the MeasureLine
-     * @param position the index at which the contents of the measure line can be found in the root string from which it
+     * @param position  the index at which the contents of the measure line can be found in the root string from which it
      *                 was derived (i.e Score.ROOT_STRING)
      * @return a MeasureLine object derived from the information in the input Strings. Either of type GuitarMeasureLine
      * or DrumMeasureLine
      */
-    public static MeasureLine from(String line, String[] nameAndPosition, int position) {
+    public static MeasureLine from(String line, String[] nameAndPosition, int position, boolean useBass) {
         String name = nameAndPosition[0];
         boolean isGuitarLine = MeasureLine.isGuitarName(name);
         boolean isDrumLine = MeasureLine.isDrumName(name);
         if (isDrumLine && !isGuitarLine)
             return new DrumMeasureLine(line, nameAndPosition, position);
-        else if(isGuitarLine && !isDrumLine)
-            return new GuitarMeasureLine(line, nameAndPosition, position);
-        else
+        else if(isGuitarLine && !isDrumLine) {
+            if (useBass)
+                return new BassMeasureLine(line, nameAndPosition, position);
+            else
+                return new GuitarMeasureLine(line, nameAndPosition, position);
+        }else
             return new GuitarMeasureLine(line, nameAndPosition, position); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)return null;
     }
 
 
     private List<Note> createNoteList(String line, String name, int position) {
         List<Note> noteList = new ArrayList<>();
-
-        StringBuilder noteStrCollector = new StringBuilder();
-        int noteStrStartIdx = 0;
-        int noteNonWSstartIdx = 0;
-        int distance = 0;
-        int nonWhitespaceDistance = 0;
-        for (int i=0; i<line.length(); i++) {
-            char currentChar = line.charAt(i);
-
-            if (currentChar!='-') {
-                if (noteStrCollector.isEmpty()) noteStrStartIdx = distance;
-                if (noteStrCollector.toString().isBlank() && !String.valueOf(currentChar).matches("\s")) noteNonWSstartIdx = nonWhitespaceDistance;
-                noteStrCollector.append(currentChar);
-            }
-
-            if ((currentChar=='-' || i==line.length()-1)) {
-                if (!noteStrCollector.toString().isBlank())
-                    noteList.addAll(Note.from(noteStrCollector.toString(), name, noteNonWSstartIdx, position+noteStrStartIdx));
-                noteStrCollector.delete(0, noteStrCollector.length());
-            }
-            distance++;
-            if (!String.valueOf(currentChar).isBlank())
-                nonWhitespaceDistance++;
+        Matcher noteMatcher = Pattern.compile(Note.PATTERN).matcher(line);
+        while(noteMatcher.find()) {
+            String match = noteMatcher.group();
+            String leadingStr = line.substring(0, noteMatcher.start()).replaceAll("\s", "");
+            int distanceFromMeasureStart = leadingStr.length();
+            Instrument instrument = null;
+            if (this instanceof BassMeasureLine)
+                instrument = Instrument.BASS;
+            else if (this instanceof GuitarMeasureLine)
+                instrument = Instrument.GUITAR;
+            else if (this instanceof DrumMeasureLine)
+                instrument = Instrument.DRUM;
+            noteList.addAll(Note.from(match, position+noteMatcher.start(), instrument, this.name, distanceFromMeasureStart));
         }
         return noteList;
     }
@@ -99,25 +94,31 @@ public abstract class MeasureLine {
         if (name==null) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line name.");
-            response.put("priority", "1");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line);
         if (!matcher.find() || !matcher.group().equals(this.line)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line.");
-            response.put("priority", "1");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         if (this.line.length()-this.line.replaceAll("\s", "").length() != 0) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Adding whitespace might result in different timing than you expect.");
-            response.put("priority", "3");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            result.add(response);
+            int priority = 3;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         return result;
@@ -139,11 +140,14 @@ public abstract class MeasureLine {
      * @return
      */
     public static boolean isGuitarName(String name) {
-        if (!GuitarMeasureLine.NAME_SET.contains(name.strip())) return false;
+        if (!GuitarMeasureLine.NAME_LIST.contains(name.strip())) return false;
         return true;
     }
 
     public boolean isGuitar(boolean strictCheck) {
+        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.GUITAR;
+        }
         if (!isGuitarName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {
@@ -154,6 +158,9 @@ public abstract class MeasureLine {
     }
 
     public boolean isDrum(boolean strictCheck) {
+        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
+            return Score.INSTRUMENT == Instrument.DRUM;
+        }
         if (!isDrumName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {
@@ -173,7 +180,6 @@ public abstract class MeasureLine {
     //|--------------------- when it is in between other measures (middle of line, MIDL)
     public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
     public static Set<String> NAME_SET = createLineNameSet();
-    public static String COMPONENT_PATTERN = createLineComponentPattern();
 
     public static String[] nameOf(String measureLineStr, int lineStartIdx) {
         Pattern measureLineNamePttrn = Pattern.compile(createMeasureNameExtractPattern());
@@ -195,9 +201,9 @@ public abstract class MeasureLine {
      */
     private static String createInsidesPattern() {
 
-        //                     behind it is (space or newline, followed by a measure name) or ("|")     then the line either starts with a -, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -
-        //                                                      |                                                                         |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"        +       "(([ ]*-)|("+Note.CHARACTER_SET_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.CHARACTER_SET_PATTERN+")*"                                      +             "[ -]*" + ")";
+        //                     behind it is (space or newline, followed by a measure name) or ("|")                                     then the line either starts with a - or *, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -        accomodates for stuff like ---| ||
+        //                                                      |                                                                                                    |                                                                                                                                      |
+        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"  + "("+Patterns.DIVIDER+")"+"{0,1}"+      "(([ ]*[-*])|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + "("+Patterns.DIVIDER+"(?="+Patterns.DIVIDER+")){0,1}"+ ")";
         return measureInsides;
     }
 
@@ -244,46 +250,40 @@ public abstract class MeasureLine {
         return nameSet;
     }
 
-    private static String createLineComponentPattern() {
-        return "(" + GuitarNote.COMPONENT_PATTERN + "|" + DrumNote.COMPONENT_PATTERN + ")";
-    }
-
     @Override
     public String toString() {
-        return this.name.strip()+"|"+this.recreateLineString()+"|";
+        return this.name.strip()+"|"+this.recreateLineString(this.line.length())+"|";
     }
 
-    private String recreateLineString() {
+    public String recreateLineString(int maxMeasureLineLength) {
         StringBuilder outStr = new StringBuilder();
         if (this.noteList.isEmpty()) {
-            Matcher matcher = Pattern.compile("\\S").matcher(this.line);
-            while (matcher.find()) {
-                outStr.append("-");
+            for (int i=0; i<this.line.length(); i++) {
+                String str = String.valueOf(this.line.charAt(i));
+                if (str.matches("\s")) continue;
+                outStr.append(str);
             }
+            outStr.append("|");
             return outStr.toString();
         }
-        Iterator<Note> noteIterator = this.noteList.iterator();
-        Note previousNote = null;
-        while (noteIterator.hasNext()) {
-            Note currentNote = noteIterator.next();
-            if (currentNote.validate().isEmpty()) continue;
-            int dashCount = currentNote.distance;
-            if (previousNote!=null && currentNote.distance<(previousNote.distance+previousNote.line.length())) {
-                previousNote = currentNote;
-                continue;
-            }
-            if (previousNote!=null) {
-                dashCount -= previousNote.distance;
-            }
-            while (dashCount>0) {
-                outStr.append("-");
-                dashCount--;
-            }
-            outStr.append(currentNote.line.strip());
 
-            previousNote = currentNote;
+        double maxRatio = 0;
+        for (Note note : this.noteList) {
+            maxRatio = Math.max(maxRatio, note.durationRatio);
         }
+        int actualLineDistance = maxMeasureLineLength;
 
+
+        int prevNoteEndDist = 0;
+        for (Note note : this.noteList) {
+            if (!note.validate().isEmpty()) continue;
+            int dashCount = note.distance-prevNoteEndDist;
+            outStr.append("-".repeat(Math.max(0, dashCount)));
+            outStr.append(note.sign);
+            prevNoteEndDist = note.distance + note.sign.length();
+        }
+        outStr.append("-".repeat(Math.max(0, actualLineDistance - prevNoteEndDist)));
+        outStr.append("|");
         return outStr.toString();
     }
 

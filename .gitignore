@@ -1,6 +1,8 @@
-# Project exclude paths
-/.gradle/
-/build/
-/build/classes/java/main/
-/build/classes/java/test/
-/.idea/modules/TAB2XML_G14.main.iml
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+/bin/.gitignore
+/lib/.project
+/.settings/org.eclipse.jdt.core.prefs

@@ -48,7 +48,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin, true);
-        assertTrue(mg.validate().isEmpty());
+        assertFalse(mg.validate().isEmpty());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MeasureGroupTest {
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");
         MeasureGroup mg = new MeasureGroup(origin, true);
-        assertTrue(mg.validate().isEmpty());
+        assertFalse(mg.validate().isEmpty());
     }
 
     @Test

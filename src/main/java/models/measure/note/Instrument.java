@@ -8,8 +8,7 @@ public class Instrument {
     @JacksonXmlProperty(isAttribute = true)
     String id;
 
-    public Instrument (String id){
-        this.id = id;
+    public Instrument (String drumID){
+        this.id = drumID;
     }
-
 }

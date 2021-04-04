@@ -17,7 +17,7 @@ public class GuitarMeasureLineTest {
         Integer[] expected = {12, 6, 4, 5, 8, 1, 2};
         for(int i = 0; i < measureLine.noteList.size(); i++) {
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
-            assertEquals(expected[i], note.fret);
+            assertEquals(expected[i], note.getFret());
         }
     }
     @Test
@@ -27,7 +27,7 @@ public class GuitarMeasureLineTest {
         Integer[] expected = {1, 1, 1, 1, 1};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
-            assertEquals(expected[i], note.fret);
+            assertEquals(expected[i], note.getFret());
         }
     }
     @Test
@@ -37,7 +37,7 @@ public class GuitarMeasureLineTest {
         Integer[] expected = {28};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
-            assertEquals(expected[i], note.fret);
+            assertEquals(expected[i], note.getFret());
         }
     }
     @Test
