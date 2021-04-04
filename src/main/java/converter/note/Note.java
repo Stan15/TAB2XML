@@ -72,6 +72,10 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
      * @return
      */
     public static List<Note> from(String origin, int position, Instrument instrument, String lineName, int distanceFromMeasureStart) {
+        // check if its a group of drum note
+        // if its not do nothing
+        // make drum note object from group of drum note
+        // return an arraylist of drum note
         NoteFactory nf = new NoteFactory(origin, position, instrument, lineName, distanceFromMeasureStart);
         return nf.getNotes();
     }
@@ -139,7 +143,8 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     public boolean isDrum() {
         // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
-        return this.origin.matches(DrumNote.COMPONENT_PATTERN+"+");
+        String strippedOrigin = this.origin.strip();
+        return strippedOrigin.matches(DrumNote.COMPONENT_PATTERN+"+");
     }
 
     public abstract models.measure.note.Note getModel();

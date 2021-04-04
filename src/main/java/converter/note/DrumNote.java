@@ -56,12 +56,12 @@ public class DrumNote extends Note{
         models.measure.note.Note noteModel = new models.measure.note.Note();
 
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
-        noteModel.setDuration(2); //to-do
+        noteModel.setDuration((int)Math.round(this.duration));
         noteModel.setInstrument(new Instrument(this.DrumId));
         noteModel.setVoice(1);
         noteModel.setType("");// to-do
         noteModel.setStem(""); // to-do
-        noteModel.setNotehead("X/O"); // to do
+        noteModel.setNotehead("X/O/F/D"); // to do
         noteModel.setBeam(new Beam());
 
 
@@ -85,16 +85,16 @@ public class DrumNote extends Note{
         if (this.DrumId == "P1-I52"){ //ride cymbal
             return new Unpitched("F", 5);
         }
-        if (this.DrumId == "P1-I50"){
+        if (this.DrumId == "P1-I50"){ // crash cymbal
             return new Unpitched("A", 5);
         }
-        if (this.DrumId == "P1-I48"){
+        if (this.DrumId == "P1-I48"){ // high tom
             return new Unpitched("E", 5);
         }
-        if (this.DrumId == "P1-I46"){
+        if (this.DrumId == "P1-I46"){ // medium tom
             return new Unpitched("D", 5);
         }
-        if (this.DrumId == "P1-I42"){
+        if (this.DrumId == "P1-I42"){ // floor tom
             return new Unpitched("A", 4);
         }
 
