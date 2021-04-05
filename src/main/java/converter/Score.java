@@ -1,5 +1,6 @@
 package converter;
 
+import GUI.TabInput;
 import converter.measure.Measure;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
@@ -23,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static String STRICT_TYPE;
+    public static Instrument INSTRUMENT = Instrument.BASS;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
@@ -33,16 +34,62 @@ public class Score implements ScoreComponent {
         ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
-        if (STRICT_TYPE==null)
-            STRICT_TYPE = "";
 
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
+        fixTrailingTimeSignatures();
     }
 
-    public Score(String rootString, String strictType) {
+    public Measure getMeasure(int measureCount) {
+        for (MeasureCollection mCol : this.getMeasureCollectionList()) {
+            for (MeasureGroup mGroup : mCol.getMeasureGroupList()) {
+                for (Measure measure : mGroup.getMeasureList()) {
+                    int count = measure.getCount();
+                    if (count==measureCount)
+                        return measure;
+                    if (count > measureCount)
+                        return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getErrorLevel() {
+        List<HashMap<String, String>> errors = this.validate();
+        if (errors.isEmpty()) return 0;
+        int errorLevel = 10;
+        for (HashMap<String, String> error : errors) {
+            int priority = Integer.parseInt(error.get("priority"));
+            errorLevel = Math.min(errorLevel, priority);
+        }
+        return errorLevel;
+    }
+
+    private void fixTrailingTimeSignatures() {
+        int currBeatCount = DEFAULT_BEAT_COUNT;
+        int currBeatType = DEFAULT_BEAT_TYPE;
+        for (MeasureCollection measureCollection : this.getMeasureCollectionList()) {
+            for (MeasureGroup mGroup : measureCollection.getMeasureGroupList()) {
+                for (Measure measure : mGroup.getMeasureList()) {
+                    if (measure.isTimeSigOverridden()) {
+                        currBeatCount = measure.getBeatCount();
+                        currBeatType = measure.getBeatType();
+                        continue;
+                    }
+                    measure.setTimeSignature(currBeatCount, currBeatType);
+                }
+            }
+        }
+    }
+
+    private List<MeasureCollection> getMeasureCollectionList() {
+        return this.measureCollectionList;
+    }
+
+    public Score(String rootString, Instrument instrument) {
         this(rootString);
-        STRICT_TYPE = strictType;
+        INSTRUMENT = instrument;
     }
 
     public int getDivisions() {
@@ -91,7 +138,7 @@ public class Score implements ScoreComponent {
      * @return an ordered map mapping the position of each broken up piece of text(Integer[startIndex, endIndex]) to the
      * actual piece of text (String)
      */
-    private LinkedHashMap<Integer, String> getStringFragments(String rootStr) {
+    public LinkedHashMap<Integer, String> getStringFragments(String rootStr) {
         LinkedHashMap<Integer, String> stringFragments = new LinkedHashMap<>();
 
         //finding the point where there is a break between two pieces of text. (i.e a newline, then a blank line(a line containing nothing or just whitespace) then another newline is considered to be where there is a break between two pieces of text)
@@ -139,7 +186,6 @@ public class Score implements ScoreComponent {
                 if (!errorRanges.isEmpty()) errorRanges.append(";");
                 errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
             }
-
             prevEndIdx = msurCollction.endIndex;
         }
 
@@ -153,8 +199,10 @@ public class Score implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This text can't be understood.");
             response.put("positions", errorRanges.toString());
-            response.put("priority", "4");
-            result.add(response);
+            int priority = 4;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
 
         //--------------Validate your aggregates (regardless of if you're valid, as there is no validation performed upon yourself that preclude your aggregates from being valid)-------------------
@@ -165,24 +213,31 @@ public class Score implements ScoreComponent {
         return result;
     }
 
-    public ScorePartwise getModel() throws TXMLException {
+    // TODO synchronized because the ScorePartwise model has an instance counter which has to remain the same for all
+    // which has to remain the same for all the sub-elements it has as they use that counter. this may turn out to be
+    // a bad idea cuz it might clash with the NotePlayer class
+    synchronized public ScorePartwise getModel() throws TXMLException {
         boolean isGuitar;
         boolean isDrum = false;
+        boolean isBass = false;
 
-        if (STRICT_TYPE.equals("guitar"))
+        if (INSTRUMENT ==Instrument.GUITAR)
             isGuitar = true;
-        else if (STRICT_TYPE.equals("drum"))
+        else if (INSTRUMENT ==Instrument.DRUM)
             isDrum = true;
+        else if (INSTRUMENT ==Instrument.BASS)
+            isBass = true;
         else {
             isGuitar = this.isGuitar(false);
             isDrum = this.isDrum(false);
+            isBass = this.isBass(false);
             if (isDrum && isGuitar) {
                 isDrum = this.isDrum(true);
                 isGuitar = this.isGuitar(true);
             }
-            if (isDrum && isGuitar && STRICT_TYPE.isEmpty())
+            if (INSTRUMENT == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass) || (isBass && isGuitar)))
                 throw new MixedScoreTypeException("A score must be only of one type");
-            if (!isDrum && !isGuitar)
+            if (!isDrum && !isGuitar && !isBass)
                 throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");
         }
 
@@ -191,12 +246,14 @@ public class Score implements ScoreComponent {
             measures.addAll(measureCollection.getMeasureModels());
         }
         Part part = new Part("P1", measures);
-        List<models.Part> parts = new ArrayList<>();
+        List<Part> parts = new ArrayList<>();
         parts.add(part);
 
         PartList partList;
         if (isDrum)
             partList = this.getDrumPartList();
+        else if (isBass)
+            partList = this.getBassPartList();
         else
             partList = this.getGuitarPartList();
 
@@ -246,6 +303,12 @@ public class Score implements ScoreComponent {
         return new PartList(scoreParts);
     }
 
+    private PartList getBassPartList() {
+        List<ScorePart> scoreParts = new ArrayList<>();
+        scoreParts.add(new ScorePart("P1", "Bass"));
+        return new PartList(scoreParts);
+    }
+
     public boolean isGuitar(boolean strictCheck) {
         for (MeasureCollection msurCollection : this.measureCollectionList) {
             if (!msurCollection.isGuitar(strictCheck))
@@ -262,6 +325,14 @@ public class Score implements ScoreComponent {
         return true;
     }
 
+    public boolean isBass(boolean strictCheck) {
+        for (MeasureCollection msurCollection : this.measureCollectionList) {
+            if (!msurCollection.isBass(strictCheck))
+                return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         String outStr = "";
@@ -271,4 +342,5 @@ public class Score implements ScoreComponent {
         }
         return outStr;
     }
+
 }

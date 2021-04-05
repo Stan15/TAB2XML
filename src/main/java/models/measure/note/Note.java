@@ -19,9 +19,9 @@ public class Note {
     Chord chord;
     Pitch pitch;
     Unpitched unpitched;
-    int duration;
+    Integer duration;
     Instrument instrument;
-    int voice;
+    Integer voice;
     String type;
     @JacksonXmlProperty(localName = "dot")
     @JacksonXmlElementWrapper(useWrapping = false)

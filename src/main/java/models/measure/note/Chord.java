@@ -6,5 +6,4 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Chord {
-    public String dummy;
 }

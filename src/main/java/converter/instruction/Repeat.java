@@ -1,5 +1,6 @@
 package converter.instruction;
 
+import GUI.TabInput;
 import converter.MeasureCollection;
 import converter.MeasureGroup;
 import converter.ScoreComponent;
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 
 public class Repeat extends Instruction {
     public static String PATTERN = getPattern();
+    public static int MAX_REPEATS = 10;
 
     private int repeatCount;
     private boolean startApplied = false;
@@ -64,8 +66,10 @@ public class Repeat extends Instruction {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This repeat was only partially applied for some reason.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "2");
-            result.add(response);
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
         }
         return result;
     }
@@ -79,7 +83,7 @@ public class Repeat extends Instruction {
             response.put("priority", "3");
             result.add(response);
         }
-        if (this.repeatCount>10) {
+        if (this.repeatCount>MAX_REPEATS) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "only up to 10 repeats are allowed.");
             response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
@@ -92,7 +96,7 @@ public class Repeat extends Instruction {
     private static String getPattern() {
         String times = "[xX*]";
         String timesLong = "[Tt][Ii][Mm][Ee][Ss]";
-        String count = "[0-9][0-9]?";
+        String count = "[0-9]{1,2}";
         String repeatTextPattern = "[Rr][Ee][Pp][Ee][Aa][Tt]" + "([ -]{0,7}|[ \t]{0,2})"  +  "(" +"("+times+count+")|("+ count+times +")|("+ count + "([ -]{0,7}|[ \t]{0,3})"  + timesLong + ")" + ")";
         //     | or sol or whitespace   optional space or -                     optional space or -     | or eol or whitespace
         return "("+"((\\||^|"+ Patterns.WHITESPACE+")|(?<=\n))"  +        "[ -]*"       +   repeatTextPattern   +   "[ -]*"     +     "(($|\s)|\\|)" + ")";
