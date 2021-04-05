@@ -50,8 +50,7 @@ public class DrumNote extends Note{
      *  like notes, duration of notes, which drum part,
      */
     public models.measure.note.Note getModel(){ //toXML
-        // linename
-        // getType   of note (eighth, quarter etc)
+
 
         models.measure.note.Note noteModel = new models.measure.note.Note();
 
@@ -59,7 +58,7 @@ public class DrumNote extends Note{
         noteModel.setDuration((int)Math.round(this.duration));
         noteModel.setInstrument(new Instrument(this.DrumId));
         noteModel.setVoice(1);
-        noteModel.setType("");// to-do
+        noteModel.setType(this.getType());
         noteModel.setStem(""); // to-do
         noteModel.setNotehead("X/O/F/D"); // to do
         noteModel.setBeam(new Beam());
