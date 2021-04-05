@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,7 +40,7 @@ public class FXMLController {
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
     @FXML private Button convertButton = new Button();
-
+    @FXML private Button goToline = new Button();
     @FXML TextField titleField;
     @FXML TextField artistField;
     @FXML TextField fileNameField;
@@ -366,4 +365,16 @@ public class FXMLController {
             outputFolderField.setText(outputFolder);
         }
     }
+
+    TabInput goTo = new TabInput(TEXT_AREA, convertButton);
+    void goToMeasure() {
+        if(true){
+            goToMeasure();
+        }
+        if(false){
+
+        }
+    }
+
+
 }
