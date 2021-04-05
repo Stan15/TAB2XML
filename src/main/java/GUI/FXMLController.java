@@ -403,6 +403,14 @@ public class FXMLController extends Application {
             changeErrorSensitivity(errorSensitivity.getValue().toString());
             String outputFolder = p.get("outputFolder", new File("src").getAbsolutePath());
             outputFolderField.setText(outputFolder);
+
+            String tsNumerator = p.get("tsNumerator", "4");
+            String tsDenominator = p.get("tsDenominator", "4");
+
+            cmbNumerator.setValue(tsNumerator);
+            cmbDenominator.setValue(tsDenominator);
+            Score.DEFAULT_BEAT_COUNT = Integer.parseInt(tsNumerator);
+            Score.DEFAULT_BEAT_TYPE = Integer.parseInt(tsDenominator);
         }
     }
 
