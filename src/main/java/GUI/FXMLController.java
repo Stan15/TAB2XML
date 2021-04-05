@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -12,6 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
+import converter.Score;
+import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -25,17 +30,22 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.event.MouseOverTextEvent;
 import utility.Parser;
 
-public class FXMLController {
-
+public class FXMLController extends Application {
+    Preferences p = Preferences.userNodeForPackage(MainApp.class);
     private static File saveFile;
     private static boolean isEditingSavedFile;
 
     private static String generatedOutput;
 
+
     private static Window convertWindow = new Stage();
     @FXML public CodeArea TEXT_AREA;
 
     @FXML private ComboBox errorSensitivity;
+    @FXML private ComboBox cmbNumerator;
+    @FXML private ComboBox cmbDenominator;
+    @FXML private ComboBox cmbScoreType;
+    
     @FXML private TextField outputFolderField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
@@ -47,9 +57,9 @@ public class FXMLController {
 
     private static CodeArea savedTextArea;      //this is a variable used to fix the bug where a new window can't be opened when the "convert" button is clicked. It is kind of a hack, not fixing the actual problem
 
+
+    /* Settings Window */
     @FXML private void handleErrorSensitivity() {
-            Preferences p;
-            p = Preferences.userNodeForPackage(MainApp.class);
             p.put("errorSensitivity", errorSensitivity.getValue().toString() );
             changeErrorSensitivity(errorSensitivity.getValue().toString());
     }
@@ -60,7 +70,13 @@ public class FXMLController {
     }
 
     @FXML
-    private void handleUserManual() {
+    private void handleUserManual() throws URISyntaxException  {
+        URL resource = getClass().getClassLoader().getResource("org.openjfx/UserManual.pdf");
+        File file = new File(resource.toURI());
+
+        HostServices hostServices = getHostServices();
+        hostServices.showDocument(file.getAbsolutePath());
+
     }
 
     @FXML
@@ -70,11 +86,24 @@ public class FXMLController {
         File selected = dc.showDialog(MainApp.STAGE);
         outputFolderField.setText(selected.getAbsolutePath());
 
-        Preferences p;
-        p = Preferences.userNodeForPackage(MainApp.class);
         p.put("outputFolder", selected.getAbsolutePath());
     }
 
+    @FXML
+    private void handleTSNumerator() {
+        String value = cmbNumerator.getValue().toString();
+        p.put("tsNumerator", value);
+        Score.DEFAULT_BEAT_COUNT = Integer.parseInt(value);
+    }
+    @FXML
+    private void handleTSDenominator() {
+        String value = cmbDenominator.getValue().toString();
+        p.put("tsDenominator", value);
+        Score.DEFAULT_BEAT_TYPE = Integer.parseInt(value);
+    }
+    /* --------------------------------------------------------------- */
+
+    /* Main Window */
     @FXML
     private void handleNew() {
         boolean userOkToGoAhead = promptSave();
@@ -295,9 +324,16 @@ public class FXMLController {
         TEXT_AREA.setWrapText(this.wrapCheckbox.isSelected());
     }
 
+
+    @FXML 
     public void initialize() {
         initializeTextArea();
         initializeSettings();
+    }
+
+    @FXML
+    private void handleScoreType() {
+        //Score.STRICT_TYPE = cmbScoreType.getValue().toString();
     }
 
     private void initializeTextArea() {
@@ -344,6 +380,10 @@ public class FXMLController {
         });
     }
 
+
+
+
+
     private void changeErrorSensitivity(String prefValue) {
         switch (prefValue) {
             case "Level 1 - Minimal Error Checking" -> TabInput.ERROR_SENSITIVITY = 1;
@@ -377,4 +417,8 @@ public class FXMLController {
     }
 
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+    }
 }
