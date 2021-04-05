@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="settingsPane" prefHeight="144.0" prefWidth="600.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.FXMLController">
+<AnchorPane fx:id="settingsPane" prefHeight="214.0" prefWidth="600.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.FXMLController">
     <Label layoutX="14.0" layoutY="14.0" text="Output Folder" AnchorPane.leftAnchor="14.0">
         <font>
             <Font size="14.0" />
@@ -25,6 +25,39 @@
                <String fx:value="Level 1 - Minimal Error Checking" />
                <String fx:value="Level 2 - Standard Error Checking" />
                <String fx:value="Level 3 - Advanced Error Checking" />
+           </FXCollections>
+       </items>
+   </ComboBox>
+   <Label layoutX="14.0" layoutY="158.0" text="Default Time Signature">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </Label>
+   <ComboBox fx:id="cmbNumerator" layoutX="174.0" layoutY="136.0" onAction="#handleTSNumerator" prefHeight="25.0" prefWidth="87.0">
+       <items>
+           <FXCollections fx:factory="observableArrayList">
+               <String fx:value="1" />
+               <String fx:value="2" />
+               <String fx:value="3" />
+               <String fx:value="4" />
+               <String fx:value="5" />
+               <String fx:value="6" />
+               <String fx:value="7" />
+               <String fx:value="8" />
+           </FXCollections>
+       </items>
+   </ComboBox>
+   <ComboBox fx:id="cmbDenominator" onAction="#handleTSDenominator" layoutX="174.0" layoutY="168.0" prefHeight="25.0" prefWidth="87.0">
+       <items>
+           <FXCollections fx:factory="observableArrayList">
+               <String fx:value="1" />
+               <String fx:value="2" />
+               <String fx:value="3" />
+               <String fx:value="4" />
+               <String fx:value="5" />
+               <String fx:value="6" />
+               <String fx:value="7" />
+               <String fx:value="8" />
            </FXCollections>
        </items>
    </ComboBox>

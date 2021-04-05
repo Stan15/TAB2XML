@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -42,7 +44,7 @@
                                 <Font size="16.0" />
                             </font>
                         </Label>
-                        <CheckBox fx:id="wrapCheckbox" layoutX="885.0" layoutY="7.0" mnemonicParsing="false" onMouseClicked="#setWrapProperty" text="Wrap text" textFill="WHITE" AnchorPane.rightAnchor="14.999999999999972" />
+                        <CheckBox fx:id="wrapCheckbox" layoutX="865.0" layoutY="5.0" mnemonicParsing="false" onMouseClicked="#setWrapProperty" prefHeight="17.0" prefWidth="163.0" text="Wrap text" textFill="WHITE" AnchorPane.rightAnchor="-54.33333333333326" />
                     </children>
                 </AnchorPane>
                 <AnchorPane layoutX="12.0" layoutY="614.0" prefHeight="52.0" prefWidth="977.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0">
@@ -52,6 +54,17 @@
                                 <Font size="14.0" />
                             </font>
                         </Button>
+                  <Label layoutX="14.0" layoutY="19.0" text="Score Type" />
+                  <ComboBox fx:id="cmbScoreType" layoutX="86.0" layoutY="15.0" onAction="#handleScoreType" prefWidth="150.0" value="Auto">
+                      <items>
+                          <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="Auto" />
+                              <String fx:value="Guitar" />
+                              <String fx:value="Drum" />
+                              <String fx:value="Bass" />
+                          </FXCollections>
+                      </items>
+                  </ComboBox>
                     </children>
                 </AnchorPane>
             </children>

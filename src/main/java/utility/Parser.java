@@ -25,6 +25,9 @@ public class Parser {
         }
     }
     public static String parse(Score score) {
+        if(score.ROOT_STRING.isBlank()){
+            return "";
+        }
         XmlMapper mapper = new XmlMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         String xmlString = "";
