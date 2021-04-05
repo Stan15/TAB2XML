@@ -5,6 +5,7 @@ import converter.Score;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import models.measure.Backup;
 import models.measure.attributes.*;
 import models.measure.barline.BarLine;
 import models.measure.barline.Repeat;
@@ -25,6 +26,7 @@ public class GuitarMeasure extends Measure{
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.sortedNoteList = this.getSortedNoteList();
+        this.voiceSortedNoteList = this.getVoiceSortedNoteList();
         setChords();
         calcDurationRatios();
     }
@@ -128,7 +130,7 @@ public class GuitarMeasure extends Measure{
     private Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
-        //if (measureCount==1 || !hasSameTimeSigAsPrevious)
+        if (this.isTimeSigOverridden())
             attributes.setTime(new Time(this.beatCount, this.beatType));
 
         if (this.measureCount == 1) {
@@ -154,11 +156,26 @@ public class GuitarMeasure extends Measure{
         measureModel.setNumber(this.measureCount);
         measureModel.setAttributes(this.getAttributesModel());
 
-        List<models.measure.note.Note> noteModels = new ArrayList<>();
-        for (Note note : this.sortedNoteList) {
-            noteModels.add(note.getModel());
+        List<models.measure.note.Note> noteBeforeBackupModels = new ArrayList<>();
+        List<models.measure.note.Note> noteAfterBackupModels = new ArrayList<>();
+        for (int i=0; i<this.voiceSortedNoteList.size(); i++) {
+            List<Note> voice = this.voiceSortedNoteList.get(i);
+            double backupDuration = 0;
+            for (Note note : voice) {
+                if (note.voice==1)
+                    noteBeforeBackupModels.add(note.getModel());
+                if (note.voice==2)
+                    noteAfterBackupModels.add(note.getModel());
+                backupDuration += note.duration;
+            }
+            if (voice.get(0).voice==1)
+                measureModel.setNotesBeforeBackup(noteBeforeBackupModels);
+            if (voice.get(0).voice==2)
+                measureModel.setNotesBeforeBackup(noteAfterBackupModels);
+            if (i+1<this.voiceSortedNoteList.size()) {
+                measureModel.getBackup().add(new Backup((int)backupDuration));
+            }
         }
-        measureModel.setNotes(noteModels);
 
         List<BarLine> barLines = new ArrayList<>();
         if (this.isRepeatStart()) {

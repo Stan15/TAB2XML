@@ -32,7 +32,7 @@ public class DrumMeasureLine extends MeasureLine {
     public List<HashMap<String, String>> validate() {
         List<HashMap<String, String>> result = new ArrayList<>(super.validate());
 
-        if (!isGuitarName(this.name)) {
+        if (!isDrumName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "A drum measure line name is expected here.");
             response.put("positions", "["+this.namePosition+"]");

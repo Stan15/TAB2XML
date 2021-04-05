@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class NoteFactory {
     private String origin, lineName;
     private int distanceFromMeasureStart, position;
+    HashMap<String, String> patternPackage;
     Instrument instrument;
     public NoteFactory(String origin, int position, Instrument instrument, String lineName, int distanceFromMeasureStart) {
         this.origin = origin;
@@ -24,6 +25,7 @@ public class NoteFactory {
         this.instrument = instrument;
         this.distanceFromMeasureStart = distanceFromMeasureStart;
         this.position = position;
+        this.patternPackage = getPatternPackage(origin);
     }
 
     public static String FRET = getFret();
@@ -40,13 +42,17 @@ public class NoteFactory {
         return "(g"+ FRET +"[hp]"+ FRET +")";
     }
 
-    private static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();
-    public static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
-    private static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
+    protected static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();
+    protected static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
+    protected static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
 
-    private static final String DRUM_NOTE_PATTERN = "";
-    public static final String DRUM_NOTE_GROUP_PATTERN = "";
-    private static final String DRUM_NOTE_CONNECTOR = "";
+    protected static final String DRUM_NOTE_PATTERN = "[xoXOdDfF]";
+    protected static final String DRUM_NOTE_GROUP_PATTERN = getDrumNoteGroupPattern();
+    protected static final String DRUM_NOTE_CONNECTOR = "";
+
+    private static String getDrumNoteGroupPattern() {
+        return DRUM_NOTE_PATTERN +"+";
+    }
 
     private static String getGuitarNoteGroupPattern() {
         return "("+GUITAR_NOTE_PATTERN+"(-*"+GUITAR_NOTE_CONNECTOR+GUITAR_NOTE_PATTERN+")*)";
@@ -57,7 +63,6 @@ public class NoteFactory {
 
     public List<Note> getNotes() {
         List<Note> noteList = new ArrayList<>();
-        HashMap<String, String> patternPackage = getPatternPackage(origin);
         if (patternPackage==null) {
             noteList.add(new InvalidNote(origin, position, lineName, distanceFromMeasureStart));
             return noteList;
@@ -75,11 +80,11 @@ public class NoteFactory {
         if (groupIdx[1]<origin.length()) {
             noteList.add(new InvalidNote(origin.substring(groupIdx[1]), position, lineName, distanceFromMeasureStart+groupIdx[1]));
         }
-        noteList.addAll(getNotes(origin, groupIdx[0], groupIdx[1], patternPackage));
+        noteList.addAll(getNotes(origin, groupIdx[0], groupIdx[1]));
         return noteList;
     }
 
-    private List<Note> getNotes(String origin, int idx, int endIdx, HashMap<String, String> patternPackage) {
+    private List<Note> getNotes(String origin, int idx, int endIdx) {
         List<Note> noteList = new ArrayList<>();
 
         if (idx>=endIdx)
@@ -101,7 +106,7 @@ public class NoteFactory {
                 noteList.add(new InvalidNote(origin.substring(noteMatcher.end()+idx, endIdx), position+idx+noteMatcher.end(), lineName, distanceFromMeasureStart+idx));
             return noteList;
         }
-        List<Note> remainingNotes = getNotes(origin, idx+noteMatcher.end()+connectorMatcher.end(), endIdx, patternPackage);
+        List<Note> remainingNotes = getNotes(origin, idx+noteMatcher.end()+connectorMatcher.end(), endIdx);
         if (remainingNotes.isEmpty())
             return noteList;
         Note note2 = remainingNotes.get(0);
@@ -116,11 +121,13 @@ public class NoteFactory {
         Matcher guitarMatcher = Pattern.compile("^"+GUITAR_NOTE_GROUP_PATTERN+"$").matcher(origin);
         Matcher drumMatcher = Pattern.compile("^"+DRUM_NOTE_GROUP_PATTERN+"$").matcher(origin);
         if (guitarMatcher.find()) {
+            patternPackage.put("instrument", "guitar");
             patternPackage.put("note-group-pattern", GUITAR_NOTE_GROUP_PATTERN);
             patternPackage.put("note-pattern", GUITAR_NOTE_PATTERN);
             patternPackage.put("connector-pattern", GUITAR_NOTE_CONNECTOR);
             return patternPackage;
         }else if (drumMatcher.find()) {
+            patternPackage.put("instrument", "guitar");
             patternPackage.put("note-group-pattern", DRUM_NOTE_GROUP_PATTERN);
             patternPackage.put("note-pattern", DRUM_NOTE_PATTERN);
             patternPackage.put("connector-pattern", DRUM_NOTE_CONNECTOR);
@@ -139,6 +146,13 @@ public class NoteFactory {
 
     private List<Note> createNote(String origin, int position, int distanceFromMeasureStart) {
         List<Note> noteList = new ArrayList<>();
+        if (patternPackage.get("instrument").equalsIgnoreCase("drum")) {
+            if (origin.strip().equalsIgnoreCase("x")||origin.strip().equalsIgnoreCase("o"))
+                noteList.add(createDrumNote(origin, position, distanceFromMeasureStart));
+            if (origin.strip().equalsIgnoreCase("f"))
+                noteList.add(createFlam(origin, position, distanceFromMeasureStart));
+            return noteList;
+        }
         noteList.addAll(createGrace(origin, position, distanceFromMeasureStart));
         if (!noteList.isEmpty()) return noteList;
         Note harmonic = createHarmonic(origin, position, distanceFromMeasureStart);
@@ -153,6 +167,19 @@ public class NoteFactory {
         }
         noteList.add(createInvalidNote(origin, position, distanceFromMeasureStart));
         return noteList;
+    }
+
+    private Note createFlam(String origin, int position, int distanceFromMeasureStart) {
+        Note note = createDrumNote(origin, position, distanceFromMeasureStart);
+        note.addDecor((noteModel) -> {
+            noteModel.setGrace(new Grace());
+            return true;
+        }, "success");
+        return note;
+    }
+
+    private Note createDrumNote(String origin, int position, int distanceFromMeasureStart) {
+        return new DrumNote(origin, position, this.lineName, distanceFromMeasureStart);
     }
 
     private Note createInvalidNote(String origin, int position, int distanceFromMeasureStart) {

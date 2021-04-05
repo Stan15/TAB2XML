@@ -19,14 +19,17 @@ public class ScorePartwise {
     private static int SCORE_COUNT = 1;
 
     @JacksonXmlProperty(isAttribute = true)
-    public String version;
+    String version;
+
+    Work work;
+    Identification identification;
 
     @JacksonXmlProperty(localName = "part-list")
-    public PartList partList;
+    PartList partList;
 
     @JacksonXmlProperty(localName = "part")
     @JacksonXmlElementWrapper(useWrapping = false)
-    public List<Part> parts;
+    List<Part> parts;
 
     ScorePartwise() {
         SCORE_COUNT++;

@@ -145,8 +145,8 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isGuitar(boolean strictCheck) {
-        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
-            return Score.INSTRUMENT == Instrument.GUITAR;
+        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.GUITAR;
         }
         if (!isGuitarName(this.name)) return false;
         if (!strictCheck) return true;
@@ -158,8 +158,8 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isDrum(boolean strictCheck) {
-        if (!strictCheck && Score.INSTRUMENT != Instrument.AUTO) {
-            return Score.INSTRUMENT == Instrument.DRUM;
+        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.DRUM;
         }
         if (!isDrumName(this.name)) return false;
         if (!strictCheck) return true;

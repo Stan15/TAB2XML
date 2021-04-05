@@ -8,7 +8,7 @@ public class BassNote extends GuitarNote {
     public BassNote(String origin, int position, String lineName, int distanceFromMeasureStart) {
         super(origin, position, lineName, distanceFromMeasureStart);
         this.fret = Integer.parseInt(origin);
-        String noteDetails = BassNote.noteDetails(this.name, this.fret);
+        String noteDetails = BassNote.noteDetails(this.lineName, this.fret);
         this.step = GuitarNote.step(noteDetails);
         this.alter = GuitarNote.alter(noteDetails);
         this.octave = GuitarNote.octave(noteDetails);

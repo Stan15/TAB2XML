@@ -1,8 +1,17 @@
 package converter.measure;
 
 import GUI.TabInput;
+import converter.Score;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.MeasureLine;
+import converter.note.Note;
+import models.measure.Backup;
+import models.measure.attributes.*;
+import models.measure.barline.BarLine;
+import models.measure.barline.Repeat;
+import models.measure.direction.Direction;
+import models.measure.direction.DirectionType;
+import models.measure.direction.Words;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +26,7 @@ public class DrumMeasure extends Measure {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasureInGroup);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.sortedNoteList = this.getSortedNoteList();
+        this.voiceSortedNoteList = this.getVoiceSortedNoteList();
         setChords();
         calcDurationRatios();
     }
@@ -78,6 +88,82 @@ public class DrumMeasure extends Measure {
 
     @Override
     public models.measure.Measure getModel() {
-        return null;
+        models.measure.Measure measureModel = new models.measure.Measure();
+        measureModel.setNumber(this.measureCount);
+        measureModel.setAttributes(this.getAttributesModel());
+
+        List<models.measure.note.Note> noteBeforeBackupModels = new ArrayList<>();
+        List<models.measure.note.Note> noteAfterBackupModels = new ArrayList<>();
+        for (int i=0; i<this.voiceSortedNoteList.size(); i++) {
+            List<Note> voice = this.voiceSortedNoteList.get(i);
+            double backupDuration = 0;
+            for (Note note : voice) {
+                if (note.voice==1)
+                    noteBeforeBackupModels.add(note.getModel());
+                if (note.voice==2)
+                    noteAfterBackupModels.add(note.getModel());
+                backupDuration += note.duration;
+            }
+            if (voice.get(0).voice==1)
+                measureModel.setNotesBeforeBackup(noteBeforeBackupModels);
+            if (voice.get(0).voice==2)
+                measureModel.setNotesBeforeBackup(noteAfterBackupModels);
+            if (i+1<this.voiceSortedNoteList.size()) {
+                measureModel.getBackup().add(new Backup((int)backupDuration));
+            }
+        }
+
+        List<BarLine> barLines = new ArrayList<>();
+        if (this.isRepeatStart()) {
+            BarLine barLine = new BarLine();
+            barLines.add(barLine);
+            barLine.setLocation("left");
+            barLine.setBarStyle("heavy-light");
+
+            Repeat repeat = new Repeat();
+            repeat.setDirection("forward");
+            barLine.setRepeat(repeat);
+
+            Direction direction = new Direction();
+            direction.setPlacement("above");
+            measureModel.setDirection(direction);
+
+            DirectionType directionType = new DirectionType();
+            direction.setDirectionType(directionType);
+
+            Words words = new Words();
+            words.setRelativeX(256.17);
+            words.setRelativeX(16.01);
+            words.setRepeatText("Repeat "+this.repeatCount+" times");
+            directionType.setWords(words);
+        }
+
+        if (this.isRepeatEnd()) {
+            BarLine barLine = new BarLine();
+            barLines.add(barLine);
+            barLine.setLocation("right");
+            barLine.setBarStyle("light-heavy");
+
+            Repeat repeat = new Repeat();
+            repeat.setDirection("backward");
+            barLine.setRepeat(repeat);
+        }
+
+        if (!barLines.isEmpty())
+            measureModel.setBarlines(barLines);
+        return measureModel;
+    }
+
+    private Attributes getAttributesModel() {
+        Attributes attributes = new Attributes();
+        attributes.setKey(new Key(0));
+        if (this.isTimeSigOverridden())
+            attributes.setTime(new Time(this.beatCount, this.beatType));
+
+        if (this.measureCount == 1) {
+            attributes.setClef(new Clef("percussion", 2));
+            attributes.setDivisions(Score.GLOBAL_DIVISIONS);
+        }
+        return attributes;
     }
 }

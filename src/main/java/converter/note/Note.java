@@ -8,13 +8,12 @@ import converter.Score;
 import utility.Patterns;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
+    public boolean startsWithPreviousSameVoice;
     public String origin;
-    public String name;
+    public String lineName;
     public int dotCount;
     int stringNumber;
     public int distance;
@@ -22,6 +21,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     public double duration;
     public double durationRatio;
     public String sign;
+    public int voice;
     protected Map<NoteFactory.NoteDecor, String> noteDecorMap = new LinkedHashMap<>();
 
 
@@ -41,11 +41,16 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     public Note(String origin, int position, String lineName, int distanceFromMeasureStart) {
         this.origin = origin;
-        this.name = lineName;
+        this.lineName = lineName;
         this.position = position;
-        this.stringNumber = this.convertNameToNumber(this.name);
+        this.stringNumber = this.convertNameToNumber(this.lineName);
         this.duration = 1;
         this.distance = distanceFromMeasureStart;
+        this.voice = 1;
+    }
+    public Note(String origin, int position, String lineName, int distanceFromMeasureStart, int voice) {
+        this(origin, position, lineName, distanceFromMeasureStart);
+        this.voice = voice;
     }
 
     public List<HashMap<String,String>> validate() {
@@ -134,12 +139,12 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
 
     public boolean isGuitar() {
         // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
-        return !this.isDrum();
+        return this.origin.strip().matches(NoteFactory.FRET);
     }
 
     public boolean isDrum() {
         // remember, invalid notes are still accepted but are created as GuitarNote objects. we want to be able to still convert despite having invalid notes, as long as we warn the user that they have invalid input. We might want to create a new concrete class, InvalidNote, that extends Note to take care of this so that we have the guarantee that this is valid.
-        return this.origin.matches(DrumNote.COMPONENT_PATTERN+"+");
+        return this.origin.strip().matches(NoteFactory.DRUM_NOTE_PATTERN);
     }
 
     public abstract models.measure.note.Note getModel();

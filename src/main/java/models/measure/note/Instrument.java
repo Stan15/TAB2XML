@@ -7,4 +7,8 @@ import lombok.Data;
 public class Instrument {
     @JacksonXmlProperty(isAttribute = true)
     String id;
+
+    public Instrument(String id) {
+        this.id = id;
+    }
 }

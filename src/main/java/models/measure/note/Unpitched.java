@@ -8,6 +8,11 @@ public class Unpitched {
     @JacksonXmlProperty(localName = "display-step")
     String displayStep;
     @JacksonXmlProperty(localName = "display-octave")
-    String displayOctave;
+    int displayOctave;
+
+    public Unpitched(String displayStep, int displayOctave) {
+        this.displayOctave = displayOctave;
+        this.displayStep = displayStep;
+    }
 }
 

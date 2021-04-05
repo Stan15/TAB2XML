@@ -30,6 +30,8 @@ public class Parser {
         String xmlString = "";
         try {
             xmlString = mapper.writeValueAsString(score.getModel());
+            xmlString = xmlString.replace("noteBefore", "note");
+            xmlString = xmlString.replace("noteAfter", "note");
         }catch (JsonProcessingException | TXMLException e) {
             e.printStackTrace();
             return "";

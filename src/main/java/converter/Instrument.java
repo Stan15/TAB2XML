@@ -1,5 +1,5 @@
 package converter;
 
 public enum Instrument {
-    GUITAR, DRUM, BASS, AUTO
+    GUITAR, DRUM, BASS, AUTO, INVALID, MIXED
 }

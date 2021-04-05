@@ -28,6 +28,7 @@ public abstract class Measure implements ScoreComponent {
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasureInGroup;
     List<Note> sortedNoteList;
+    List<List<Note>> voiceSortedNoteList;   // a list of voices where each voice is a sorted list of notes
 
     boolean repeatStart = false;
     boolean repeatEnd = false;
@@ -127,8 +128,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isGuitarMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (Score.INSTRUMENT != Instrument.AUTO) {
-            return Score.INSTRUMENT == Instrument.GUITAR;
+        if (Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.GUITAR;
         }
         boolean isGuitarMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -139,8 +140,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isDrumMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (Score.INSTRUMENT != Instrument.AUTO) {
-            return Score.INSTRUMENT == Instrument.DRUM;
+        if (Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.DRUM;
         }
         boolean isDrumMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -151,8 +152,8 @@ public abstract class Measure implements ScoreComponent {
     }
 
     private static boolean isBassMeasure(List<String> lineList, List<String[]> lineNameList) {
-        if (Score.INSTRUMENT != Instrument.AUTO) {
-            return Score.INSTRUMENT == Instrument.BASS;
+        if (Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.BASS;
         }
         boolean isBassMeasure = true;
         for (int i=0; i<lineList.size(); i++) {
@@ -471,12 +472,33 @@ public abstract class Measure implements ScoreComponent {
     }
 
     protected void setChords() {
+        HashSet<Integer> voiceSet = new HashSet<>();
         for (int i=1; i<this.sortedNoteList.size(); i++) {
             Note previousNote = this.sortedNoteList.get(i-1);
+            voiceSet.add(previousNote.voice);
             Note currentNote = this.sortedNoteList.get(i);
-            if (previousNote.distance==currentNote.distance)
+            if (previousNote.distance==currentNote.distance) {
                 currentNote.startsWithPreviousNote = true;
+                if (voiceSet.contains(currentNote.voice)) currentNote.startsWithPreviousSameVoice = true;
+            } else
+                voiceSet.clear();
         }
+    }
+
+    public List<List<Note>> getVoiceSortedNoteList() {
+        List<List<Note>> voiceSortedNoteList = new ArrayList<>();
+        HashMap<Integer, Integer> voiceToIndexMap = new HashMap<>();
+        int currentIdx = 0;
+        for (Note note : this.sortedNoteList) {
+            if (!voiceToIndexMap.containsKey(note.voice)) {
+                voiceToIndexMap.put(note.voice, currentIdx++);
+                voiceSortedNoteList.add(new ArrayList<>());
+            }
+            int idx = voiceToIndexMap.get(note.voice);
+            List<Note> voice = voiceSortedNoteList.get(idx);
+            voice.add(note);
+        }
+        return voiceSortedNoteList;
     }
 
     public List<Note> getSortedNoteList() {

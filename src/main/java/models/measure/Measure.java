@@ -20,11 +20,15 @@ public class Measure {
     Attributes attributes;
 
     @JacksonXmlElementWrapper(useWrapping = false)
-    @JacksonXmlProperty(localName = "note")
-    List<Note> notes;
+    @JacksonXmlProperty(localName = "noteBefore")
+    List<Note> notesBeforeBackup;
 
     @JacksonXmlElementWrapper(useWrapping = false)
     List<Backup> backup;
+
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "noteAfter")
+    List<Note> notesAfterBackup;
 
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "barline")

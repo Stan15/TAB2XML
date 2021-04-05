@@ -5,8 +5,7 @@ import converter.measure.Measure;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
 import custom_exceptions.TXMLException;
-import models.Part;
-import models.ScorePartwise;
+import models.*;
 import models.part_list.PartList;
 import models.part_list.ScoreInstrument;
 import models.part_list.ScorePart;
@@ -24,10 +23,13 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static Instrument INSTRUMENT = Instrument.BASS;
+    public static Instrument INSTRUMENT_MODE = Instrument.AUTO;
+    public Instrument instrumentType;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
+    public String title;
+    public String artist;
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
@@ -38,6 +40,30 @@ public class Score implements ScoreComponent {
         GLOBAL_DIVISIONS = getDivisions();
         setDurations();
         fixTrailingTimeSignatures();
+        if (INSTRUMENT_MODE == Instrument.AUTO) {
+            boolean isGuitar = this.isGuitar(false);
+            boolean isDrum = this.isDrum(false);
+            boolean isBass = this.isBass(false);
+            if (!isBass && !isGuitar && !isDrum)
+                this.instrumentType = Instrument.INVALID;
+            if ((isBass && isGuitar) || (isGuitar && isDrum) || (isBass && isDrum))
+                this.instrumentType = Instrument.MIXED;
+            else if (isGuitar) this.instrumentType = Instrument.GUITAR;
+            else if (isDrum) this.instrumentType = Instrument.DRUM;
+            else if (isBass) this.instrumentType = Instrument.BASS;
+        }else {
+            this.instrumentType = INSTRUMENT_MODE;
+        }
+    }
+
+    public Score(String rootString, String title, String artist) {
+        this(rootString);
+        this.title = title;
+        this.artist = artist;
+    }
+
+    public static void setInstrumentMode(Instrument InstrumentMode) {
+        INSTRUMENT_MODE = InstrumentMode;
     }
 
     public Measure getMeasure(int measureCount) {
@@ -85,11 +111,6 @@ public class Score implements ScoreComponent {
 
     private List<MeasureCollection> getMeasureCollectionList() {
         return this.measureCollectionList;
-    }
-
-    public Score(String rootString, Instrument instrument) {
-        this(rootString);
-        INSTRUMENT = instrument;
     }
 
     public int getDivisions() {
@@ -217,15 +238,15 @@ public class Score implements ScoreComponent {
     // which has to remain the same for all the sub-elements it has as they use that counter. this may turn out to be
     // a bad idea cuz it might clash with the NotePlayer class
     synchronized public ScorePartwise getModel() throws TXMLException {
-        boolean isGuitar;
+        boolean isGuitar = false;
         boolean isDrum = false;
         boolean isBass = false;
 
-        if (INSTRUMENT ==Instrument.GUITAR)
+        if (INSTRUMENT_MODE ==Instrument.GUITAR)
             isGuitar = true;
-        else if (INSTRUMENT ==Instrument.DRUM)
+        else if (INSTRUMENT_MODE ==Instrument.DRUM)
             isDrum = true;
-        else if (INSTRUMENT ==Instrument.BASS)
+        else if (INSTRUMENT_MODE ==Instrument.BASS)
             isBass = true;
         else {
             isGuitar = this.isGuitar(false);
@@ -235,7 +256,7 @@ public class Score implements ScoreComponent {
                 isDrum = this.isDrum(true);
                 isGuitar = this.isGuitar(true);
             }
-            if (INSTRUMENT == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass) || (isBass && isGuitar)))
+            if (INSTRUMENT_MODE == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass)))
                 throw new MixedScoreTypeException("A score must be only of one type");
             if (!isDrum && !isGuitar && !isBass)
                 throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");
@@ -252,12 +273,14 @@ public class Score implements ScoreComponent {
         PartList partList;
         if (isDrum)
             partList = this.getDrumPartList();
-        else if (isBass)
-            partList = this.getBassPartList();
-        else
+        else if (isGuitar)
             partList = this.getGuitarPartList();
+        else
+            partList = this.getBassPartList();
 
         ScorePartwise scorePartwise = new ScorePartwise("3.1", partList, parts);
+        scorePartwise.setWork(new Work(this.title));
+        scorePartwise.setIdentification(new Identification(new Creator("composer", this.artist)));
         return scorePartwise;
     }
 

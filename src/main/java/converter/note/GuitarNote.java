@@ -2,11 +2,8 @@ package converter.note;
 
 import GUI.TabInput;
 import models.measure.note.Chord;
-import models.measure.note.Dot;
-import models.measure.note.Grace;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
-import models.measure.note.notations.Slur;
 import models.measure.note.notations.technical.Technical;
 
 import java.util.ArrayList;
@@ -16,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GuitarNote extends Note {
-    public static String COMPONENT_PATTERN = createComponentPattern();
     public static String FRET_PATTERN = "([0-9]{1,2})";
     public static String GRACE_PATTERN = getGracePattern();
     public static String PATTERN = getPattern();
@@ -29,22 +25,17 @@ public class GuitarNote extends Note {
     protected String step;
     protected int alter;
     protected int octave;
-    boolean isGrace;
-    boolean isGracePair;
     public static String[] KEY_LIST = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
     private static String getGracePattern() {
         return "(g"+ FRET_PATTERN +"[hp]"+ FRET_PATTERN +")";
-    }
-    private static String createComponentPattern() {
-        return "[0-9hpg\\/\\]";
     }
 
     protected int fret;
     public GuitarNote(String origin, int position, String lineName, int distanceFromMeasureStart) {
         super(origin, position, lineName, distanceFromMeasureStart);
         this.fret = Integer.parseInt(origin);
-        String noteDetails = noteDetails(this.name, this.fret);
+        String noteDetails = noteDetails(this.lineName, this.fret);
         this.step = GuitarNote.step(noteDetails);
         this.alter = GuitarNote.alter(noteDetails);
         this.octave = GuitarNote.octave(noteDetails);
@@ -80,10 +71,10 @@ public class GuitarNote extends Note {
 
     public models.measure.note.Note getModel() {
         models.measure.note.Note noteModel = new models.measure.note.Note();
-        if (this.startsWithPreviousNote)
+        if (this.startsWithPreviousSameVoice)
             noteModel.setChord(new Chord());
         noteModel.setPitch(new Pitch(this.step, this.alter, this.octave));
-        noteModel.setVoice(1);
+        noteModel.setVoice(this.voice);
         String noteType = this.getType();
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
@@ -96,8 +87,8 @@ public class GuitarNote extends Note {
 
         Notations notations = new Notations();
         notations.setTechnical(technical);
+        noteModel.setNotations(notations);
 
-//        noteModel.setNotations(notations);
 //        //dot's don't work for some reason
 //        List<Dot> dots = new ArrayList<>();
 //        for (int i=0; i<this.dotCount; i++){
@@ -167,69 +158,6 @@ public class GuitarNote extends Note {
         if (matcher.find())
             return matcher.group().toUpperCase();
         return "";
-    }
-
-    //decide octave of note
-    protected static int octave(int stringNumber, int fret) {
-        int octave;
-        if(stringNumber == 6) {
-            if(fret >= 0 && fret <= 7) {
-                octave = 2;
-            }
-            else {
-                octave = 3;
-            }
-        }
-        else if(stringNumber == 5) {
-            if(fret >= 0 && fret <= 2) {
-                octave = 2;
-            }
-            else if(fret >= 3 && fret <= 14) {
-                octave = 3;
-            }
-            else {
-                octave = 4;
-            }
-        }
-        else if(stringNumber == 4) {
-            if(fret >=0 && fret <= 9) {
-                octave = 3;
-            }
-            else {
-                octave = 4;
-            }
-        }
-        else if(stringNumber == 3) {
-            if(fret >= 0 && fret <= 4) {
-                octave = 3;
-            }
-            else if(fret >= 5 && fret <= 16) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        else if(stringNumber == 2) {
-            if(fret == 0) {
-                octave = 3;
-            }
-            else if(fret >= 1 && fret <= 12) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        else {
-            if(fret >= 0 && fret <= 7) {
-                octave = 4;
-            }
-            else {
-                octave = 5;
-            }
-        }
-        return octave;
     }
 
     protected static int alter(String noteDetails) {
