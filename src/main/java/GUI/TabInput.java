@@ -5,6 +5,7 @@ import converter.measure.Measure;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextArea;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.text.TextFlow;
@@ -52,6 +53,9 @@ public class TabInput {
         executor.execute(task);
         task.isDone();
         return task;
+    }
+    public void refresh() {
+        TEXT_AREA.replaceText(new IndexRange(0, TEXT_AREA.getText().length()), TEXT_AREA.getText()+" ");
     }
 
     private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
@@ -162,7 +166,7 @@ public class TabInput {
             case 1: return "highPriorityError";
             case 2: return "mediumPriorityError";
             case 3: return "lowPriorityError";
-            case 4: return "unimportantError";
+            //case 4: return "unimportantError";
             default:
                 new Exception("TXT2XML: invalid validation error priority").printStackTrace();
                 return "";

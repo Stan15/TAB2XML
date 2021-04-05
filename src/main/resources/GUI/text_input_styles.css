@@ -7,10 +7,9 @@
 }
 
 .lowPriorityError {
-    -rtfx-background-color: #ccfffd;
-}
-
-.unimportantError  {
     -rtfx-background-color: #00204020;
     border: #cccccc;
 }
+
+/*.unimportantError  {*/
+/*}*/

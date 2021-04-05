@@ -3,6 +3,7 @@ package utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import converter.Instrument;
 import converter.Score;
 import custom_exceptions.TXMLException;
 
@@ -49,6 +50,17 @@ public class Parser {
     }
     public static String parse() {
         return parse(SCORE);
+    }
+
+    public static Instrument getInstrumentEnum(String instrument) {
+        if (instrument.equalsIgnoreCase("guitar"))
+            return Instrument.GUITAR;
+        else if (instrument.equalsIgnoreCase("drum"))
+            return Instrument.DRUM;
+        else if (instrument.equalsIgnoreCase("bass"))
+            return Instrument.BASS;
+        else
+            return Instrument.AUTO;
     }
 
     public int getMeasureAt(int index) {

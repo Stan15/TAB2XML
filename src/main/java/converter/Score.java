@@ -220,7 +220,7 @@ public class Score implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This text can't be understood.");
             response.put("positions", errorRanges.toString());
-            int priority = 4;
+            int priority = 3;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);

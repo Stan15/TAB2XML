@@ -13,7 +13,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import converter.Instrument;
 import converter.Score;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -34,6 +37,7 @@ public class FXMLController extends Application {
     Preferences p = Preferences.userNodeForPackage(MainApp.class);
     private static File saveFile;
     private static boolean isEditingSavedFile;
+    private String InstrumentSetting = "auto";
 
     private static String generatedOutput;
 
@@ -333,7 +337,9 @@ public class FXMLController extends Application {
 
     @FXML
     private void handleScoreType() {
-        //Score.STRICT_TYPE = cmbScoreType.getValue().toString();
+        InstrumentSetting = cmbScoreType.getValue().toString().strip();
+        Score.INSTRUMENT_MODE = Parser.getInstrumentEnum(InstrumentSetting);
+        new TabInput(TEXT_AREA, convertButton).refresh();
     }
 
     private void initializeTextArea() {
@@ -381,9 +387,6 @@ public class FXMLController extends Application {
     }
 
 
-
-
-
     private void changeErrorSensitivity(String prefValue) {
         switch (prefValue) {
             case "Level 1 - Minimal Error Checking" -> TabInput.ERROR_SENSITIVITY = 1;
@@ -392,7 +395,7 @@ public class FXMLController extends Application {
             default -> TabInput.ERROR_SENSITIVITY = 2;
         }
 
-        TEXT_AREA.replaceText(new IndexRange(0, TEXT_AREA.getText().length()), TEXT_AREA.getText()+" ");
+        new TabInput(TEXT_AREA, convertButton).refresh();
     }
     private void initializeSettings() {
         if (errorSensitivity != null && outputFolderField != null) {
