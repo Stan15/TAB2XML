@@ -18,7 +18,7 @@ public class Beam {
     @JsonIgnore
     private static int PREV_SCORE_COUNT = 0;
 
-    public Beam() {
+    private Beam() {
         if (ScorePartwise.getScoreCount()!=PREV_SCORE_COUNT) {
             PREV_SCORE_COUNT = ScorePartwise.getScoreCount();
             NEXT_NUMBER = 1;
