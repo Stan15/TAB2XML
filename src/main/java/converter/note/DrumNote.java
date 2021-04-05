@@ -63,7 +63,7 @@ public class DrumNote extends Note{
             noteModel.setType(noteType);
         noteModel.setStem(""); // to-do
         noteModel.setNotehead("X/O/F/D"); // to do
-        noteModel.setBeam(new Beam());
+        noteModel.setBeam(new Beam(noteType));
 
 
 
