@@ -24,8 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TabInput {
-    private static String PREVIOUS_TEXT_INPUT = "";
-    private static StyleSpans<Collection<String>> PREVIOUS_HIGHLIGHT;
 
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 30;   //in milliseconds
@@ -68,22 +66,15 @@ public class TabInput {
         } else {
             convertButton.setDisable(false);
         }
-        String strippedText = text.replaceFirst("\\s++$", "");
-        if (strippedText.equals(PREVIOUS_TEXT_INPUT))
-            return PREVIOUS_HIGHLIGHT;
-        PREVIOUS_TEXT_INPUT = strippedText;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         TabInput.SCORE = new Score(text);
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
             spansBuilder.add(Collections.emptyList(), text.length());
-            StyleSpans<Collection<String>> highlight = spansBuilder.create();
-            PREVIOUS_HIGHLIGHT = highlight;
-            return highlight;
+            return spansBuilder.create();
         }
 
-        PREVIOUS_TEXT_INPUT = text;
 
         ArrayList<Range> errorRanges = new ArrayList<>(ACTIVE_ERRORS.keySet());
         int lastErrorEnd = 0;
@@ -96,9 +87,7 @@ public class TabInput {
             lastErrorEnd = range.getEnd();
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastErrorEnd);
-        StyleSpans<Collection<String>> highlight = spansBuilder.create();
-        PREVIOUS_HIGHLIGHT = highlight;
-        return highlight;
+        return spansBuilder.create();
     }
 
     private TreeMap<Range, HashMap<String, String>> filterOverlappingRanges(TreeMap<Range, HashMap<String, String>> errors) {
