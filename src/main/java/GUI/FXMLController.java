@@ -47,6 +47,7 @@ public class FXMLController extends Application {
     @FXML private ComboBox cmbScoreType;
     
     @FXML private TextField outputFolderField;
+    @FXML private TextField gotoMeasureField;
     @FXML private CheckBox wrapCheckbox;
     @FXML private BorderPane borderPane;
     @FXML private Button convertButton = new Button();
@@ -336,6 +337,12 @@ public class FXMLController extends Application {
         //Score.STRICT_TYPE = cmbScoreType.getValue().toString();
     }
 
+    @FXML
+    private void handleGotoMeasure() {
+        int measureNumber = Integer.parseInt( gotoMeasureField.getText() );
+        new TabInput(TEXT_AREA, convertButton).goToMeasure(measureNumber);
+    }
+
     private void initializeTextArea() {
         if (TEXT_AREA==null && savedTextArea!=null) {
             this.TEXT_AREA = savedTextArea;
@@ -413,7 +420,6 @@ public class FXMLController extends Application {
             Score.DEFAULT_BEAT_TYPE = Integer.parseInt(tsDenominator);
         }
     }
-
     TabInput goTo = new TabInput(TEXT_AREA, convertButton);
     void goToMeasure() {
         if(true){
