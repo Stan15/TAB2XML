@@ -24,7 +24,7 @@ public class Score implements ScoreComponent {
     // different Strings.
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
-    public static Instrument INSTRUMENT = Instrument.BASS;
+    public static Instrument INSTRUMENT = Instrument.AUTO;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
@@ -235,7 +235,7 @@ public class Score implements ScoreComponent {
                 isDrum = this.isDrum(true);
                 isGuitar = this.isGuitar(true);
             }
-            if (INSTRUMENT == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass) || (isBass && isGuitar)))
+            if (INSTRUMENT == Instrument.AUTO && ((isDrum && isGuitar)||(isDrum && isBass)))
                 throw new MixedScoreTypeException("A score must be only of one type");
             if (!isDrum && !isGuitar && !isBass)
                 throw new InvalidScoreTypeException("The type of this score could not be detected. Specify its type or fix the error in the text input.");
