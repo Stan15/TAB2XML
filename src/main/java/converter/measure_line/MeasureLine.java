@@ -73,7 +73,8 @@ public abstract class MeasureLine implements ScoreComponent {
                 instrument = Instrument.GUITAR;
             else if (this instanceof DrumMeasureLine)
                 instrument = Instrument.DRUM;
-            noteList.addAll(Note.from(match, position+noteMatcher.start(), instrument, this.name, distanceFromMeasureStart));
+            if (!match.isBlank())
+                noteList.addAll(Note.from(match, position+noteMatcher.start(), instrument, this.name, distanceFromMeasureStart));
         }
         return noteList;
     }
