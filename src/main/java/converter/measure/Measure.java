@@ -4,6 +4,7 @@ import GUI.TabInput;
 import converter.Instrument;
 import converter.Score;
 import converter.ScoreComponent;
+import converter.instruction.RepeatType;
 import converter.instruction.TimeSignature;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
@@ -121,9 +122,9 @@ public abstract class Measure implements ScoreComponent {
             measure = new GuitarMeasure(lineList, lineNameList, linePositionList, isFirstMeasureInGroup); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)
 
         if (repeatStart)
-            measure.setRepeat(repeatCount, "start");
+            measure.setRepeat(repeatCount, RepeatType.START);
         if (repeatEnd)
-            measure.setRepeat(repeatCount, "end");
+            measure.setRepeat(repeatCount, RepeatType.END);
         return measure;
     }
 
@@ -358,15 +359,15 @@ public abstract class Measure implements ScoreComponent {
         }
     }
 
-    public boolean setRepeat(int repeatCount, String repeatType) {
+    public boolean setRepeat(int repeatCount, RepeatType repeatType) {
         if (repeatCount<0)
             return false;
-        if (!(repeatType.equals("start") || repeatType.equals("end")))
+        if (!(repeatType == RepeatType.START || repeatType == RepeatType.END))
             return false;
         this.repeatCount = repeatCount;
-        if (repeatType.equals("start"))
+        if (repeatType == RepeatType.START)
             this.repeatStart = true;
-        if (repeatType.equals("end"))
+        if (repeatType == RepeatType.END)
             this.repeatEnd = true;
         return true;
     }

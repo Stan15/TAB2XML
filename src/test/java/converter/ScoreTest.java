@@ -1,5 +1,6 @@
 package converter;
 
+import custom_exceptions.InvalidInputException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

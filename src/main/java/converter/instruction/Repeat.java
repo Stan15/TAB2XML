@@ -52,9 +52,9 @@ public class Repeat extends Instruction {
                 }
             }
             if (firstMeasure!=null)
-                this.startApplied = firstMeasure.setRepeat(this.repeatCount, "start");
+                this.startApplied = firstMeasure.setRepeat(this.repeatCount, RepeatType.START);
             if (lastMeasure!=null)
-                this.endApplied = lastMeasure.setRepeat(this.repeatCount, "end");
+                this.endApplied = lastMeasure.setRepeat(this.repeatCount, RepeatType.END);
         }
         this.setHasBeenApplied(this.startApplied && this.endApplied);
     }

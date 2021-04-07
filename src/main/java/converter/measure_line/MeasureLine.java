@@ -180,6 +180,8 @@ public abstract class MeasureLine implements ScoreComponent {
     //|--------------------- when it is in between other measures (middle of line, MIDL)
     public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
     public static Set<String> NAME_SET = createLineNameSet();
+    private static String COMPONENT = "[^-\\R"+Patterns.DIVIDER_COMPONENTS+"]";
+
 
     public static String[] nameOf(String measureLineStr, int lineStartIdx) {
         Pattern measureLineNamePttrn = Pattern.compile(createMeasureNameExtractPattern());
@@ -200,10 +202,11 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return the bracket-enclosed String regex pattern.
      */
     private static String createInsidesPattern() {
-
         //                     behind it is (space or newline, followed by a measure name) or ("|")                                     then the line either starts with a - or *, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -        accomodates for stuff like ---| ||
         //                                                      |                                                                                                    |                                                                                                                                      |
-        String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"  + "("+Patterns.DIVIDER+")"+"{0,1}"+      "(([ ]*[-*])|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + "("+Patterns.DIVIDER+"(?="+Patterns.DIVIDER+")){0,1}"+ ")";
+        //String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"  + "("+Patterns.DIVIDER+")"+"{0,1}"+      "(([ ]*[-*])|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + "("+Patterns.DIVIDER+"(?="+Patterns.DIVIDER+")){0,1}"+ ")";
+        //starts with dashes or starts with note                                                                                                                       to prevent when two dividers in between measures, both being consumed
+        String measureInsides = "(?<=([ \\R]"+createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+")"+Patterns.DIVIDER+"{0,1}(( *[-*]+)|( *"+COMPONENT+"+ *-+))("+COMPONENT+"+-+)*("+COMPONENT+"+ *)?((?="+Patterns.DIVIDER+Patterns.DIVIDER+" *-)|("+Patterns.DIVIDER+"?(?="+Patterns.DIVIDER+")))";
         return measureInsides;
     }
 
@@ -234,7 +237,7 @@ public abstract class MeasureLine implements ScoreComponent {
     public static String createGenericMeasureNamePattern() {
         Iterator<String> measureLineNames = MeasureLine.createLineNameSet().iterator();
         StringBuilder pattern = new StringBuilder();
-        pattern.append("([a-zA-Z]+|("+measureLineNames.next());
+        pattern.append("([a-zA-Z]{1,3}|("+measureLineNames.next());
         while(measureLineNames.hasNext()) {
             pattern.append("|"+measureLineNames.next());
         }
