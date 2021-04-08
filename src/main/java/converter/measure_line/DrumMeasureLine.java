@@ -13,7 +13,7 @@ public class DrumMeasureLine extends MeasureLine {
     }
 
     protected static Set<String> createLineNameSet() {
-        String[] names = {"CC", "Ch", "C2", "HH", "Rd", "R", "SN", "T1", "T2", "FT", "BD", "Hf", "FH", "C", "H", "s", "S", "B", "Hh", "F", "F2", "Ht", "Mt", "f1", "f2", "Hhf"};
+        String[] names = {"CC", "HH", "SD", "HT", "MT", "BD"};
         HashSet<String> nameSet = new HashSet<>(Arrays.asList(names));
         return nameSet;
     }

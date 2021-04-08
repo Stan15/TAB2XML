@@ -171,9 +171,9 @@ public class GuitarMeasure extends Measure{
             if (voice.get(0).voice==1)
                 measureModel.setNotesBeforeBackup(noteBeforeBackupModels);
             if (voice.get(0).voice==2)
-                measureModel.setNotesBeforeBackup(noteAfterBackupModels);
+                measureModel.setNotesAfterBackup(noteAfterBackupModels);
             if (i+1<this.voiceSortedNoteList.size()) {
-                measureModel.getBackup().add(new Backup((int)backupDuration));
+                measureModel.setBackup(new Backup((int)backupDuration));
             }
         }
 

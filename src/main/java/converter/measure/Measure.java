@@ -73,7 +73,8 @@ public abstract class Measure implements ScoreComponent {
             String line = lines.get(i);
             String[] nameAndPosition = namesAndPosition.get(i);
             int position = linePositions.get(i);
-            measureLineList.add(MeasureLine.from(line, nameAndPosition, position, this instanceof BassMeasure));
+            String instrumentHint = this instanceof GuitarMeasure ? "guitar" : this instanceof DrumMeasure ? "drum" : this instanceof BassMeasure ? "bass" : "";
+            measureLineList.add(MeasureLine.from(line, nameAndPosition, position, instrumentHint));
         }
         return measureLineList;
     }

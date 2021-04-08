@@ -1,5 +1,6 @@
 package models.measure;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import models.measure.attributes.Attributes;
 import models.measure.barline.BarLine;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder({"attributes", "noteBefore", "backup", "noteAfter", "barlines", "direction"})
 public class Measure {
     @JacksonXmlProperty(isAttribute = true)
     int number;
@@ -23,8 +25,7 @@ public class Measure {
     @JacksonXmlProperty(localName = "noteBefore")
     List<Note> notesBeforeBackup;
 
-    @JacksonXmlElementWrapper(useWrapping = false)
-    List<Backup> backup;
+    Backup backup;
 
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "noteAfter")

@@ -1,6 +1,5 @@
 package converter.note;
 
-import models.measure.note.Beam;
 import models.measure.note.Instrument;
 import models.measure.note.Unpitched;
 
@@ -12,6 +11,8 @@ public class DrumNote extends Note{
     public DrumNote (String origin, int position, String lineName, int distanceFromMeasure){
         super(origin, position, lineName, distanceFromMeasure);
         this.DrumId = getDrumID(lineName);
+        if (lineName.strip().equalsIgnoreCase("BD"))
+            this.voice = 2;
     }
     // line is line
     public String getDrumID(String lineName){
@@ -28,9 +29,9 @@ public class DrumNote extends Note{
             return "P1-I42";
         else if (lineName.equals("HH")) { // High Hat there are two types
             if (origin.strip().equalsIgnoreCase("X"))
-                return "P1-143";
+                return "P1-I43";
             else if (origin.strip().equalsIgnoreCase("O"))
-                return "P1-147";
+                return "P1-I47";
         } else if (lineName.equals("SD")) // Snare Drum
             return "P1-I39";
         else if (lineName.equals("BD")) // Base Drum 1 id
@@ -48,7 +49,7 @@ public class DrumNote extends Note{
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
         noteModel.setDuration((int) this.duration);
         noteModel.setInstrument(new Instrument(this.DrumId));
-        noteModel.setVoice(this.lineName.equalsIgnoreCase("BD") ? 2 : 1);
+        noteModel.setVoice(this.voice);
         String noteType = this.getType();
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
@@ -79,7 +80,6 @@ public class DrumNote extends Note{
             return new Unpitched("D", 5);
         else if (this.DrumId.equals("P1-I42"))
             return new Unpitched("A", 4);
-
         return null;
     }
 

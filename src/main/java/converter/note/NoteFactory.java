@@ -46,9 +46,9 @@ public class NoteFactory {
     protected static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
     protected static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
 
-    protected static final String DRUM_NOTE_PATTERN = "[xoXOdDfF]";
+    protected static final String DRUM_NOTE_PATTERN = "[xXoOdDfF]";
     protected static final String DRUM_NOTE_GROUP_PATTERN = getDrumNoteGroupPattern();
-    protected static final String DRUM_NOTE_CONNECTOR = "";
+    protected static final String DRUM_NOTE_CONNECTOR = "$a";//there are no connectors, so this is a regex that never matches anything. an a after the end of the string
 
     private static String getDrumNoteGroupPattern() {
         return DRUM_NOTE_PATTERN +"+";
@@ -97,22 +97,32 @@ public class NoteFactory {
         }else {
             List<Note> notes = createNote(noteMatcher.group(), position+idx+noteMatcher.start(), distanceFromMeasureStart+idx+noteMatcher.start());
             noteList.addAll(notes);
-            note1 = notes.get(notes.size()-1);  //you dont wanna get the grace note. you wanna get the grace pair because it is what will be creating a relationship with other notes
+            note1 = notes.get(notes.size()-1);  //It is always the last note that builds a relationship. e.g you dont wanna get the grace note. you wanna get the grace pair because it is what will be creating a relationship with other notes
         }
 
         Matcher connectorMatcher = Pattern.compile(patternPackage.get("connector-pattern")).matcher(origin.substring(idx+noteMatcher.end(), endIdx));
+        String connector;
+        int connectorMatcherEnd;
         if (!connectorMatcher.find()) {
-            if (idx+noteMatcher.end()<endIdx)
-                noteList.add(new InvalidNote(origin.substring(noteMatcher.end()+idx, endIdx), position+idx+noteMatcher.end(), lineName, distanceFromMeasureStart+idx));
-            return noteList;
+            connector = "";
+            connectorMatcherEnd = 0;
+             if (patternPackage.get("instrument").equalsIgnoreCase("guitar")) { //only guitar-like instrument notes have to be separated by connectors. drum notes can stay right next to each other, so no need to return if we don't see a connector.
+                 if (idx + noteMatcher.end() < endIdx)
+                     noteList.add(new InvalidNote(origin.substring(noteMatcher.end() + idx, endIdx), position + idx + noteMatcher.end(), lineName, distanceFromMeasureStart + idx));
+                 return noteList;
+             }
+        }else {
+            connector = connectorMatcher.group();
+            connectorMatcherEnd = connectorMatcher.end();
         }
-        List<Note> remainingNotes = getNotes(origin, idx+noteMatcher.end()+connectorMatcher.end(), endIdx);
+        List<Note> remainingNotes = getNotes(origin, idx+noteMatcher.end()+connectorMatcherEnd, endIdx);
         if (remainingNotes.isEmpty())
             return noteList;
         Note note2 = remainingNotes.get(0);
         noteList.addAll(remainingNotes);
 
-        addRelationship(note1, note2, connectorMatcher.group());
+        if (!connector.isBlank())
+            addRelationship(note1, note2, connector);
         return noteList;
     }
 
@@ -127,7 +137,7 @@ public class NoteFactory {
             patternPackage.put("connector-pattern", GUITAR_NOTE_CONNECTOR);
             return patternPackage;
         }else if (drumMatcher.find()) {
-            patternPackage.put("instrument", "guitar");
+            patternPackage.put("instrument", "drum");
             patternPackage.put("note-group-pattern", DRUM_NOTE_GROUP_PATTERN);
             patternPackage.put("note-pattern", DRUM_NOTE_PATTERN);
             patternPackage.put("connector-pattern", DRUM_NOTE_CONNECTOR);
@@ -149,8 +159,12 @@ public class NoteFactory {
         if (patternPackage.get("instrument").equalsIgnoreCase("drum")) {
             if (origin.strip().equalsIgnoreCase("x")||origin.strip().equalsIgnoreCase("o"))
                 noteList.add(createDrumNote(origin, position, distanceFromMeasureStart));
-            if (origin.strip().equalsIgnoreCase("f"))
-                noteList.add(createFlam(origin, position, distanceFromMeasureStart));
+            else if (origin.strip().equalsIgnoreCase("f"))
+                noteList.addAll(createFlam(origin, position, distanceFromMeasureStart));
+            else if (origin.strip().equalsIgnoreCase("d"))
+                noteList.addAll(createFlam(origin, position, distanceFromMeasureStart));
+            else
+                noteList.add(new InvalidNote(origin, position, lineName, distanceFromMeasureStart));
             return noteList;
         }
         noteList.addAll(createGrace(origin, position, distanceFromMeasureStart));
@@ -169,17 +183,21 @@ public class NoteFactory {
         return noteList;
     }
 
-    private Note createFlam(String origin, int position, int distanceFromMeasureStart) {
-        Note note = createDrumNote(origin, position, distanceFromMeasureStart);
-        note.addDecor((noteModel) -> {
-            noteModel.setGrace(new Grace());
-            return true;
-        }, "success");
-        return note;
+    private List<Note> createFlam(String origin, int position, int distanceFromMeasureStart) {
+        Note note1 = createDrumNote(origin, position, distanceFromMeasureStart);
+        grace(note1);
+        Note note2 = createDrumNote(origin, position, distanceFromMeasureStart);
+        List<Note> notes = new ArrayList<>();
+        notes.add(note1);
+        notes.add(note2);
+        return notes;
     }
 
     private Note createDrumNote(String origin, int position, int distanceFromMeasureStart) {
-        return new DrumNote(origin, position, this.lineName, distanceFromMeasureStart);
+        if (origin.strip().equalsIgnoreCase("f"))
+            return new DrumNote("x", position, this.lineName, distanceFromMeasureStart);
+        else
+            return new DrumNote(origin, position, this.lineName, distanceFromMeasureStart);
     }
 
     private Note createInvalidNote(String origin, int position, int distanceFromMeasureStart) {
@@ -344,7 +362,7 @@ public class NoteFactory {
             hammerOn(graceNote, gracePair, true);
         else if (relationship.equals("p"))
             pullOff(graceNote, gracePair, true);
-        grace((GuitarNote) graceNote, (GuitarNote) gracePair, relationshipMatcher.group());
+        grace(graceNote, gracePair, relationshipMatcher.group());
         noteList.add(graceNote);
         noteList.add(gracePair);
         return noteList;
@@ -367,13 +385,18 @@ public class NoteFactory {
         else if (relationship.equalsIgnoreCase("p"))
             success = slur(graceNote, gracePair);
         if (success) {
-            graceNote.addDecor((noteModel) -> {
-                noteModel.setGrace(new Grace());
-                noteModel.setDuration(null);
-                return true;
-            }, "success");
+            grace(graceNote);
         }
         return success;
+    }
+
+    private boolean grace(Note note) {
+        note.addDecor((noteModel) -> {
+            noteModel.setGrace(new Grace());
+            noteModel.setDuration(null);
+            return true;
+        }, "success");
+        return true;
     }
 
     public interface NoteDecor {

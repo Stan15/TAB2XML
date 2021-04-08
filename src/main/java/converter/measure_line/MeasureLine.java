@@ -17,7 +17,6 @@ public abstract class MeasureLine implements ScoreComponent {
     int namePosition;
     int position;
     public List<Note> noteList;
-    public int noteCount;
 
     protected MeasureLine(String line, String[] namesAndPosition, int position) {
         this.line = line;
@@ -25,7 +24,6 @@ public abstract class MeasureLine implements ScoreComponent {
         this.namePosition = Integer.parseInt(namesAndPosition[1]);
         this.position = position;
         this.noteList = this.createNoteList(this.line, name, position);
-        this.noteCount = this.noteList.size();
     }
 
 
@@ -43,19 +41,22 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return a MeasureLine object derived from the information in the input Strings. Either of type GuitarMeasureLine
      * or DrumMeasureLine
      */
-    public static MeasureLine from(String line, String[] nameAndPosition, int position, boolean useBass) {
+    public static MeasureLine from(String line, String[] nameAndPosition, int position, String instrumentHint) {
         String name = nameAndPosition[0];
         boolean isGuitarLine = MeasureLine.isGuitarName(name);
         boolean isDrumLine = MeasureLine.isDrumName(name);
         if (isDrumLine && !isGuitarLine)
             return new DrumMeasureLine(line, nameAndPosition, position);
         else if(isGuitarLine && !isDrumLine) {
-            if (useBass)
+            if (instrumentHint.equalsIgnoreCase("bass"))
                 return new BassMeasureLine(line, nameAndPosition, position);
             else
                 return new GuitarMeasureLine(line, nameAndPosition, position);
-        }else
-            return new GuitarMeasureLine(line, nameAndPosition, position); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)return null;
+        }else if (isGuitarLine && isDrumLine) {
+            if (instrumentHint.equalsIgnoreCase("drum"))
+                return new DrumMeasureLine(line, nameAndPosition, position);
+        }
+        return new GuitarMeasureLine(line, nameAndPosition, position); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)return null;
     }
 
 
@@ -100,8 +101,8 @@ public abstract class MeasureLine implements ScoreComponent {
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
         }
-        Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line);
-        if (!matcher.find() || !matcher.group().equals(this.line)) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
+        Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line+"|");
+        if (!matcher.find() || !matcher.group().equals(this.line.strip())) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "invalid measure line.");
             response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
@@ -130,7 +131,8 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return
      */
     public static boolean isDrumName(String name) {
-        if (!DrumMeasureLine.NAME_SET.contains(name.strip())) return false;
+        if (!DrumMeasureLine.NAME_SET.contains(name.strip()))
+            return false;
         return true;
     }
 
@@ -180,7 +182,11 @@ public abstract class MeasureLine implements ScoreComponent {
     //|--------------------- when it is in between other measures (middle of line, MIDL)
     public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
     public static Set<String> NAME_SET = createLineNameSet();
-    private static String COMPONENT = "[^-\\R"+Patterns.DIVIDER_COMPONENTS+"]";
+    private static String COMPONENT = getComponentPattern();
+
+    private static String getComponentPattern() {
+        return "[^-\\n"+Patterns.DIVIDER_COMPONENTS+"]";
+    }
 
 
     public static String[] nameOf(String measureLineStr, int lineStartIdx) {
@@ -193,21 +199,15 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     /**
-     * a very general, very vague "inside a measure line" pattern. We want to be as general and vage as possible so that
+     * a very general, very vague "inside a measure line" pattern. We want to be as general and vague as possible so that
      * we delay catching erroneous user input until we are able to pinpoint where the error is exactly. e.g. if this
      * pattern directly detects a wrong note here, a Note object will never be created. It will just tell the user the
      * measure line where the error is, not the precise note which caused the error.
-     * This regex pattern does not capture the |'s surrounding the measure insides, but it may verify if it is surrounded
-     * by |'s
+     * This regex pattern verifies if it is surrounded by |'s or a measure line name and captures a max of one | at each end only if it is surrounded by more than one | (i.e ||------| extracts |------ and ||------||| extracts |------|, but |------| extracts ------)
      * @return the bracket-enclosed String regex pattern.
      */
     private static String createInsidesPattern() {
-        //                     behind it is (space or newline, followed by a measure name) or ("|")                                     then the line either starts with a - or *, or starts with a component followed by a -  then repeated zero or more times, (- or space, followed by a component)        then the rest of the un-captured spaces or -        accomodates for stuff like ---| ||
-        //                                                      |                                                                                                    |                                                                                                                                      |
-        //String measureInsides = "("  +  "(?<="+"([ \\n]"+ createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+"+"+")"  + "("+Patterns.DIVIDER+")"+"{0,1}"+      "(([ ]*[-*])|("+Note.COMPONENT_PATTERN+"[ ]*-))"                         +                  "([ -]*"+Note.COMPONENT_PATTERN+")*"                                      +             "[ -]*" + "("+Patterns.DIVIDER+"(?="+Patterns.DIVIDER+")){0,1}"+ ")";
-        //starts with dashes or starts with note                                                                                                                       to prevent when two dividers in between measures, both being consumed
-        String measureInsides = "(?<=([ \\R]"+createGenericMeasureNamePattern()+")|"+Patterns.DIVIDER+")"+Patterns.DIVIDER+"{0,1}(( *[-*]+)|( *"+COMPONENT+"+ *-+))("+COMPONENT+"+-+)*("+COMPONENT+"+ *)?((?="+Patterns.DIVIDER+Patterns.DIVIDER+" *-)|("+Patterns.DIVIDER+"?(?="+Patterns.DIVIDER+")))";
-        return measureInsides;
+        return "(?<=(?:[ \\r\\n]"+createGenericMeasureNamePattern()+")(?=[ -][^"+Patterns.DIVIDER_COMPONENTS+"])|"+Patterns.DIVIDER+")"+Patterns.DIVIDER+"?(?:(?: *[-*]+)|(?: *"+getComponentPattern()+"+ *-+))(?:"+getComponentPattern()+"+-+)*(?:"+getComponentPattern()+"+ *)?(?:"+Patterns.DIVIDER+"?(?="+Patterns.DIVIDER+"))";
     }
 
     private static String createMeasureNameExtractPattern() {
@@ -223,12 +223,12 @@ public abstract class MeasureLine implements ScoreComponent {
 
     private static String createMeasureNameSOLPattern() {
         StringBuilder pattern = new StringBuilder();
-        pattern.append("(");
+        pattern.append("(?:");
         pattern.append(Patterns.WHITESPACE+"*"+Patterns.DIVIDER+"*");
         pattern.append(Patterns.WHITESPACE+"*");
         pattern.append(createGenericMeasureNamePattern());
         pattern.append(Patterns.WHITESPACE+"*");
-        pattern.append("((?=-)|("+Patterns.DIVIDER+"+))");
+        pattern.append("(?:(?=-)|(?:"+Patterns.DIVIDER+"+))");
         pattern.append(")");
 
         return pattern.toString();
@@ -237,7 +237,7 @@ public abstract class MeasureLine implements ScoreComponent {
     public static String createGenericMeasureNamePattern() {
         Iterator<String> measureLineNames = MeasureLine.createLineNameSet().iterator();
         StringBuilder pattern = new StringBuilder();
-        pattern.append("([a-zA-Z]{1,3}|("+measureLineNames.next());
+        pattern.append("(?:[a-zA-Z]{1,3}|(?:"+measureLineNames.next());
         while(measureLineNames.hasNext()) {
             pattern.append("|"+measureLineNames.next());
         }
