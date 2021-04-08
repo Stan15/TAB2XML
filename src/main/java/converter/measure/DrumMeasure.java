@@ -19,14 +19,14 @@ import java.util.List;
 
 public class DrumMeasure extends Measure {
 
-    private static final int MIN_LINE_COUNT = 3;
+    private static final int MIN_LINE_COUNT = 1;
     private static final int MAX_LINE_COUNT = 6;
 
     public DrumMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasureInGroup) {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasureInGroup);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
-        this.sortedNoteList = this.getSortedNoteList();
         this.voiceSortedNoteList = this.getVoiceSortedNoteList();
+        this.voiceSortedChordList = this.getVoiceSortedChordList();
         setChords();
         calcDurationRatios();
     }

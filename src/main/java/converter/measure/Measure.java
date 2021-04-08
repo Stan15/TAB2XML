@@ -28,8 +28,8 @@ public abstract class Measure implements ScoreComponent {
     List<Integer> positions;
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasureInGroup;
-    List<Note> sortedNoteList;
     List<List<Note>> voiceSortedNoteList;   // a list of voices where each voice is a sorted list of notes
+    List<List<List<Note>>> voiceSortedChordList; // a list of voices where each voice contains a list of chords within the voice (a chord is a list of notes with same distance from start of measure.)
 
     boolean repeatStart = false;
     boolean repeatEnd = false;
@@ -245,7 +245,11 @@ public abstract class Measure implements ScoreComponent {
     }
 
     public void calcDurationRatios() {
-        List<List<Note>> chordList = getChordList();
+        for (List<List<Note>> chordList : this.voiceSortedChordList) {
+            calcDurationRatios(chordList);
+        }
+    }
+    private void calcDurationRatios(List<List<Note>> chordList) {
         int maxMeasureLineLen = getMaxMeasureLineLength();
 
         // handle all but last chord
@@ -270,32 +274,37 @@ public abstract class Measure implements ScoreComponent {
             }
         }
     }
-    public List<List<Note>> getChordList() {
-        List<List<Note>> chordList = new ArrayList<>();
-
-        List<Note> currentChord = new ArrayList<>();
-        for (Note currentNote : this.sortedNoteList) {
-            if (currentNote.startsWithPreviousNote)
-                currentChord.add(currentNote);
-            else {
-                currentChord = new ArrayList<>();
-                currentChord.add(currentNote);
-                chordList.add(currentChord);
+    public List<List<List<Note>>> getVoiceSortedChordList() {
+        List<List<List<Note>>> voiceSortedChordList = new ArrayList<>();
+        for (List<Note> voice : this.voiceSortedNoteList) {
+            List<List<Note>> voiceChordList = new ArrayList<>();
+            List<Note> currentChord = new ArrayList<>();
+            for (Note note : voice) {
+                if (note.startsWithPreviousNote)
+                    currentChord.add(note);
+                else {
+                    currentChord = new ArrayList<>();
+                    currentChord.add(note);
+                    voiceChordList.add(currentChord);
+                }
             }
+            voiceSortedChordList.add(voiceChordList);
         }
-        return chordList;
+        return voiceSortedChordList;
     }
 
     public int getDivisions() {
         double totalMeasureDuration = (double)beatCount/(double)beatType;
         double minDurationRatio = 0;
-        for (Note note : this.sortedNoteList) {
-            double noteDurationRatio = note.durationRatio;
-            if (noteDurationRatio==0)
-                continue;
-            if (minDurationRatio==0)
-                minDurationRatio = noteDurationRatio;
-            minDurationRatio = Math.min(minDurationRatio,  note.durationRatio);
+        for (List<Note> voice : this.voiceSortedNoteList) {
+            for (Note note : voice) {
+                double noteDurationRatio = note.durationRatio;
+                if (noteDurationRatio == 0)
+                    continue;
+                if (minDurationRatio == 0)
+                    minDurationRatio = noteDurationRatio;
+                minDurationRatio = Math.min(minDurationRatio, note.durationRatio);
+            }
         }
         if (minDurationRatio==0)
             minDurationRatio = 1;
@@ -474,16 +483,13 @@ public abstract class Measure implements ScoreComponent {
     }
 
     protected void setChords() {
-        HashSet<Integer> voiceSet = new HashSet<>();
-        for (int i=1; i<this.sortedNoteList.size(); i++) {
-            Note previousNote = this.sortedNoteList.get(i-1);
-            voiceSet.add(previousNote.voice);
-            Note currentNote = this.sortedNoteList.get(i);
-            if (previousNote.distance==currentNote.distance) {
-                currentNote.startsWithPreviousNote = true;
-                if (voiceSet.contains(currentNote.voice)) currentNote.startsWithPreviousSameVoice = true;
-            } else
-                voiceSet.clear();
+        for (List<Note> voice : this.voiceSortedNoteList) {
+            for (int i = 1; i < voice.size(); i++) {
+                Note previousNote = voice.get(i - 1);
+                Note currentNote = voice.get(i);
+                if (previousNote.distance == currentNote.distance)
+                    currentNote.startsWithPreviousNote = true;
+            }
         }
     }
 
@@ -491,7 +497,7 @@ public abstract class Measure implements ScoreComponent {
         List<List<Note>> voiceSortedNoteList = new ArrayList<>();
         HashMap<Integer, Integer> voiceToIndexMap = new HashMap<>();
         int currentIdx = 0;
-        for (Note note : this.sortedNoteList) {
+        for (Note note : this.getSortedNoteList()) {
             if (!voiceToIndexMap.containsKey(note.voice)) {
                 voiceToIndexMap.put(note.voice, currentIdx++);
                 voiceSortedNoteList.add(new ArrayList<>());

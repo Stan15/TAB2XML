@@ -25,8 +25,8 @@ public class GuitarMeasure extends Measure{
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
-        this.sortedNoteList = this.getSortedNoteList();
         this.voiceSortedNoteList = this.getVoiceSortedNoteList();
+        this.voiceSortedChordList = this.getVoiceSortedChordList();
         setChords();
         calcDurationRatios();
     }
