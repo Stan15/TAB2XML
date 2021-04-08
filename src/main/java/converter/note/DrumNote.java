@@ -1,5 +1,6 @@
 package converter.note;
 
+import models.measure.note.Chord;
 import models.measure.note.Instrument;
 import models.measure.note.Unpitched;
 
@@ -45,6 +46,8 @@ public class DrumNote extends Note{
      */
     public models.measure.note.Note getModel(){ //toXML
         models.measure.note.Note noteModel = new models.measure.note.Note();
+        if (this.startsWithPreviousNote)
+            noteModel.setChord(new Chord());
 
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
         noteModel.setDuration((int) this.duration);
@@ -63,7 +66,6 @@ public class DrumNote extends Note{
     }
 
     public Unpitched IDtoDisplayStepAndDisplayOctave(){
-
         if (this.DrumId.equals("P1-I36")) //bass drum
             return new Unpitched("F", 4);
         else if (this.DrumId.equals("P1-I39")) //snare

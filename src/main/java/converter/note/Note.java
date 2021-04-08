@@ -11,7 +11,6 @@ import java.util.*;
 
 public abstract class Note implements Comparable<Note>, ScoreComponent {
     public boolean startsWithPreviousNote;
-    public boolean startsWithPreviousSameVoice;
     public String origin;
     public String lineName;
     public int dotCount;

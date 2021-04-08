@@ -29,7 +29,6 @@ public abstract class Measure implements ScoreComponent {
     public List<MeasureLine> measureLineList;
     boolean isFirstMeasureInGroup;
     List<List<Note>> voiceSortedNoteList;   // a list of voices where each voice is a sorted list of notes
-    List<List<List<Note>>> voiceSortedChordList; // a list of voices where each voice contains a list of chords within the voice (a chord is a list of notes with same distance from start of measure.)
 
     boolean repeatStart = false;
     boolean repeatEnd = false;
@@ -245,7 +244,7 @@ public abstract class Measure implements ScoreComponent {
     }
 
     public void calcDurationRatios() {
-        for (List<List<Note>> chordList : this.voiceSortedChordList) {
+        for (List<List<Note>> chordList : getVoiceSortedChordList()) {
             calcDurationRatios(chordList);
         }
     }

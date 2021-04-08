@@ -71,7 +71,7 @@ public class GuitarNote extends Note {
 
     public models.measure.note.Note getModel() {
         models.measure.note.Note noteModel = new models.measure.note.Note();
-        if (this.startsWithPreviousSameVoice)
+        if (this.startsWithPreviousNote)
             noteModel.setChord(new Chord());
         noteModel.setPitch(new Pitch(this.step, this.alter, this.octave));
         noteModel.setVoice(this.voice);

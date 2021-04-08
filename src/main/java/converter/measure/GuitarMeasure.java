@@ -26,7 +26,6 @@ public class GuitarMeasure extends Measure{
         this.lineNamesAndPositions = this.fixNamingOfE(lineNamesAndPositions);
         this.measureLineList = this.createMeasureLineList(this.lines, this.lineNamesAndPositions, this.positions);
         this.voiceSortedNoteList = this.getVoiceSortedNoteList();
-        this.voiceSortedChordList = this.getVoiceSortedChordList();
         setChords();
         calcDurationRatios();
     }
@@ -161,13 +160,20 @@ public class GuitarMeasure extends Measure{
         for (int i=0; i<this.voiceSortedNoteList.size(); i++) {
             List<Note> voice = this.voiceSortedNoteList.get(i);
             double backupDuration = 0;
+            double currentChordDuration = 0;
             for (Note note : voice) {
                 if (note.voice==1)
                     noteBeforeBackupModels.add(note.getModel());
                 if (note.voice==2)
                     noteAfterBackupModels.add(note.getModel());
-                backupDuration += note.duration;
+                if (note.startsWithPreviousNote)
+                    currentChordDuration = Math.max(currentChordDuration, note.duration);
+                else {
+                    backupDuration += currentChordDuration;
+                    currentChordDuration = note.duration;
+                }
             }
+            backupDuration += currentChordDuration;
             if (voice.get(0).voice==1)
                 measureModel.setNotesBeforeBackup(noteBeforeBackupModels);
             if (voice.get(0).voice==2)
