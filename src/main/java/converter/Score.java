@@ -220,7 +220,7 @@ public class Score implements ScoreComponent {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This text can't be understood.");
             response.put("positions", errorRanges.toString());
-            int priority = 3;
+            int priority = 4;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
@@ -279,8 +279,10 @@ public class Score implements ScoreComponent {
             partList = this.getBassPartList();
 
         ScorePartwise scorePartwise = new ScorePartwise("3.1", partList, parts);
-        scorePartwise.setWork(new Work(this.title));
-        scorePartwise.setIdentification(new Identification(new Creator("composer", this.artist)));
+        if (!this.title.isBlank())
+            scorePartwise.setWork(new Work(this.title));
+        if (!this.artist.isBlank())
+            scorePartwise.setIdentification(new Identification(new Creator("composer", this.artist)));
         return scorePartwise;
     }
 

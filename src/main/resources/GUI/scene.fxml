@@ -65,6 +65,9 @@
                           </FXCollections>
                       </items>
                   </ComboBox>
+                  <Label layoutX="266.0" layoutY="20.0" text="Go-to Measure" />
+                  <TextField fx:id="gotoMeasureField" layoutX="355.0" layoutY="16.0" prefHeight="25.0" prefWidth="55.0" />
+                  <Button layoutX="417.0" layoutY="16.0" mnemonicParsing="false" onAction="#handleGotoMeasure" text="Go" />
                     </children>
                 </AnchorPane>
             </children>
