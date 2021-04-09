@@ -4,7 +4,7 @@ import converter.Instrument;
 import models.measure.note.Grace;
 import models.measure.note.notations.Slur;
 import models.measure.note.notations.technical.*;
-import models.measure.note.notations.Notations;
+import models.measure.note.notations.*;
 import models.measure.note.notations.Slide;
 
 import java.util.ArrayList;
@@ -184,20 +184,17 @@ public class NoteFactory {
     }
 
     private List<Note> createFlam(String origin, int position, int distanceFromMeasureStart) {
-        Note note1 = createDrumNote(origin, position, distanceFromMeasureStart);
-        grace(note1);
-        Note note2 = createDrumNote(origin, position, distanceFromMeasureStart);
+        Note graceNote = createDrumNote(origin, position, distanceFromMeasureStart);
+        Note gracePair = createDrumNote(origin, position, distanceFromMeasureStart);
+        grace(graceNote, gracePair);
         List<Note> notes = new ArrayList<>();
-        notes.add(note1);
-        notes.add(note2);
+        notes.add(graceNote);
+        notes.add(gracePair);
         return notes;
     }
 
     private Note createDrumNote(String origin, int position, int distanceFromMeasureStart) {
-        if (origin.strip().equalsIgnoreCase("f"))
-            return new DrumNote("x", position, this.lineName, distanceFromMeasureStart);
-        else
-            return new DrumNote(origin, position, this.lineName, distanceFromMeasureStart);
+        return new DrumNote(origin, position, this.lineName, distanceFromMeasureStart);
     }
 
     private Note createInvalidNote(String origin, int position, int distanceFromMeasureStart) {
@@ -257,11 +254,13 @@ public class NoteFactory {
         return true;
     }
 
-    private boolean slur(GuitarNote note1, GuitarNote note2) {
+    private boolean slur(Note note1, Note note2) {
         String message = "success";
 
         AtomicInteger slurNum = new AtomicInteger();
         note1.addDecor((noteModel) -> {
+            if (noteModel.getNotations()==null)
+                noteModel.setNotations(new Notations());
             Notations notations = noteModel.getNotations();
             Slur slur = new Slur("start");
             slurNum.set(slur.getNumber());
@@ -270,6 +269,8 @@ public class NoteFactory {
             return true;
         }, message);
         note2.addDecor((noteModel) -> {
+            if (noteModel.getNotations()==null)
+                noteModel.setNotations(new Notations());
             Notations notations = noteModel.getNotations();
             Slur slur = new Slur("stop", slurNum.get());
             if (notations.getSlurs()==null) notations.setSlurs(new ArrayList<>());
@@ -369,7 +370,7 @@ public class NoteFactory {
             hammerOn(graceNote, gracePair, true);
         else if (relationship.equals("p"))
             pullOff(graceNote, gracePair, true);
-        grace(graceNote, gracePair, relationshipMatcher.group());
+        grace(graceNote, gracePair);
         noteList.add(graceNote);
         noteList.add(gracePair);
         return noteList;
@@ -385,22 +386,21 @@ public class NoteFactory {
             return null;
     }
 
-    private boolean grace(GuitarNote graceNote, GuitarNote gracePair, String relationship) {
-        boolean success = true;
-        if (relationship.equalsIgnoreCase("h"))
-            success = slur(graceNote, gracePair);
-        else if (relationship.equalsIgnoreCase("p"))
-            success = slur(graceNote, gracePair);
+    private boolean grace(Note graceNote, Note gracePair) {
+        boolean success;
+        success = slur(graceNote, gracePair);
         if (success) {
             grace(graceNote);
+            graceNote.isGrace = true;
         }
         return success;
     }
 
     private boolean grace(Note note) {
         note.addDecor((noteModel) -> {
-            noteModel.setGrace(new Grace());
+            noteModel.setGrace(Note.SLASHED_GRACE ? new Grace("yes") : new Grace());
             noteModel.setDuration(null);
+            noteModel.setChord(null);
             return true;
         }, "success");
         return true;

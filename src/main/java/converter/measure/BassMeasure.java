@@ -1,10 +1,12 @@
 package converter.measure;
 
 import GUI.TabInput;
+import converter.Score;
 import converter.measure_line.BassMeasureLine;
 import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
+import models.measure.attributes.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,30 @@ public class BassMeasure extends GuitarMeasure {
     public BassMeasure(List<String> lines, List<String[]> lineNamesAndPositions, List<Integer> linePositions, boolean isFirstMeasure) {
         super(lines, lineNamesAndPositions, linePositions, isFirstMeasure);
     }
+
+    @Override
+    protected Attributes getAttributesModel() {
+        Attributes attributes = new Attributes();
+        attributes.setKey(new Key(0));
+        if (this.isTimeSigOverridden())
+            attributes.setTime(new Time(this.beatCount, this.beatType));
+
+        if (this.measureCount == 1) {
+            attributes.setClef(new Clef("TAB", 5));
+            attributes.setDivisions(Score.GLOBAL_DIVISIONS);
+            List<StaffTuning> staffTunings = new ArrayList<>();
+            staffTunings.add(new StaffTuning(1, "E", 1));
+            staffTunings.add(new StaffTuning(2, "A", 1));
+            staffTunings.add(new StaffTuning(3, "D", 2));
+            staffTunings.add(new StaffTuning(4, "G", 2));
+
+            attributes.setStaffDetails(new StaffDetails(6, staffTunings));
+        }
+
+
+        return attributes;
+    }
+
     @Override
     public List<HashMap<String, String>> validate() {
         //------------------the below is copy paste of Measure.validate()------------------------------------------------

@@ -483,11 +483,12 @@ public abstract class Measure implements ScoreComponent {
 
     protected void setChords() {
         for (List<Note> voice : this.voiceSortedNoteList) {
-            for (int i = 1; i < voice.size(); i++) {
-                Note previousNote = voice.get(i - 1);
-                Note currentNote = voice.get(i);
-                if (previousNote.distance == currentNote.distance)
+            Note previousNote = null;
+            for (Note currentNote : voice) {
+                if (currentNote.isGrace) continue;
+                if (previousNote != null && previousNote.distance == currentNote.distance)
                     currentNote.startsWithPreviousNote = true;
+                previousNote = currentNote;
             }
         }
     }

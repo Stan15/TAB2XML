@@ -126,7 +126,7 @@ public class GuitarMeasure extends Measure{
         return result;
     }
 
-    private Attributes getAttributesModel() {
+    protected Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
         if (this.isTimeSigOverridden())

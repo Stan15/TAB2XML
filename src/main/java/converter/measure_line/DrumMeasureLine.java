@@ -2,11 +2,14 @@ package converter.measure_line;
 
 import GUI.TabInput;
 import converter.note.Note;
+import converter.note.NoteFactory;
 
 import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
     public static Set<String> NAME_SET = createLineNameSet();
+    public static String COMPONENT = "[xXoOdDfF]";
+    public static String INSIDES_PATTERN_SPECIAL_CASE = "$a";
 
     protected DrumMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);

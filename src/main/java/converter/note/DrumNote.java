@@ -57,7 +57,9 @@ public class DrumNote extends Note{
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
         noteModel.setStem(this.lineName.equalsIgnoreCase("BD") ? "down" : "up");
-        noteModel.setNotehead(this.origin.strip());
+        String noteHead = this.origin.strip();
+        if (!(noteHead.equalsIgnoreCase("f") || noteHead.equalsIgnoreCase("d")))
+            noteModel.setNotehead(noteHead);
         for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
             if (noteDecorMap.get(noteDecor).equals("success"))
                 noteDecor.applyTo(noteModel);

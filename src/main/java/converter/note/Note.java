@@ -21,6 +21,8 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     public double durationRatio;
     public String sign;
     public int voice;
+    public boolean isGrace;
+    public static boolean SLASHED_GRACE = true;
     protected Map<NoteFactory.NoteDecor, String> noteDecorMap = new LinkedHashMap<>();
 
 

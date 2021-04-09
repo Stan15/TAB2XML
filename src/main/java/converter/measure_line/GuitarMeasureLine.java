@@ -9,6 +9,8 @@ import java.util.*;
 public class GuitarMeasureLine extends MeasureLine {
     public static List<String> NAME_LIST = createLineNameSet();
     public static List<String> OCTAVE_LIST = createOctaveList();
+    public static String COMPONENT = "[hHpPsS/\\0-9]";
+    public static String INSIDES_PATTERN_SPECIAL_CASE = "$a"; // doesnt match anything
 
     private static ArrayList<String> createOctaveList() {
         String[] names = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};

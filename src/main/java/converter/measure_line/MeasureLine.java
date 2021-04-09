@@ -43,8 +43,8 @@ public abstract class MeasureLine implements ScoreComponent {
      */
     public static MeasureLine from(String line, String[] nameAndPosition, int position, String instrumentHint) {
         String name = nameAndPosition[0];
-        boolean isGuitarLine = MeasureLine.isGuitarName(name);
-        boolean isDrumLine = MeasureLine.isDrumName(name);
+        boolean isGuitarLine = MeasureLine.isGuitar(name, line);
+        boolean isDrumLine = MeasureLine.isDrum(name, line);
         if (isDrumLine && !isGuitarLine)
             return new DrumMeasureLine(line, nameAndPosition, position);
         else if(isGuitarLine && !isDrumLine) {
@@ -132,9 +132,7 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return
      */
     public static boolean isDrumName(String name) {
-        if (!DrumMeasureLine.NAME_SET.contains(name.strip()))
-            return false;
-        return true;
+        return DrumMeasureLine.NAME_SET.contains(name.strip());
     }
 
     /**
@@ -143,7 +141,22 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return
      */
     public static boolean isGuitarName(String name) {
-        if (!GuitarMeasureLine.NAME_LIST.contains(name.strip())) return false;
+        return GuitarMeasureLine.NAME_LIST.contains(name.strip());
+    }
+
+    public static boolean isGuitar(String name, String line) {
+        if (!isGuitarName(name))
+            return false;
+        if (isDrumName(name))
+            return line.matches("(?:" + GuitarMeasureLine.COMPONENT + "|-)+");
+        return true;
+    }
+
+    public static boolean isDrum(String name, String line) {
+        if (!isDrumName(name))
+            return false;
+        if (isGuitarName(name))
+            return line.matches("(?:" + DrumMeasureLine.COMPONENT + "|-)+");
         return true;
     }
 
@@ -208,7 +221,7 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return the bracket-enclosed String regex pattern.
      */
     private static String createInsidesPattern() {
-        return "(?<=(?:[ \\r\\n]"+createGenericMeasureNamePattern()+")(?=[ -][^"+Patterns.DIVIDER_COMPONENTS+"])|"+Patterns.DIVIDER+")"+Patterns.DIVIDER+"?(?:(?: *[-*]+)|(?: *"+getComponentPattern()+"+ *-+))(?:"+getComponentPattern()+"+-+)*(?:"+getComponentPattern()+"+ *)?(?:"+Patterns.DIVIDER+"?(?="+Patterns.DIVIDER+"))";
+        return "("+GuitarMeasureLine.INSIDES_PATTERN_SPECIAL_CASE+"|"+DrumMeasureLine.INSIDES_PATTERN_SPECIAL_CASE+"|(?<=(?:[ \\r\\n]"+createGenericMeasureNamePattern()+")(?=[ -][^"+Patterns.DIVIDER_COMPONENTS+"])|"+Patterns.DIVIDER+")"+Patterns.DIVIDER+"?(?:(?: *[-*]+)|(?: *"+getComponentPattern()+"+ *-+))(?:"+getComponentPattern()+"+-+)*(?:"+getComponentPattern()+"+ *)?(?:"+Patterns.DIVIDER+"?(?="+Patterns.DIVIDER+")))";
     }
 
     private static String createMeasureNameExtractPattern() {
