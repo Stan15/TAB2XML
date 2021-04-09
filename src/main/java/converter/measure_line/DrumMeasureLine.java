@@ -34,9 +34,12 @@ public class DrumMeasureLine extends MeasureLine {
 
         if (!isDrumName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "A drum measure line name is expected here.");
-            response.put("positions", "["+this.namePosition+"]");
-            int priority = 2;
+            if (isGuitarName(this.name))
+                response.put("message", "A Drum name is expected here.");
+            else
+                response.put("message", "Invalid measure line name.");
+            response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
+            int priority = 1;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);

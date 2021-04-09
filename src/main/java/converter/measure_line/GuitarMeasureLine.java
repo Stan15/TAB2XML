@@ -38,7 +38,7 @@ public class GuitarMeasureLine extends MeasureLine {
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             if (isDrumName(this.name))
-                response.put("message", "A guitar string name is expected here.");
+                response.put("message", "A Guitar string name is expected here.");
             else
                 response.put("message", "Invalid measure line name.");
             response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");

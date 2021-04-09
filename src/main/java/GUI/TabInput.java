@@ -155,7 +155,7 @@ public class TabInput {
             case 1: return "highPriorityError";
             case 2: return "mediumPriorityError";
             case 3: return "lowPriorityError";
-            //case 4: return "unimportantError";
+            case 4: return "unimportantError";
             default:
                 new Exception("TXT2XML: invalid validation error priority").printStackTrace();
                 return "";
@@ -191,6 +191,7 @@ public class TabInput {
         matcher.find();
         TEXT_AREA.moveTo(Integer.parseInt(matcher.group()));
         TEXT_AREA.requestFollowCaret();
+        TEXT_AREA.requestFocus();
         return true;
     }
 }

@@ -48,16 +48,26 @@ public class GuitarNote extends Note {
         for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
             String resp = noteDecorMap.get(noteDecor);
             if (resp.equals("success")) continue;
-            Matcher matcher = Pattern.compile("(?<=\\[)[0-9](?=\\])").matcher(resp);
+            Matcher matcher = Pattern.compile("(?<=^\\[)[0-9](?=\\])").matcher(resp);
             matcher.find();
             int priority = Integer.parseInt(matcher.group());
-            matcher = Pattern.compile("(?<=\\]).*").matcher(resp);
-            matcher.find();
-            String message = matcher.group();
+            String message = resp.substring(matcher.end()+1);;
+            int startIdx = this.position;
+            int endIdx = this.position+this.origin.length();
+
+
+            matcher = Pattern.compile("(?<=^\\[)[0-9]+,[0-9]+(?=\\])").matcher(message);
+            if (matcher.find()) {
+                String positions = matcher.group();
+                matcher = Pattern.compile("[0-9]+").matcher(positions); matcher.find();
+                startIdx = Integer.parseInt(matcher.group()); matcher.find();
+                endIdx = Integer.parseInt(matcher.group());
+                message = message.substring(matcher.end()+2);
+            }
 
             HashMap<String, String> response = new HashMap<>();
             response.put("message", message);
-            response.put("positions", "["+this.position+","+(this.position+this.origin.length())+"]");
+            response.put("positions", "["+startIdx+","+endIdx+"]");
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);

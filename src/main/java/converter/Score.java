@@ -279,9 +279,9 @@ public class Score implements ScoreComponent {
             partList = this.getBassPartList();
 
         ScorePartwise scorePartwise = new ScorePartwise("3.1", partList, parts);
-        if (!this.title.isBlank())
+        if (this.title!=null && !this.title.isBlank())
             scorePartwise.setWork(new Work(this.title));
-        if (!this.artist.isBlank())
+        if (this.artist!=null && !this.artist.isBlank())
             scorePartwise.setIdentification(new Identification(new Creator("composer", this.artist)));
         return scorePartwise;
     }

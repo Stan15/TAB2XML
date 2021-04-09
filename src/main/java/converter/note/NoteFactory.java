@@ -222,10 +222,13 @@ public class NoteFactory {
 
     private boolean slide(GuitarNote note1, GuitarNote note2, String symbol, boolean onlyMessage) {
         String message = "success";
+        int startIdx = note1.position;
+        int endIdx = note2.position+note2.origin.length();
         if (symbol.equals("/") && note1.getFret()>note2.getFret()) {
-            message = "[2]Slide up \"/\" should go from a lower to a higher note.";
+            //first bracket is the message priority, second is position to be highlighted. dont add a second bracket if you only want the individual notes to be highlighted
+            message = "[2]["+startIdx+","+endIdx+"]Slide up \"/\" should go from a lower to a higher note.";
         }else if (symbol.equals("\\") && note1.getFret()<note2.getFret()) {
-            message = "[2]Slide down \"/\" should go from a higher to a lower note.";
+            message = "[2]["+startIdx+","+endIdx+"]Slide down \"/\" should go from a higher to a lower note.";
         }
 
         if (onlyMessage) {
@@ -280,7 +283,9 @@ public class NoteFactory {
         String message = "success";
         boolean success = true;
         if (note1.getFret()>note2.getFret()) {
-            message = "[2]Hammer on \"h\" should go from a lower to a higher note.";
+            int startIdx = note1.position;
+            int endIdx = note2.position+note2.origin.length();
+            message = "[2]["+startIdx+","+endIdx+"]Hammer on \"h\" should go from a lower to a higher note.";
             success = false;
         }
 
@@ -315,7 +320,9 @@ public class NoteFactory {
         String message = "success";
         boolean success = true;
         if (note1.getFret()<note2.getFret()) {
-            message = "[2]Pull off \"p\" should go from a higher to a lower note.";
+            int startIdx = note1.position;
+            int endIdx = note2.position+note2.origin.length();
+            message = "[2]["+startIdx+","+endIdx+"]Pull off \"p\" should go from a higher to a lower note.";
             success = false;
         }
 
