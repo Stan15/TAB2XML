@@ -2,6 +2,7 @@ package converter;
 
 import GUI.TabInput;
 import converter.measure.Measure;
+import converter.measure_line.DrumMeasureLine;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
 import custom_exceptions.TXMLException;
@@ -291,7 +292,7 @@ public class Score implements ScoreComponent {
         List<ScorePart> scoreParts = new ArrayList<>();
         ScorePart scorePart = new ScorePart("P1", "Drumset");
         List<ScoreInstrument> scoreInstruments = new ArrayList<>();
-        for (String partID : DrumUtils.DRUM_PART_ID_SET) {
+        for (String partID : DrumMeasureLine.USED_DRUM_PARTS) {
             scoreInstruments.add(new ScoreInstrument(partID, DrumUtils.getFullName(partID)));
         }
         scorePart.setScoreInstruments(scoreInstruments);

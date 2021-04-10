@@ -8,11 +8,16 @@ import utility.DrumUtils;
 import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
+    public static Set<String> USED_DRUM_PARTS = new HashSet<>();
     public static String COMPONENT = "[xXoOdDfF]";
     public static String INSIDES_PATTERN_SPECIAL_CASE = "$a"; //doesnt match anything
+    private String partID;
 
     protected DrumMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
+        this.partID = DrumUtils.getPartID(this.name);
+        if (this.partID!=null)
+            USED_DRUM_PARTS.add(this.partID);
     }
 
     /**
@@ -40,7 +45,7 @@ public class DrumMeasureLine extends MeasureLine {
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
-        }else if (DrumUtils.getPartID(this.name)==null) {
+        }else if (this.partID==null) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This drum part is unsupported.");
             response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
