@@ -3,22 +3,16 @@ package converter.measure_line;
 import GUI.TabInput;
 import converter.note.Note;
 import converter.note.NoteFactory;
+import utility.DrumUtils;
 
 import java.util.*;
 
 public class DrumMeasureLine extends MeasureLine {
-    public static Set<String> NAME_SET = createLineNameSet();
     public static String COMPONENT = "[xXoOdDfF]";
-    public static String INSIDES_PATTERN_SPECIAL_CASE = "$a";
+    public static String INSIDES_PATTERN_SPECIAL_CASE = "$a"; //doesnt match anything
 
     protected DrumMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
-    }
-
-    protected static Set<String> createLineNameSet() {
-        String[] names = {"CC", "HH", "SD", "HT", "MT", "BD"};
-        HashSet<String> nameSet = new HashSet<>(Arrays.asList(names));
-        return nameSet;
     }
 
     /**
@@ -41,6 +35,14 @@ public class DrumMeasureLine extends MeasureLine {
                 response.put("message", "A Drum name is expected here.");
             else
                 response.put("message", "Invalid measure line name.");
+            response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
+            int priority = 1;
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }else if (DrumUtils.getPartID(this.name)==null) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "This drum part is unsupported.");
             response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
             int priority = 1;
             response.put("priority", ""+priority);

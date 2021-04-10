@@ -5,6 +5,7 @@ import converter.Instrument;
 import converter.Score;
 import converter.ScoreComponent;
 import converter.note.Note;
+import utility.DrumUtils;
 import utility.Patterns;
 
 import java.util.*;
@@ -132,7 +133,7 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return
      */
     public static boolean isDrumName(String name) {
-        return DrumMeasureLine.NAME_SET.contains(name.strip());
+        return DrumUtils.isValidName(name.strip());
     }
 
     /**
@@ -195,8 +196,6 @@ public abstract class MeasureLine implements ScoreComponent {
     public static String PATTERN_SOL = "(" + createMeasureNameSOLPattern() + createInsidesPattern() + ")";
     //|--------------------- when it is in between other measures (middle of line, MIDL)
     public static String PATTERN_MIDL = "("+Patterns.DIVIDER+"+" + createInsidesPattern()+")";
-    public static Set<String> NAME_SET = createLineNameSet();
-    private static String COMPONENT = getComponentPattern();
 
     private static String getComponentPattern() {
         return "[^-\\n"+Patterns.DIVIDER_COMPONENTS+"]";
@@ -263,7 +262,7 @@ public abstract class MeasureLine implements ScoreComponent {
     private static Set<String> createLineNameSet() {
         HashSet<String> nameSet = new HashSet<>();
         nameSet.addAll(GuitarMeasureLine.createLineNameSet());
-        nameSet.addAll(DrumMeasureLine.createLineNameSet());
+        nameSet.addAll(DrumUtils.DRUM_NAME_SET);
         return nameSet;
     }
 

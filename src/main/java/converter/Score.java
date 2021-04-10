@@ -9,6 +9,7 @@ import models.*;
 import models.part_list.PartList;
 import models.part_list.ScoreInstrument;
 import models.part_list.ScorePart;
+import utility.DrumUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -290,32 +291,9 @@ public class Score implements ScoreComponent {
         List<ScorePart> scoreParts = new ArrayList<>();
         ScorePart scorePart = new ScorePart("P1", "Drumset");
         List<ScoreInstrument> scoreInstruments = new ArrayList<>();
-
-        scoreInstruments.add(new ScoreInstrument("P1-I36", "Bass Drum 1"));
-        scoreInstruments.add(new ScoreInstrument("P1-I37", "Bass Drum 2"));
-        scoreInstruments.add(new ScoreInstrument("P1-I38", "Side Stick"));
-        scoreInstruments.add(new ScoreInstrument("P1-I39", "Snare"));
-        scoreInstruments.add(new ScoreInstrument("P1-I42", "Low Floor Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I43", "Closed Hi-Hat"));
-        scoreInstruments.add(new ScoreInstrument("P1-I44", "High Floor Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I45", "Pedal Hi-Hat"));
-        scoreInstruments.add(new ScoreInstrument("P1-I46", "Low Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I47", "Open Hi-Hat"));
-        scoreInstruments.add(new ScoreInstrument("P1-I48", "Low-Mid Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I49", "Hi-Mid Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I50", "Crash Cymbal 1"));
-        scoreInstruments.add(new ScoreInstrument("P1-I51", "High Tom"));
-        scoreInstruments.add(new ScoreInstrument("P1-I52", "Ride Cymbal 1"));
-        scoreInstruments.add(new ScoreInstrument("P1-I53", "Chinese Cymbal"));
-        scoreInstruments.add(new ScoreInstrument("P1-I54", "Ride Bell"));
-        scoreInstruments.add(new ScoreInstrument("P1-I55", "Tambourine"));
-        scoreInstruments.add(new ScoreInstrument("P1-I56", "Splash Cymbal"));
-        scoreInstruments.add(new ScoreInstrument("P1-I57", "Cowbell"));
-        scoreInstruments.add(new ScoreInstrument("P1-I58", "Crash Cymbal 2"));
-        scoreInstruments.add(new ScoreInstrument("P1-I60", "Ride Cymbal 2"));
-        scoreInstruments.add(new ScoreInstrument("P1-I64", "Open Hi Conga"));
-        scoreInstruments.add(new ScoreInstrument("P1-I65", "Low Conga"));
-
+        for (String partID : DrumUtils.DRUM_PART_ID_SET) {
+            scoreInstruments.add(new ScoreInstrument(partID, DrumUtils.getFullName(partID)));
+        }
         scorePart.setScoreInstruments(scoreInstruments);
         scoreParts.add(scorePart);
 

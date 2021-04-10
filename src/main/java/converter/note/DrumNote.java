@@ -1,43 +1,27 @@
 package converter.note;
 
+import GUI.TabInput;
 import models.measure.note.Chord;
 import models.measure.note.Instrument;
 import models.measure.note.Unpitched;
+import utility.DrumUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DrumNote extends Note{
 
-    String DrumId;
+    String partID;
     public static String COMPONENT_PATTERN = createComponentPattern();
 
     public DrumNote (String origin, int position, String lineName, int distanceFromMeasure){
         super(origin, position, lineName, distanceFromMeasure);
-        this.DrumId = getDrumID(lineName);
+        this.partID = DrumUtils.getPartID(lineName, origin);
         if (lineName.strip().equalsIgnoreCase("BD"))
             this.voice = 2;
-    }
-    // line is line
-    public String getDrumID(String lineName){
-        lineName = lineName.strip();
-        if (lineName.equalsIgnoreCase("CC")) //crash Cymbal
-            return "P1-I50";
-        else if (lineName.equalsIgnoreCase("R")) // ride Cymbal
-            return "P1-I52";
-        else if (lineName.equals("HT")) // Low Mid Tom = High Tom
-            return "P1-I48";
-        else if (lineName.equals("MT")) // Low Tom = Medium Tom
-            return "P1-I46";
-        else if (lineName.equals("FT")) // Low Floor Tom = Low Tom
-            return "P1-I42";
-        else if (lineName.equals("HH")) { // High Hat there are two types
-            if (origin.strip().equalsIgnoreCase("X"))
-                return "P1-I43";
-            else if (origin.strip().equalsIgnoreCase("O"))
-                return "P1-I47";
-        } else if (lineName.equals("SD")) // Snare Drum
-            return "P1-I39";
-        else if (lineName.equals("BD")) // Base Drum 1 id
-            return "P1-I36";
-        return "";
     }
 
     /**
@@ -51,12 +35,12 @@ public class DrumNote extends Note{
 
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
         noteModel.setDuration((int) this.duration);
-        noteModel.setInstrument(new Instrument(this.DrumId));
+        noteModel.setInstrument(new Instrument(this.partID));
         noteModel.setVoice(this.voice);
         String noteType = this.getType();
         if (!noteType.isEmpty())
             noteModel.setType(noteType);
-        noteModel.setStem(this.lineName.equalsIgnoreCase("BD") ? "down" : "up");
+        noteModel.setStem(this.lineName.strip().equalsIgnoreCase("BD") ? "down" : "up");
         String noteHead = this.origin.strip();
         if (!(noteHead.equalsIgnoreCase("f") || noteHead.equalsIgnoreCase("d")))
             noteModel.setNotehead(noteHead);
@@ -68,25 +52,42 @@ public class DrumNote extends Note{
     }
 
     public Unpitched IDtoDisplayStepAndDisplayOctave(){
-        if (this.DrumId.equals("P1-I36")) //bass drum
-            return new Unpitched("F", 4);
-        else if (this.DrumId.equals("P1-I39")) //snare
-            return new Unpitched("C", 5);
-        else if ((this.DrumId.equals("P1-I43")) || (this.DrumId.equals("P1-I47"))) // high hat - closed or open
-            return new Unpitched("G", 5);
-        else if (this.DrumId.equals("P1-I52")) //ride cymbal
-            return new Unpitched("F", 5);
-        else if (this.DrumId.equals("P1-I50"))
-            return new Unpitched("A", 5);
-        else if (this.DrumId.equals("P1-I48"))
-            return new Unpitched("E", 5);
-        else if (this.DrumId.equals("P1-I46"))
-            return new Unpitched("D", 5);
-        else if (this.DrumId.equals("P1-I42"))
-            return new Unpitched("A", 4);
-        return null;
+        return this.partID==null ? null : new Unpitched(DrumUtils.getDisplayStep(this.partID), DrumUtils.getDisplayOctave(this.partID));
     }
 
+    public List<HashMap<String, String>> validate() {
+        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+
+        for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
+            String resp = noteDecorMap.get(noteDecor);
+            if (resp.equals("success")) continue;
+            Matcher matcher = Pattern.compile("(?<=^\\[)[0-9](?=\\])").matcher(resp);
+            matcher.find();
+            int priority = Integer.parseInt(matcher.group());
+            String message = resp.substring(matcher.end()+1);;
+            int startIdx = this.position;
+            int endIdx = this.position+this.origin.length();
+
+
+            matcher = Pattern.compile("(?<=^\\[)[0-9]+,[0-9]+(?=\\])").matcher(message);
+            if (matcher.find()) {
+                String positions = matcher.group();
+                matcher = Pattern.compile("[0-9]+").matcher(positions); matcher.find();
+                startIdx = Integer.parseInt(matcher.group()); matcher.find();
+                endIdx = Integer.parseInt(matcher.group());
+                message = message.substring(matcher.end()+2);
+            }
+
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", message);
+            response.put("positions", "["+startIdx+","+endIdx+"]");
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
+
+        return result;
+    }
 
 
 

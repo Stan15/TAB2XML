@@ -26,6 +26,8 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.5'
 
+    compile 'org.apache.commons:commons-csv:1.8'
+
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
