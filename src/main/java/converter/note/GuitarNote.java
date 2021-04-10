@@ -132,9 +132,8 @@ public class GuitarNote extends Note {
         boolean nameFound = false;
         for (int i=0; i< nameList.length*2; i++){
             int idx = i%nameList.length;
-            if (nameFound) {
+            if (nameFound)
                 fret--;
-            }
             if (nameList[idx].equalsIgnoreCase(name))
                 nameFound = true;
             if (nameFound) {

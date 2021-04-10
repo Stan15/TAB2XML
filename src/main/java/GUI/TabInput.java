@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TabInput {
-
     protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 30;   //in milliseconds
     public static int ERROR_SENSITIVITY = 4;
