@@ -1,6 +1,7 @@
 package converter.measure_line;
 
 import GUI.TabInput;
+import converter.Instrument;
 import converter.note.Note;
 
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.List;
 public class BassMeasureLine extends GuitarMeasureLine{
     public BassMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
+        this.instrument = Instrument.BASS;
+        this.noteList = this.createNoteList(this.line, position);
     }
 
     @Override

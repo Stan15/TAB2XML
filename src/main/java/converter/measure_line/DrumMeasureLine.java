@@ -1,6 +1,7 @@
 package converter.measure_line;
 
 import GUI.TabInput;
+import converter.Instrument;
 import converter.note.Note;
 import converter.note.NoteFactory;
 import utility.DrumUtils;
@@ -15,9 +16,11 @@ public class DrumMeasureLine extends MeasureLine {
 
     protected DrumMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
+        this.instrument = Instrument.DRUM;
         this.partID = DrumUtils.getPartID(this.name);
         if (this.partID!=null)
             USED_DRUM_PARTS.add(this.partID);
+        this.noteList = this.createNoteList(this.line, position);
     }
 
     /**
@@ -45,7 +48,7 @@ public class DrumMeasureLine extends MeasureLine {
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
-        }else if (this.partID==null) {
+        }else if (this.partID==null || !DrumUtils.isSupportedName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "This drum part is unsupported.");
             response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");

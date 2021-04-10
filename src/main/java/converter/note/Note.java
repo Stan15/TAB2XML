@@ -14,6 +14,7 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
     public String origin;
     public String lineName;
     public int dotCount;
+    public Instrument instrument;
     int stringNumber;
     public int distance;
     int position;

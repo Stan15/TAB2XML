@@ -26,15 +26,17 @@ public class Score implements ScoreComponent {
     public static String ROOT_STRING;
     public Map<Integer, String> rootStringFragments;
     public static Instrument INSTRUMENT_MODE = Instrument.AUTO;
-    public Instrument instrumentType;
+    public String instrumentType;
     public static int DEFAULT_BEAT_TYPE = 4;
     public static int DEFAULT_BEAT_COUNT = 4;
     public static int GLOBAL_DIVISIONS = 1;
+    public static int CRITICAL_ERROR_CUTOFF = 1;
     public String title;
     public String artist;
 
     public Score(String rootString) {
         Measure.GLOBAL_MEASURE_COUNT = 0;
+        Measure.PREV_MEASURE_TYPE = Instrument.AUTO;
         ROOT_STRING = rootString;
         this.rootStringFragments = this.getStringFragments(rootString);
         this.measureCollectionList = this.createMeasureCollectionList(this.rootStringFragments);
@@ -47,14 +49,14 @@ public class Score implements ScoreComponent {
             boolean isDrum = this.isDrum(false);
             boolean isBass = this.isBass(false);
             if (!isBass && !isGuitar && !isDrum)
-                this.instrumentType = Instrument.INVALID;
+                this.instrumentType = "invalid";
             if ((isBass && isGuitar) || (isGuitar && isDrum) || (isBass && isDrum))
-                this.instrumentType = Instrument.MIXED;
-            else if (isGuitar) this.instrumentType = Instrument.GUITAR;
-            else if (isDrum) this.instrumentType = Instrument.DRUM;
-            else if (isBass) this.instrumentType = Instrument.BASS;
+                this.instrumentType = "mixed";
+            else if (isGuitar) this.instrumentType = Instrument.GUITAR.name();
+            else if (isDrum) this.instrumentType = Instrument.DRUM.name();
+            else if (isBass) this.instrumentType = Instrument.BASS.name();
         }else {
-            this.instrumentType = INSTRUMENT_MODE;
+            this.instrumentType = INSTRUMENT_MODE.name();
         }
     }
 
@@ -314,6 +316,9 @@ public class Score implements ScoreComponent {
     }
 
     public boolean isGuitar(boolean strictCheck) {
+        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.GUITAR;
+        }
         for (MeasureCollection msurCollection : this.measureCollectionList) {
             if (!msurCollection.isGuitar(strictCheck))
                 return false;
@@ -322,6 +327,9 @@ public class Score implements ScoreComponent {
     }
 
     public boolean isDrum(boolean strictCheck) {
+        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.DRUM;
+        }
         for (MeasureCollection msurCollection : this.measureCollectionList) {
             if (!msurCollection.isDrum(strictCheck))
                 return false;
@@ -330,6 +338,9 @@ public class Score implements ScoreComponent {
     }
 
     public boolean isBass(boolean strictCheck) {
+        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
+            return Score.INSTRUMENT_MODE == Instrument.BASS;
+        }
         for (MeasureCollection msurCollection : this.measureCollectionList) {
             if (!msurCollection.isBass(strictCheck))
                 return false;

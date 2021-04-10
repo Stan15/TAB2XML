@@ -1,8 +1,8 @@
 package converter.note;
 
 import GUI.TabInput;
+import converter.Instrument;
 import models.measure.note.Chord;
-import models.measure.note.Instrument;
 import models.measure.note.Unpitched;
 import utility.DrumUtils;
 
@@ -19,6 +19,7 @@ public class DrumNote extends Note{
 
     public DrumNote (String origin, int position, String lineName, int distanceFromMeasure){
         super(origin, position, lineName, distanceFromMeasure);
+        this.instrument = Instrument.DRUM;
         this.partID = DrumUtils.getPartID(lineName, origin);
         if (lineName.strip().equalsIgnoreCase("BD"))
             this.voice = 2;
@@ -35,7 +36,7 @@ public class DrumNote extends Note{
 
         noteModel.setUnpitched(IDtoDisplayStepAndDisplayOctave());
         noteModel.setDuration((int) this.duration);
-        noteModel.setInstrument(new Instrument(this.partID));
+        noteModel.setInstrument(new models.measure.note.Instrument(this.partID));
         noteModel.setVoice(this.voice);
         String noteType = this.getType();
         if (!noteType.isEmpty())

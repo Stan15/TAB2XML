@@ -1,6 +1,8 @@
 package converter.note;
 
 import GUI.TabInput;
+import converter.Instrument;
+import converter.measure_line.MeasureLine;
 import models.measure.note.Chord;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
@@ -34,6 +36,7 @@ public class GuitarNote extends Note {
     protected int fret;
     public GuitarNote(String origin, int position, String lineName, int distanceFromMeasureStart) {
         super(origin, position, lineName, distanceFromMeasureStart);
+        this.instrument = Instrument.GUITAR;
         this.fret = Integer.parseInt(origin);
         String noteDetails = noteDetails(this.lineName, this.fret);
         this.step = GuitarNote.step(noteDetails);

@@ -42,13 +42,13 @@ public class NoteFactory {
         return "(g"+ FRET +"[hp]"+ FRET +")";
     }
 
-    protected static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();
-    protected static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
-    protected static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
+    public static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();
+    public static final String GUITAR_NOTE_GROUP_PATTERN = getGuitarNoteGroupPattern();
+    public static final String GUITAR_NOTE_CONNECTOR = "[hpbsHPBS\\/\\\\]";
 
-    protected static final String DRUM_NOTE_PATTERN = "[xXoOdDfF]";
-    protected static final String DRUM_NOTE_GROUP_PATTERN = getDrumNoteGroupPattern();
-    protected static final String DRUM_NOTE_CONNECTOR = "$a";//there are no connectors, so this is a regex that never matches anything. an a after the end of the string
+    public static final String DRUM_NOTE_PATTERN = "[xXoOdDfF]";
+    public static final String DRUM_NOTE_GROUP_PATTERN = getDrumNoteGroupPattern();
+    public static final String DRUM_NOTE_CONNECTOR = "$a";//there are no connectors, so this is a regex that never matches anything. an a after the end of the string
 
     private static String getDrumNoteGroupPattern() {
         return DRUM_NOTE_PATTERN +"+";
@@ -130,13 +130,13 @@ public class NoteFactory {
         HashMap<String, String> patternPackage = new HashMap<>();
         Matcher guitarMatcher = Pattern.compile("^"+GUITAR_NOTE_GROUP_PATTERN+"$").matcher(origin);
         Matcher drumMatcher = Pattern.compile("^"+DRUM_NOTE_GROUP_PATTERN+"$").matcher(origin);
-        if (guitarMatcher.find()) {
+        if (this.instrument == Instrument.GUITAR || this.instrument == Instrument.BASS) {
             patternPackage.put("instrument", "guitar");
             patternPackage.put("note-group-pattern", GUITAR_NOTE_GROUP_PATTERN);
             patternPackage.put("note-pattern", GUITAR_NOTE_PATTERN);
             patternPackage.put("connector-pattern", GUITAR_NOTE_CONNECTOR);
             return patternPackage;
-        }else if (drumMatcher.find()) {
+        }else if (this.instrument == Instrument.DRUM) {
             patternPackage.put("instrument", "drum");
             patternPackage.put("note-group-pattern", DRUM_NOTE_GROUP_PATTERN);
             patternPackage.put("note-pattern", DRUM_NOTE_PATTERN);

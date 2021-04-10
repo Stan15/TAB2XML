@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DrumUtils {
-    public static String IdToFullNamePath = "DrumIDtoFullName.csv";
-    public static String NameRulesPath = "DrumNameRules.csv";
-    public static String NameToIdPath = "DrumNameToID.csv";
-    public static String PartInfoPath = "DrumPartInfo.csv";
+    private static String IdToFullNamePath = "DrumIDtoFullName.csv";
+    private static String NameRulesPath = "DrumNameRules.csv";
+    private static String NameToIdPath = "DrumNameToID.csv";
+    private static String PartInfoPath = "DrumPartInfo.csv";
     private static HashMap<String, String> NAME_CASE_SENSITIVITY_MAP = getNameCaseSensitivityMap();
     private static HashMap<String, String> NAME_TO_ID_MAP = getNameToIDMap();
     private static HashMap<String, String> ID_TO_FULL_NAME_MAP = getIDtoFullNameMap();
@@ -49,7 +49,12 @@ public class DrumUtils {
         return getTrueName(partName)!=null;
     }
 
-    public static String getTrueName(String partName, String noteSymbol) {
+    public static boolean isSupportedName(String partName) {
+        String partID = getPartID(partName);
+        return partID != null && DRUM_PART_ID_SET.contains(partID);
+    }
+
+    private static String getTrueName(String partName, String noteSymbol) {
         if (partName.strip().equalsIgnoreCase("HH")) {
             if (noteSymbol.strip().equalsIgnoreCase("x"))
                 return "HH";
@@ -59,7 +64,7 @@ public class DrumUtils {
         return getTrueName(partName);
     }
 
-    public static String getTrueName(String partName) {
+    private static String getTrueName(String partName) {
         partName = partName.strip();
         if (DRUM_NAME_SET.contains(partName))
             return partName;

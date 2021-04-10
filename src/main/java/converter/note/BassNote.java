@@ -1,5 +1,7 @@
 package converter.note;
 
+import converter.Instrument;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +9,7 @@ public class BassNote extends GuitarNote {
 
     public BassNote(String origin, int position, String lineName, int distanceFromMeasureStart) {
         super(origin, position, lineName, distanceFromMeasureStart);
+        this.instrument = Instrument.BASS;
         this.fret = Integer.parseInt(origin);
         String noteDetails = BassNote.noteDetails(this.lineName, this.fret);
         this.step = GuitarNote.step(noteDetails);

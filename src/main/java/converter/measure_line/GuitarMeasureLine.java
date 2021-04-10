@@ -1,6 +1,7 @@
 package converter.measure_line;
 
 import GUI.TabInput;
+import converter.Instrument;
 import converter.note.GuitarNote;
 import converter.note.Note;
 
@@ -9,7 +10,7 @@ import java.util.*;
 public class GuitarMeasureLine extends MeasureLine {
     public static List<String> NAME_LIST = createLineNameSet();
     public static List<String> OCTAVE_LIST = createOctaveList();
-    public static String COMPONENT = "[hHpPsS/\\0-9]";
+    public static String COMPONENT = "[0-9hHpPsS\\/\\\\]";
     public static String INSIDES_PATTERN_SPECIAL_CASE = "$a"; // doesnt match anything
 
     private static ArrayList<String> createOctaveList() {
@@ -21,6 +22,8 @@ public class GuitarMeasureLine extends MeasureLine {
 
     public GuitarMeasureLine(String line, String[] nameAndPosition, int position) {
         super(line, nameAndPosition, position);
+        this.instrument = Instrument.GUITAR;
+        this.noteList = this.createNoteList(this.line, position);
     }
 
     protected static List<String> createLineNameSet() {
@@ -36,7 +39,6 @@ public class GuitarMeasureLine extends MeasureLine {
 
     public List<HashMap<String,String>> validate() {
         List<HashMap<String, String>> result = new ArrayList<>(super.validate());
-
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             if (isDrumName(this.name))

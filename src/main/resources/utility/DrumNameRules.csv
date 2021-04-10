@@ -1,10 +1,20 @@
 Name,Case Sensitive
+C,false
 CC,false
 R,false
+RC,false
 HT,false
 MT,false
 FT,false
-HH,false
-hh,false
+F,false
+HH,true
+CH,false
+hh,true
+OH,false
 SD,false
 BD,false
+B1,false
+B,false
+BA,false
+B2,false
+SC,false

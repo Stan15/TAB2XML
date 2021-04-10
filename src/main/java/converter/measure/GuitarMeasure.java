@@ -89,7 +89,7 @@ public class GuitarMeasure extends Measure{
      */
     public List<HashMap<String, String>> validate() {
         //-----------------Validate yourself-------------------------
-        List<HashMap<String,String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        List<HashMap<String,String>> result = new ArrayList<>(super.validate());
 
         // Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
@@ -126,7 +126,7 @@ public class GuitarMeasure extends Measure{
         return result;
     }
 
-    protected Attributes getAttributesModel() {
+    public Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
         if (this.isTimeSigOverridden())

@@ -4,7 +4,12 @@ import GUI.TabInput;
 import converter.Instrument;
 import converter.Score;
 import converter.ScoreComponent;
+import converter.measure.BassMeasure;
+import converter.measure.DrumMeasure;
+import converter.measure.GuitarMeasure;
+import converter.measure.Measure;
 import converter.note.Note;
+import converter.note.NoteFactory;
 import utility.DrumUtils;
 import utility.Patterns;
 
@@ -18,13 +23,13 @@ public abstract class MeasureLine implements ScoreComponent {
     int namePosition;
     int position;
     public List<Note> noteList;
+    public Instrument instrument;
 
     protected MeasureLine(String line, String[] namesAndPosition, int position) {
         this.line = line;
         this.name = namesAndPosition[0];
         this.namePosition = Integer.parseInt(namesAndPosition[1]);
         this.position = position;
-        this.noteList = this.createNoteList(this.line, name, position);
     }
 
 
@@ -42,41 +47,115 @@ public abstract class MeasureLine implements ScoreComponent {
      * @return a MeasureLine object derived from the information in the input Strings. Either of type GuitarMeasureLine
      * or DrumMeasureLine
      */
-    public static MeasureLine from(String line, String[] nameAndPosition, int position, String instrumentHint) {
-        String name = nameAndPosition[0];
-        boolean isGuitarLine = MeasureLine.isGuitar(name, line);
-        boolean isDrumLine = MeasureLine.isDrum(name, line);
-        if (isDrumLine && !isGuitarLine)
-            return new DrumMeasureLine(line, nameAndPosition, position);
-        else if(isGuitarLine && !isDrumLine) {
-            if (instrumentHint.equalsIgnoreCase("bass"))
-                return new BassMeasureLine(line, nameAndPosition, position);
-            else
-                return new GuitarMeasureLine(line, nameAndPosition, position);
-        }else if (isGuitarLine && isDrumLine) {
-            if (instrumentHint.equalsIgnoreCase("drum"))
+    public static MeasureLine from(String line, String[] nameAndPosition, int position, Instrument bias, boolean prefBass) {
+        if (Score.INSTRUMENT_MODE!=Instrument.AUTO) {
+            return switch (Score.INSTRUMENT_MODE) {
+                case GUITAR -> new GuitarMeasureLine(line, nameAndPosition, position);
+                case BASS -> new BassMeasureLine(line, nameAndPosition, position);
+                case DRUM -> new DrumMeasureLine(line, nameAndPosition, position);
+                case AUTO -> null;
+            };
+        }else {
+            double guitarLikelihood = isGuitarLineLikelihood(nameAndPosition[0], line, bias);
+            double drumLikelihood = isDrumLineLikelihood(nameAndPosition[0], line, bias);
+            if (guitarLikelihood >= drumLikelihood) {
+                if (prefBass)
+                    return new BassMeasureLine(line, nameAndPosition, position);
+                else
+                    return new GuitarMeasureLine(line, nameAndPosition, position);
+            } else
                 return new DrumMeasureLine(line, nameAndPosition, position);
         }
-        return new GuitarMeasureLine(line, nameAndPosition, position); //default value if any of the above is not true (i.e when the measure type can't be understood or has components belonging to both instruments)return null;
     }
 
+    public static double isGuitarLineLikelihood(String name, String line, Instrument instrumentBias) {
+        double instrumentBiasWeight = 0.2;  // weight attached when we are told to have a bias for guitar notes
+        double lineNameWeight = 0.5;  // weight attached when the line name is a guitar line name
+        double noteGroupWeight = 0.3;   // ratio of notes that are guitar notes vs {all other notes, both valid and invalid}
 
-    private List<Note> createNoteList(String line, String name, int position) {
+        if (!isGuitarName(name))
+            return 0;
+        double score = lineNameWeight + (instrumentBias==Instrument.GUITAR ? instrumentBiasWeight : 0);
+        line = line.replaceAll("\s", "");
+
+        int charGroups = 0;
+        Matcher charGroupMatcher = Pattern.compile("[^-]+").matcher(line);
+        while (charGroupMatcher.find())
+            charGroups++;
+
+        int noteGroups = 0;
+        Matcher noteGroupMatcher = Pattern.compile(NoteFactory.GUITAR_NOTE_GROUP_PATTERN).matcher(line);
+        while (noteGroupMatcher.find()) {
+            //in-case a guitar note group has -'s inside it (e.g 5---h3 is a valid guitar note group for a hammer on,
+            // but will distort the ratio of character group to note group because one note group contains 2 character groups)
+            charGroupMatcher = Pattern.compile("[^-]+").matcher(line);
+            while(charGroupMatcher.find())
+                noteGroups++;
+        }
+        if (charGroups==0)
+            score += noteGroupWeight;
+        else
+            score += ((double) noteGroups/(double) charGroups)*noteGroupWeight;
+        return score;
+    }
+
+    public static double isDrumLineLikelihood(String name, String line, Instrument instrumentBias) {
+        double instrumentBiasWeight = 0.2;  // weight attached when we are told to have a bias for drum notes
+        double lineNameWeight = 0.5;  // weight attached when the line name is a drum line name
+        double noteGroupWeight = 0.3;   // ratio of notes that are drum notes vs {all other notes, both valid and invalid}
+
+        if (!isDrumName(name))
+            return 0;
+        double score = lineNameWeight + (instrumentBias==Instrument.DRUM ? instrumentBiasWeight : 0);
+        line = line.replaceAll("\s", "");
+
+        int charGroups = 0;
+        Matcher charGroupMatcher = Pattern.compile("[^-]+").matcher(line);
+        while (charGroupMatcher.find())
+            charGroups++;
+
+        int noteGroups = 0;
+        Matcher noteGroupMatcher = Pattern.compile(NoteFactory.DRUM_NOTE_GROUP_PATTERN).matcher(line);
+        while (noteGroupMatcher.find()) {
+            //in-case a guitar note group has -'s inside it (e.g 5---h3 is a valid guitar note group for a hammer on,
+            // but will distort the ratio of character group to note group because one note group contains 2 character groups)
+            charGroupMatcher = Pattern.compile("[^-]+").matcher(line);
+            while(charGroupMatcher.find())
+                noteGroups++;
+        }
+        if (charGroups==0)
+            score += noteGroupWeight;
+        else
+            score += ((double) noteGroups/(double) charGroups)*noteGroupWeight;
+        return score;
+    }
+
+    public List<Note> getNoteList() {
+        List<Note> noteList = new ArrayList<>();
+        for (Note note : this.noteList) {
+            List<HashMap<String, String>> errors = note.validate();
+            boolean criticalError = false;
+            for (HashMap<String, String> error : errors) {
+                if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+                    criticalError = true;
+                    break;
+                }
+            }
+            if (!criticalError)
+                noteList.add(note);
+        }
+        return noteList;
+    }
+
+    protected List<Note> createNoteList(String line, int position) {
         List<Note> noteList = new ArrayList<>();
         Matcher noteMatcher = Pattern.compile(Note.PATTERN).matcher(line);
         while(noteMatcher.find()) {
             String match = noteMatcher.group();
             String leadingStr = line.substring(0, noteMatcher.start()).replaceAll("\s", "");
             int distanceFromMeasureStart = leadingStr.length();
-            Instrument instrument = null;
-            if (this instanceof BassMeasureLine)
-                instrument = Instrument.BASS;
-            else if (this instanceof GuitarMeasureLine)
-                instrument = Instrument.GUITAR;
-            else if (this instanceof DrumMeasureLine)
-                instrument = Instrument.DRUM;
             if (!match.isBlank())
-                noteList.addAll(Note.from(match, position+noteMatcher.start(), instrument, this.name, distanceFromMeasureStart));
+                noteList.addAll(Note.from(match, position+noteMatcher.start(), this.instrument, this.name, distanceFromMeasureStart));
         }
         return noteList;
     }
@@ -145,26 +224,7 @@ public abstract class MeasureLine implements ScoreComponent {
         return GuitarMeasureLine.NAME_LIST.contains(name.strip());
     }
 
-    public static boolean isGuitar(String name, String line) {
-        if (!isGuitarName(name))
-            return false;
-        if (isDrumName(name))
-            return line.matches("(?:" + GuitarMeasureLine.COMPONENT + "|-)+");
-        return true;
-    }
-
-    public static boolean isDrum(String name, String line) {
-        if (!isDrumName(name))
-            return false;
-        if (isGuitarName(name))
-            return line.matches("(?:" + DrumMeasureLine.COMPONENT + "|-)+");
-        return true;
-    }
-
     public boolean isGuitar(boolean strictCheck) {
-        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
-            return Score.INSTRUMENT_MODE == Instrument.GUITAR;
-        }
         if (!isGuitarName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {
@@ -175,9 +235,6 @@ public abstract class MeasureLine implements ScoreComponent {
     }
 
     public boolean isDrum(boolean strictCheck) {
-        if (!strictCheck && Score.INSTRUMENT_MODE != Instrument.AUTO) {
-            return Score.INSTRUMENT_MODE == Instrument.DRUM;
-        }
         if (!isDrumName(this.name)) return false;
         if (!strictCheck) return true;
         for (Note note : this.noteList) {

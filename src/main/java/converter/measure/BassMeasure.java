@@ -21,7 +21,7 @@ public class BassMeasure extends GuitarMeasure {
     }
 
     @Override
-    protected Attributes getAttributesModel() {
+    public Attributes getAttributesModel() {
         Attributes attributes = new Attributes();
         attributes.setKey(new Key(0));
         if (this.isTimeSigOverridden())
@@ -36,7 +36,7 @@ public class BassMeasure extends GuitarMeasure {
             staffTunings.add(new StaffTuning(3, "D", 2));
             staffTunings.add(new StaffTuning(4, "G", 2));
 
-            attributes.setStaffDetails(new StaffDetails(6, staffTunings));
+            attributes.setStaffDetails(new StaffDetails(4, staffTunings));
         }
 
 
