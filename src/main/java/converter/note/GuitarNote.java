@@ -27,6 +27,7 @@ public class GuitarNote extends Note {
     protected String step;
     protected int alter;
     protected int octave;
+    private String noteDetails;
     public static String[] KEY_LIST = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
     private static String getGracePattern() {
@@ -38,10 +39,11 @@ public class GuitarNote extends Note {
         super(origin, position, lineName, distanceFromMeasureStart);
         this.instrument = Instrument.GUITAR;
         this.fret = Integer.parseInt(origin);
-        String noteDetails = noteDetails(this.lineName, this.fret);
-        this.step = GuitarNote.step(noteDetails);
-        this.alter = GuitarNote.alter(noteDetails);
-        this.octave = GuitarNote.octave(noteDetails);
+        this.noteDetails = noteDetails(this.lineName, this.fret);
+        if (noteDetails==null) return;
+        this.step = this.step(noteDetails);
+        this.alter = this.alter(noteDetails);
+        this.octave = this.octave(noteDetails);
         this.sign = this.fret+"";
     }
 
@@ -71,6 +73,16 @@ public class GuitarNote extends Note {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", message);
             response.put("positions", "["+startIdx+","+endIdx+"]");
+            response.put("priority", ""+priority);
+            if (TabInput.ERROR_SENSITIVITY>=priority)
+                result.add(response);
+        }
+
+        if (this.noteDetails==null) {
+            HashMap<String, String> response = new HashMap<>();
+            response.put("message", "this note could not be identified");
+            response.put("positions", "["+this.position+","+this.position+this.origin.length()+"]");
+            int priority = 1;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
@@ -116,7 +128,7 @@ public class GuitarNote extends Note {
         return noteModel;
     }
 
-    protected static String noteDetails(String lineName, int fret) {
+    protected String noteDetails(String lineName, int fret) {
         String noteDetails = "";
         String name = lineName.strip();
         String[] nameList = GuitarNote.KEY_LIST;
@@ -127,11 +139,14 @@ public class GuitarNote extends Note {
             name = name.substring(0, lineOctaveMatcher.start());
             currentOctave = Integer.parseInt(lineOctaveMatcher.group());
         }else
-            currentOctave = GuitarNote.getDefaultOctave(name, 0);
+            currentOctave = this.getDefaultOctave(name, 0);
 
         boolean nameFound = false;
-        for (int i=0; i< nameList.length*2; i++){
-            int idx = i%nameList.length;
+        int counter = 0;
+        while(fret>=0){
+            int idx = counter%nameList.length;
+            if (counter>2* nameList.length && !nameFound)
+                return null;
             if (nameFound)
                 fret--;
             if (nameList[idx].equalsIgnoreCase(name))
@@ -144,12 +159,13 @@ public class GuitarNote extends Note {
                     break;
                 }
             }
+            counter++;
         }
 
         return noteDetails+currentOctave;
     }
 
-    protected static int getDefaultOctave(String name, int offset) {
+    protected int getDefaultOctave(String name, int offset) {
         if (name.equals("e"))
             return 4+offset;
         else if (name.equalsIgnoreCase("B"))
@@ -165,21 +181,21 @@ public class GuitarNote extends Note {
         return -1;
     }
 
-    protected static String step(String noteDetails) {
+    protected String step(String noteDetails) {
         Matcher matcher = Pattern.compile("^[a-zA-Z]+").matcher(noteDetails);
         if (matcher.find())
             return matcher.group().toUpperCase();
         return "";
     }
 
-    protected static int alter(String noteDetails) {
+    protected int alter(String noteDetails) {
         if (noteDetails.contains("#"))
             return 1;
         return 0;
     }
 
     //decide octave of note
-    protected static int octave(String noteDetails) {
+    protected int octave(String noteDetails) {
         Matcher lineOctaveMatcher = Pattern.compile("(?<=[^0-9])[0-9]+$").matcher(noteDetails);
         lineOctaveMatcher.find();
         return Integer.parseInt(lineOctaveMatcher.group());

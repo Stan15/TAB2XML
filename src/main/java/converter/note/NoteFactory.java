@@ -39,7 +39,7 @@ public class NoteFactory {
         return "((?<=^|[^0-9])[0-9]{1,2}(?=$|[^0-9]))";
     }
     private static String getGracePattern() {
-        return "(g"+ FRET +"[hp]"+ FRET +")";
+        return "(g"+ FRET +"-*[hp]"+ FRET +")";
     }
 
     public static final String GUITAR_NOTE_PATTERN = getGuitarNotePattern();

@@ -69,7 +69,7 @@ public class MeasureGroupTest {
         List<String> origin = new ArrayList<String>();
         origin.add("[0] E|------------1-|");
         origin.add("[10] A|-----1-|");
-        origin.add("[20] abcd|--2-|");
+        origin.add("[20] abd|--2-|");
         origin.add("[30] G|----1-|");
         origin.add("[40] B|-----1-|");
         origin.add("[50] e|-----1-|");

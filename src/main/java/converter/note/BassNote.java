@@ -11,43 +11,27 @@ public class BassNote extends GuitarNote {
         super(origin, position, lineName, distanceFromMeasureStart);
         this.instrument = Instrument.BASS;
         this.fret = Integer.parseInt(origin);
-        String noteDetails = BassNote.noteDetails(this.lineName, this.fret);
-        this.step = GuitarNote.step(noteDetails);
-        this.alter = GuitarNote.alter(noteDetails);
-        this.octave = GuitarNote.octave(noteDetails);
+        String noteDetails = this.noteDetails(this.lineName, this.fret);
+        this.step = this.step(noteDetails);
+        this.alter = this.alter(noteDetails);
+        this.octave = this.octave(noteDetails);
         this.sign = this.fret+"";
     }
 
-    protected static String noteDetails(String lineName, int fret) {
-        String noteDetails = "";
-        String name = lineName.strip();
-        String[] nameList = GuitarNote.KEY_LIST;
-
-        int currentOctave;
-        Matcher lineOctaveMatcher = Pattern.compile("(?<=[^0-9])[0-9]+$").matcher(name);
-        if (lineOctaveMatcher.find()) {
-            name = name.substring(0, lineOctaveMatcher.start());
-            currentOctave = Integer.parseInt(lineOctaveMatcher.group());
-        }else
-            currentOctave = GuitarNote.getDefaultOctave(name, -1);
-
-        boolean nameFound = false;
-        for (int i=0; i< nameList.length*2; i++){
-            int idx = i%nameList.length;
-            if (nameFound) {
-                fret--;
-            }
-            if (nameList[idx].equalsIgnoreCase(name))
-                nameFound = true;
-            if (nameFound) {
-                if (idx == 0)
-                    currentOctave++;
-                if (fret==0) {
-                    noteDetails = nameList[idx];
-                    break;
-                }
-            }
-        }
-        return noteDetails+currentOctave;
+    @Override
+    protected int getDefaultOctave(String name, int offset) {
+        if (name.equals("e"))
+            return 3+offset;
+        else if (name.equalsIgnoreCase("B"))
+            return 2+offset;
+        else if (name.equalsIgnoreCase("G"))
+            return 2+offset;
+        else if (name.equalsIgnoreCase("D"))
+            return 2+offset;
+        else if (name.equalsIgnoreCase("A"))
+            return 1+offset;
+        else if (name.equalsIgnoreCase("E"))
+            return 0+offset;
+        return -1;
     }
 }

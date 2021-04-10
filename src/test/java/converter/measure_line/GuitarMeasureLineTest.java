@@ -32,13 +32,19 @@ public class GuitarMeasureLineTest {
     }
     @Test
     void testValidity3(){
-        String s3 = ("-----------------------------28-");
+        String s3 = ("|-----------------------------28-|");
         MeasureLine measureLine = new GuitarMeasureLine(s3, new String[]{"D", "1"}, 4);
         Integer[] expected = {28};
         for(int i = 0; i < measureLine.noteList.size(); i++){
             GuitarNote note = (GuitarNote) measureLine.noteList.get(i);
             assertEquals(expected[i], note.getFret());
         }
+    }
+    @Test
+    void testValidity4(){
+        String s6 = ("|----2--4--7-7----6---|");
+        MeasureLine measureLine = new GuitarMeasureLine(s6, new String[]{"G", "1"}, 4);
+        assertTrue(measureLine.validate().isEmpty());
     }
     @Test
     void testInvalidity1(){
@@ -50,12 +56,6 @@ public class GuitarMeasureLineTest {
     void testInvalidity2(){
         String s5 = ("----2----|---4----8--|");
         MeasureLine measureLine = new GuitarMeasureLine(s5, new String[]{"g", "1"}, 4);
-        assertFalse(measureLine.validate().isEmpty());
-    }
-    @Test
-    void testInvalidity3(){
-        String s6 = ("|----2--4--7-7----6---|");
-        MeasureLine measureLine = new GuitarMeasureLine(s6, new String[]{"G", "1"}, 4);
         assertFalse(measureLine.validate().isEmpty());
     }
     @Test

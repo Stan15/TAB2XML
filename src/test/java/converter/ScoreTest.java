@@ -6,28 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class ScoreTest {
 
-    /**
-     * Test for Score Class.
-     * Testing the method Score.getStringFragments()
-     * Testing if the method receives an invalid input (String is empty/null)
-     * that is returns a exception/warning
-     */
-    @Test//(expected = InvalidInputException.class)
-    void test_Score_getStringFragments1(){
-        /*String s = null;
-        Score test = new Score(s); // test will fail, exceptions not added yet*/
-        Assertions.assertThrows(InvalidInputException.class, () -> {
-            new Score(null);
-        });
-    }
-    @Test//(expected = InvalidInputException.class)
-    void test_Score_getStringFragments2(){
-        Assertions.assertThrows(InvalidInputException.class, () -> {
-            new Score("");
-        });
-    }
     /**
      * Test for Score Class.
      * Testing the method Score.getStringFragments()
@@ -42,29 +24,20 @@ public class ScoreTest {
         LinkedHashMap<Integer, String> expectedStringFragments = new LinkedHashMap<>();
         LinkedHashMap<Integer, String> actualStringFragments = test.getStringFragments(s);
 
-        expectedStringFragments.put(1, "abcd");
+        expectedStringFragments.put(0, "abcd");
 
         //changed list to set
         Set<Map.Entry<Integer, String>> expected = expectedStringFragments.entrySet();
         Set<Map.Entry<Integer, String>> actual = actualStringFragments.entrySet();
 
 
-        Assertions.assertTrue(actual.size() == expected.size());
+        assertTrue(actual.size() == expected.size());
 
         //no get in Set and list wasnt working.
-        for (Iterator<Map.Entry<Integer, String>> it = expected.iterator(); it.hasNext();){
-            Map.Entry expectedItem = it.next();
-            //Map.Entry actualItem = it.
-            Assertions.assertEquals(expectedItem, test.rootStringFragments);
-
+        for (Integer idx : actualStringFragments.keySet()) {
+            assertTrue(expectedStringFragments.containsKey(idx));
+            assertEquals(expectedStringFragments.get(idx), actualStringFragments.get(idx));
         }
-        /*test.rootStringFragments.get(0)
-        for (int i = 0; i < expected.size();i++){
-            Map.Entry expectedItem = expected.get(i);
-
-        }*/
-        //System.
-        //Assertions.assertEquals(expectedStringFragments.get(1), test.rootStringFragments.get(1));
     }
 
 }
