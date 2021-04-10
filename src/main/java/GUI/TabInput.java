@@ -61,14 +61,13 @@ public class TabInput {
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
-        if (text.isBlank()) {
+        SCORE = new Score(text);
+        if (SCORE.measureCollectionList.isEmpty())
             convertButton.setDisable(true);
-        } else {
+        else
             convertButton.setDisable(false);
-        }
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
-        TabInput.SCORE = new Score(text);
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ACTIVE_ERRORS = this.filterOverlappingRanges(this.createErrorRangeMap(TabInput.SCORE.validate()));
         if (ACTIVE_ERRORS.isEmpty()) {
             spansBuilder.add(Collections.emptyList(), text.length());
