@@ -152,53 +152,53 @@ public class ScoreTest {
 
     }
 
-    @Test
-    void timeSigFirstMeasureTest() {
-        String[] measureStrings = {
-                """
-                e|--------------------| e|--------------------| e|--------------------| e|--------------------|  
-                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
-                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
-                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
-                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
-                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
-                """,
-
-                """
-                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
-                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
-                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
-                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
-                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
-                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
-                """,
-
-                """
-                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
-                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
-                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
-                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
-                """,
-
-        };
-        for (String measureString : measureStrings) {
-            String[] repeatMeasures = {
-                    "3/4\n"+measureString,
-            };
-
-            for (String repeatMeasure : repeatMeasures) {
-                Score score = new Score(repeatMeasure);
-                assertEquals(1, score.measureCollectionList.size(), "one measure was expected but found "+score.measureCollectionList.size()+".");
-                Measure measure = score.getMeasure(1);
-                assertTrue(measure.isRepeatEnd());
-                assertTrue(measure.isRepeatStart());
-                List<Note> noteList = measure.getSortedNoteList();
-                assertEquals(3, noteList.size(), "three notes were expected in the following measure, but found "+noteList.size()+".");
-                Matcher matcher = Pattern.compile("<words[^>]*>[^<0-9]*"+5+"[^<0-9]*</words>").matcher(Parser.parse(score));
-                assertTrue(matcher.find(), "repeat count not properly detected and applied");
-            }
-        }
-
-    }
+//    @Test
+//    void timeSigFirstMeasureTest() {
+//        String[] measureStrings = {
+//                """
+//                e|--------------------| e|--------------------| e|--------------------| e|--------------------|
+//                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+//                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+//                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+//                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
+//                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
+//                """,
+//
+//                """
+//                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
+//                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
+//                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
+//                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
+//                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
+//                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
+//                """,
+//
+//                """
+//                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
+//                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+//                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+//                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+//                """,
+//
+//        };
+//        for (String measureString : measureStrings) {
+//            String[] repeatMeasures = {
+//                    "3/4\n"+measureString,
+//            };
+//
+//            for (String repeatMeasure : repeatMeasures) {
+//                Score score = new Score(repeatMeasure);
+//                assertEquals(1, score.measureCollectionList.size(), "one measure was expected but found "+score.measureCollectionList.size()+".");
+//                Measure measure = score.getMeasure(1);
+//                assertTrue(measure.isRepeatEnd());
+//                assertTrue(measure.isRepeatStart());
+//                List<Note> noteList = measure.getSortedNoteList();
+//                assertEquals(3, noteList.size(), "three notes were expected in the following measure, but found "+noteList.size()+".");
+//                Matcher matcher = Pattern.compile("<words[^>]*>[^<0-9]*"+5+"[^<0-9]*</words>").matcher(Parser.parse(score));
+//                assertTrue(matcher.find(), "repeat count not properly detected and applied");
+//            }
+//        }
+//
+//    }
 
 }
