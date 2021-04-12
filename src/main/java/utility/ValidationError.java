@@ -16,18 +16,18 @@ public class ValidationError {
             this.positions.add(Arrays.copyOf(position, position.length));
     }
     
-    int getPriority() {
+    public int getPriority() {
     	return this.priority;
     }
     
-    List<Integer[]> getPositions() {
+    public List<Integer[]> getPositions() {
     	List<Integer[]> positions= new ArrayList<>();
     	for (Integer[] position : this.positions)
             positions.add(Arrays.copyOf(position, position.length));
     	return positions;
     }
     
-    String getMessage() {
+    public String getMessage() {
     	return this.message;
     }
 }
