@@ -264,6 +264,10 @@ public class FXMLController extends Application {
     @FXML
     private void saveConvertedButtonHandle() {
         Parser.createScore(TEXT_AREA.getText());
+        if (!titleField.getText().isBlank())
+            Parser.setTitle(titleField.getText());
+        if (!artistField.getText().isBlank())
+            Parser.setArtist(artistField.getText());
         generatedOutput = Parser.parse();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save As");

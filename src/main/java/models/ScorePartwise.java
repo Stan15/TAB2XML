@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import models.part_list.PartList;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JacksonXmlRootElement(localName = "score-partwise")
+@JsonPropertyOrder({"movement-title", "identification"})
 public class ScorePartwise {
     @JsonIgnore
     private static int SCORE_COUNT = 1;
@@ -22,7 +24,10 @@ public class ScorePartwise {
     String version;
 
     Work work;
+    @JacksonXmlProperty(localName = "movement-title")
+    String movementTitle;
     Identification identification;
+
 
     @JacksonXmlProperty(localName = "part-list")
     PartList partList;

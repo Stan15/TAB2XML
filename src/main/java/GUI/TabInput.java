@@ -127,7 +127,6 @@ public class TabInput {
                 errorMap.put(new Range(startIdx, endIdx), error);
             }
         }
-
         return errorMap;
     }
 

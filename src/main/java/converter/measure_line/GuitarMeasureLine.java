@@ -2,6 +2,7 @@ package converter.measure_line;
 
 import GUI.TabInput;
 import converter.Instrument;
+import converter.Score;
 import converter.note.GuitarNote;
 import converter.note.Note;
 
@@ -39,19 +40,25 @@ public class GuitarMeasureLine extends MeasureLine {
 
     public List<HashMap<String,String>> validate() {
         List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+
         if (!isGuitarName(this.name)) {
             HashMap<String, String> response = new HashMap<>();
             if (isDrumName(this.name))
-                response.put("message", "A Guitar string name is expected here.");
+                response.put("message", "A Guitar measure line is expected here.");
             else
-                response.put("message", "Invalid measure line name.");
-            response.put("positions", "["+this.namePosition+","+(this.namePosition+this.name.length())+"]");
+                response.put("message", "Invalid measure line.");
+            response.put("positions", "["+this.namePosition+","+(this.position+this.line.length())+"]");
             int priority = 1;
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
         }
 
+        for (HashMap<String, String> error : result) {
+            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+                return result;
+            }
+        }
         for (Note note : this.noteList)
             result.addAll(note.validate());
 

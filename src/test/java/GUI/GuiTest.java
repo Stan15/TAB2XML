@@ -19,11 +19,11 @@ public class GuiTest {
 
     @Start
     private void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("org.openjfx/scene.fxml"));
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GUI/scene.fxml"));
         Scene scene = new Scene(root);
 
 
-        scene.getStylesheets().add(getClass().getClassLoader().getResource("org.openjfx/styles.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getClassLoader().getResource("GUI/styles.css").toExternalForm());
 
         stage.setTitle("TAB 2 XML");
         stage.setMinWidth(700);

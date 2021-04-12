@@ -116,8 +116,13 @@ public class GuitarMeasure extends Measure{
         }
 
 
-        //-----------------Validate Aggregates (only if you are valid)------------------
-        if (!result.isEmpty()) return result;
+        //-----------------Validate Aggregates (only if you don't have critical errors)------------------
+
+        for (HashMap<String, String> error : result) {
+            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+                return result;
+            }
+        }
 
         for (MeasureLine measureLine : this.measureLineList) {
             result.addAll(measureLine.validate());

@@ -132,6 +132,11 @@ public abstract class MeasureLine implements ScoreComponent {
 
     public List<Note> getNoteList() {
         List<Note> noteList = new ArrayList<>();
+        for (HashMap<String, String> error : this.validate()) {
+            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+                return noteList;
+            }
+        }
         for (Note note : this.noteList) {
             List<HashMap<String, String>> errors = note.validate();
             boolean criticalError = false;

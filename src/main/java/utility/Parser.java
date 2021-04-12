@@ -67,6 +67,15 @@ public class Parser {
         return 1;
     }
 
+    public static void setTitle(String title) {
+        if (SCORE==null || title.isBlank()) return;
+        SCORE.title = title;
+    }
+    public static void setArtist(String artist) {
+        if (SCORE==null || artist.isBlank()) return;
+        SCORE.artist = artist;
+    }
+
     public boolean setMeasureTimeSignature(int measureNum) {
         return true;
     }

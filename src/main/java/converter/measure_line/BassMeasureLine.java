@@ -2,6 +2,7 @@ package converter.measure_line;
 
 import GUI.TabInput;
 import converter.Instrument;
+import converter.Score;
 import converter.note.Note;
 
 import java.util.ArrayList;
@@ -30,6 +31,13 @@ public class BassMeasureLine extends GuitarMeasureLine{
             response.put("priority", ""+priority);
             if (TabInput.ERROR_SENSITIVITY>=priority)
                 result.add(response);
+        }
+
+
+        for (HashMap<String, String> error : result) {
+            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+                return result;
+            }
         }
 
         for (Note note : this.noteList)

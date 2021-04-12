@@ -30,15 +30,15 @@ public class InsidesPatternTest {
         String actual;
 
         Matcher matcher;
-        for (int i=0; i<samples.length; i++) {
+        for (String sample : samples) {
             //remove all measure names
-            expected = samples[i].replaceAll("^[^|]+","");
+            expected = sample.replaceAll("^[^|]+", "");
             //if there is only one | at either extreme, it removes it. it there are multiple |'s, it keeps only one. this is how the measure insides pattern is meant to behave (useful when we want to detect repeats notated as such ||*----*||).
             expected = expected.replaceAll("^\\|(\\|(?=\\|))*|((?<=\\|)\\|(?!$))*\\|$", "").strip();
-            matcher = pattern.matcher(samples[i]);
-            assertTrue(matcher.find(), "no measure insides was detected in the following sample:\n\t\""+samples[i]+"\"\n");
+            matcher = pattern.matcher(sample);
+            assertTrue(matcher.find(), "no measure insides was detected in the following sample:\n\t\"" + sample + "\"\n");
             actual = matcher.group();
-            assertEquals(expected, actual, "the measure insides in the following sample was not accurately detected:\n\t\""+samples[i]+"\"\n");
+            assertEquals(expected, actual, "the measure insides in the following sample was not accurately detected:\n\t\"" + sample + "\"\n");
         }
     }
 
