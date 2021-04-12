@@ -11,6 +11,7 @@ import models.part_list.PartList;
 import models.part_list.ScoreInstrument;
 import models.part_list.ScorePart;
 import utility.DrumUtils;
+import utility.ValidationError;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -199,12 +200,13 @@ public class Score implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String,String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
 
         StringBuilder errorRanges = new StringBuilder();
 
         int prevEndIdx = 0;
+        ArrayList<ArrayList<Integer>> positions;
         for (MeasureCollection msurCollction : this.measureCollectionList) {
             String uninterpretedFragment = ROOT_STRING.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
