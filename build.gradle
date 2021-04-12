@@ -20,8 +20,8 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
-    jcenter()
+    //maven { url 'https://jitpack.io' }
+    //jcenter()
 }
 jacoco {
     toolVersion = "0.8.6"
