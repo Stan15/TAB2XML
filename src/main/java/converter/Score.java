@@ -11,6 +11,7 @@ import models.part_list.PartList;
 import models.part_list.ScoreInstrument;
 import models.part_list.ScorePart;
 import utility.DrumUtils;
+import utility.ValidationError;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -86,11 +87,11 @@ public class Score implements ScoreComponent {
     }
 
     public int getErrorLevel() {
-        List<HashMap<String, String>> errors = this.validate();
+        List<ValidationError> errors = this.validate();
         if (errors.isEmpty()) return 0;
-        int errorLevel = 10;
-        for (HashMap<String, String> error : errors) {
-            int priority = Integer.parseInt(error.get("priority"));
+        int errorLevel = 10;    //random large number (larger than any error priority)
+        for (ValidationError error : errors) {
+            int priority = error.getPriority();
             errorLevel = Math.min(errorLevel, priority);
         }
         return errorLevel;
@@ -199,17 +200,17 @@ public class Score implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String,String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
 
         StringBuilder errorRanges = new StringBuilder();
 
         int prevEndIdx = 0;
+        ArrayList<Integer[]> positions = new ArrayList<>();
         for (MeasureCollection msurCollction : this.measureCollectionList) {
             String uninterpretedFragment = ROOT_STRING.substring(prevEndIdx,msurCollction.position);
             if (!uninterpretedFragment.isBlank()) {
-                if (!errorRanges.isEmpty()) errorRanges.append(";");
-                errorRanges.append("["+prevEndIdx+","+(prevEndIdx+uninterpretedFragment.length())+"]");
+                positions.add(new Integer[]{prevEndIdx, prevEndIdx+uninterpretedFragment.length()});
             }
             prevEndIdx = msurCollction.endIndex;
         }
@@ -221,16 +222,16 @@ public class Score implements ScoreComponent {
         }
 
         if (!errorRanges.isEmpty()) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "This text can't be understood.");
-            response.put("positions", errorRanges.toString());
-            int priority = 4;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "This text can't be understood.",
+                    4,
+                    positions
+            );
+            if (TabInput.ERROR_SENSITIVITY>=error.getPriority())
+                result.add(error);
         }
 
-        //--------------Validate your aggregates (regardless of if you're valid, as there is no validation performed upon yourself that preclude your aggregates from being valid)-------------------
+        //--------------Validate your aggregates (regardless of if you're valid, as there is no significant validation performed upon yourself that preclude your aggregates from being valid)-------------------
         for (MeasureCollection colctn : this.measureCollectionList) {
             result.addAll(colctn.validate());
         }

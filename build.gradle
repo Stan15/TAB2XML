@@ -8,6 +8,16 @@ plugins {
 group 'GUI'
 version '1.0-SNAPSHOT'
 
+////----------for debugging only--------
+//allprojects {
+//    gradle.projectsEvaluated {
+//        tasks.withType(JavaCompile) {
+//            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+//        }
+//    }
+//}
+////-------------
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -24,19 +34,19 @@ jacocoTestReport {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.5'
+    implementation group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.5'
 
-    compile 'org.apache.commons:commons-csv:1.8'
+    implementation 'org.apache.commons:commons-csv:1.8'
 
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
 
-    testCompile "org.testfx:testfx-core:4.0.16-alpha"
-    testCompile "org.testfx:testfx-junit5:4.0.16-alpha"
+    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
+    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 
     implementation 'com.github.JensPiegsa:jfugue:5.0.9'
 }

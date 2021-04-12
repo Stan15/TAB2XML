@@ -10,8 +10,10 @@ import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import org.apache.xerces.impl.dv.ValidatedInfo;
 import utility.Patterns;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -454,8 +456,8 @@ public abstract class Measure implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
 
         boolean hasGuitarMeasureLines = true;
         boolean hasDrumMeasureLines = true;
@@ -471,26 +473,24 @@ public abstract class Measure implements ScoreComponent {
             previousLineLength = currentLineLength;
         }
         if (!(hasGuitarMeasureLines || hasDrumMeasureLines)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)");
-            response.put("positions", this.getLinePositions());
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "All measure lines in a measure must be of the same type (i.e. all guitar measure lines or all drum measure lines)",
+                    1,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>=error.getPriority())
+                result.add(error);
         }
 
         if (!lineSizeEqual) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Unequal measure line lengths may lead to incorrect note durations.");
-            response.put("positions", this.getLinePositions());
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Unequal measure line lengths may lead to incorrect note durations.",
+                    2,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>=error.getPriority())
+                result.add(error);
         }
-
-
         return result;
     }
 
@@ -501,20 +501,14 @@ public abstract class Measure implements ScoreComponent {
      * @return a String representing the index range of each line in this Measure, formatted as follows:
      * "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public String getLinePositions() {
-        StringBuilder linePositions = new StringBuilder();
+    public List<Integer[]> getLinePositions() {
+        List<Integer[]> linePositions = new ArrayList<>();
         for (int i=0; i<this.lines.size(); i++) {
             int startIdx = this.positions.get(i);
             int endIdx = startIdx+this.lines.get(i).length();
-            if (!linePositions.isEmpty())
-                linePositions.append(";");
-            linePositions.append("[");
-            linePositions.append(startIdx);
-            linePositions.append(",");
-            linePositions.append(endIdx);
-            linePositions.append("]");
+            linePositions.add(new Integer[]{startIdx, endIdx});
         }
-        return linePositions.toString();
+        return linePositions;
     }
 
     protected void setChords() {

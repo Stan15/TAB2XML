@@ -4,6 +4,7 @@ import com.sun.javafx.collections.ElementObservableListDecorator;
 import converter.instruction.Instruction;
 import utility.Patterns;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -177,11 +178,10 @@ public class MeasureCollection implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
 
         //--------------Validate your aggregates (only if you are valid)-------------------
-        if (!result.isEmpty()) return result;
 
         for (MeasureGroup mGroup : this.measureGroupList) {
             result.addAll(mGroup.validate());

@@ -5,8 +5,10 @@ import converter.Instrument;
 import models.measure.note.Chord;
 import models.measure.note.Unpitched;
 import utility.DrumUtils;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -56,8 +58,8 @@ public class DrumNote extends Note{
         return this.partID==null ? null : new Unpitched(DrumUtils.getDisplayStep(this.partID), DrumUtils.getDisplayOctave(this.partID));
     }
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>(super.validate());
 
         for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
             String resp = noteDecorMap.get(noteDecor);
@@ -78,13 +80,16 @@ public class DrumNote extends Note{
                 endIdx = Integer.parseInt(matcher.group());
                 message = message.substring(matcher.end()+2);
             }
-
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", message);
-            response.put("positions", "["+startIdx+","+endIdx+"]");
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    message,
+                    priority,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            startIdx,
+                            endIdx
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         return result;

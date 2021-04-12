@@ -5,6 +5,7 @@ import converter.Score;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
+import javafx.scene.shape.VLineTo;
 import models.measure.Backup;
 import models.measure.attributes.*;
 import models.measure.barline.BarLine;
@@ -12,6 +13,7 @@ import models.measure.barline.Repeat;
 import models.measure.direction.Direction;
 import models.measure.direction.DirectionType;
 import models.measure.direction.Words;
+import utility.ValidationError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,39 +89,40 @@ public class GuitarMeasure extends Measure{
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String, String>> validate() {
+    public List<ValidationError> validate() {
         //-----------------Validate yourself-------------------------
-        List<HashMap<String,String>> result = new ArrayList<>(super.validate());
+        List<ValidationError> result = new ArrayList<>(super.validate());
 
         // Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof GuitarMeasureLine)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measure lines in this measure must be Guitar measure lines.");
-            response.put("positions", this.getLinePositions());
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "All measure lines in this measure must be Guitar measure lines.",
+                    1,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }else if (this.measureLineList.size()<MIN_LINE_COUNT || this.measureLineList.size()>MAX_LINE_COUNT) {
-            HashMap<String, String> response = new HashMap<>();
             String rangeMsg;
             if (MIN_LINE_COUNT==MAX_LINE_COUNT)
                 rangeMsg = ""+MIN_LINE_COUNT;
             else
                 rangeMsg = "between "+MIN_LINE_COUNT+" and "+MAX_LINE_COUNT;
-            response.put("message", "A Guitar measure should have "+rangeMsg+" lines.");
-            response.put("positions", this.getLinePositions());
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+
+            ValidationError error = new ValidationError(
+                    "A Guitar measure should have "+rangeMsg+" lines.",
+                    2,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
 
         //-----------------Validate Aggregates (only if you don't have critical errors)------------------
 
-        for (HashMap<String, String> error : result) {
-            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+        for (ValidationError error : result) {
+            if (error.getPriority() <= Score.CRITICAL_ERROR_CUTOFF) {
                 return result;
             }
         }

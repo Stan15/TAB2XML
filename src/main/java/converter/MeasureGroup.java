@@ -8,6 +8,7 @@ import converter.measure.Measure;
 import converter.measure_line.MeasureLine;
 import utility.Patterns;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,33 +132,31 @@ public class MeasureGroup implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
 
         //--------------Validating yourself--------------------------
         //making sure all measures in this measure group have the same number of lines
         boolean hasEqualMeasureLineCount = true;
-        StringBuilder failPoints = new StringBuilder();
+        List<Integer[]> failPositions = new ArrayList<>();
         int measureLineCount = 0;
         for (Measure measure : this.measureList) {
             if (measureLineCount==0)
                 measureLineCount = measure.lineCount;
             else if(measure.lineCount!=measureLineCount) {
                 hasEqualMeasureLineCount = false;
-                if (!failPoints.isEmpty())
-                    failPoints.append(";");
-                failPoints.append(measure.getLinePositions());
+                failPositions.addAll(measure.getLinePositions());
             }
         }
 
         if (!hasEqualMeasureLineCount) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measures in a measure group must have the same number of lines");
-            response.put("positions", failPoints.toString());
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "All measures in a measure group must have the same number of lines",
+                    2,
+                    failPositions
+            );
+            if (TabInput.ERROR_SENSITIVITY>=error.getPriority())
+                result.add(error);
         }
 
         boolean hasGuitarMeasures = true;
@@ -167,13 +166,13 @@ public class MeasureGroup implements ScoreComponent {
             hasDrumMeasures &= measure instanceof DrumMeasure;
         }
         if (!(hasGuitarMeasures || hasDrumMeasures)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)");
-            response.put("positions", this.getLinePositions());
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "All measures in a measure group must be of the same type (i.e. all guitar measures or all drum measures)",
+                    2,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>=error.getPriority())
+                result.add(error);
         }
 
         //--------------Validate your aggregates (only if you're valid)-------------------
@@ -196,16 +195,14 @@ public class MeasureGroup implements ScoreComponent {
      * @return a String representing the index range of each line in this MeasureGroup, formatted as follows:
      * "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    private String getLinePositions() {
-        StringBuilder linePositions = new StringBuilder();
+    private List<Integer[]> getLinePositions() {
+        List<Integer[]> linePositions = new ArrayList<>();
         for (int i=0; i<this.lines.size(); i++) {
             int startIdx = this.positions.get(i);
             int endIdx = startIdx+this.lines.get(i).length();
-            if (!linePositions.isEmpty())
-                linePositions.append(";");
-            linePositions.append("["+startIdx+","+endIdx+"]");
+            linePositions.add(new Integer[]{startIdx, endIdx});
         }
-        return linePositions.toString();
+        return linePositions;
     }
 
     public List<models.measure.Measure> getMeasureModels() {

@@ -4,8 +4,10 @@ import utility.Patterns;
 import converter.Score;
 import converter.ScoreComponent;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -69,16 +71,18 @@ public abstract class Instruction {
     }
 
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String,String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
         if (!this.hasBeenApplied) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "This instruction could not be applied to any measure or note.");
-            response.put("positions", "["+this.position+","+(this.position+this.content.length())+"]");
-            response.put("priority", "3");
-            result.add(response);
+            result.add(new ValidationError(
+                    "This instruction could not be applied to any measure or note.",
+                    3,
+                    new ArrayList<>(Collections.singleton(
+                            new Integer[]{this.position, this.position + this.content.length()}
+                            ))
+            ));
         }
-        return new ArrayList<>();
+        return result;
     }
 
     private static String getLinePattern() {

@@ -12,6 +12,7 @@ import models.measure.barline.Repeat;
 import models.measure.direction.Direction;
 import models.measure.direction.DirectionType;
 import models.measure.direction.Words;
+import utility.ValidationError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,21 +44,21 @@ public class DrumMeasure extends Measure {
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
     @Override
-    public List<HashMap<String, String>> validate() {
+    public List<ValidationError> validate() {
 
         //-----------------Validate yourself-------------------------
-        List<HashMap<String, String>> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
+        List<ValidationError> result = new ArrayList<>(super.validate()); //this validates if all MeasureLine objects in this measure are of the same type
 
 
         //if we are here, all MeasureLine objects are of the same type. Now, all we need to do is check if they are actually guitar measures
         if (!(this.measureLineList.get(0) instanceof DrumMeasureLine)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "All measure lines in this measure must be Drum measure lines.");
-            response.put("positions", this.getLinePositions());
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "All measure lines in this measure must be Drum measure lines.",
+                    1,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         if (this.measureLineList.size()<MIN_LINE_COUNT || this.measureLineList.size()>MAX_LINE_COUNT) {
@@ -67,18 +68,19 @@ public class DrumMeasure extends Measure {
                 rangeMsg = ""+MIN_LINE_COUNT;
             else
                 rangeMsg = "between "+MIN_LINE_COUNT+" and "+MAX_LINE_COUNT;
-            response.put("message", "A Drum measure should have "+rangeMsg+" lines.");
-            response.put("positions", this.getLinePositions());
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "A Drum measure should have "+rangeMsg+" lines.",
+                    1,
+                    this.getLinePositions()
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         //-----------------Validate Aggregates (only if you dont have critical errors)------------------
 
-        for (HashMap<String, String> error : result) {
-            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+        for (ValidationError error : result) {
+            if (error.getPriority() <= Score.CRITICAL_ERROR_CUTOFF) {
                 return result;
             }
         }

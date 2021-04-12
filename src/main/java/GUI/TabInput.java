@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TabInput {
-    protected static TreeMap<Range, HashMap<String,String>> ACTIVE_ERRORS = new TreeMap<>();
+    protected static TreeMap<Range, ValidationError> ACTIVE_ERRORS = new TreeMap<>();
     protected static int HOVER_DELAY = 30;   //in milliseconds
     public static int ERROR_SENSITIVITY = 4;
     protected static boolean AUTO_HIGHLIGHT;
@@ -77,7 +77,7 @@ public class TabInput {
         ArrayList<Range> errorRanges = new ArrayList<>(ACTIVE_ERRORS.keySet());
         int lastErrorEnd = 0;
         for (Range range : errorRanges) {
-            int errorPriority = Integer.parseInt(ACTIVE_ERRORS.get(range).get("priority"));
+            int errorPriority = ACTIVE_ERRORS.get(range).getPriority();
             if (ERROR_SENSITIVITY<errorPriority) continue;
             String styleClass = getErrorStyleClass(errorPriority);
             spansBuilder.add(Collections.emptyList(), range.getStart() - lastErrorEnd);
@@ -88,7 +88,7 @@ public class TabInput {
         return spansBuilder.create();
     }
 
-    private TreeMap<Range, HashMap<String, String>> filterOverlappingRanges(TreeMap<Range, HashMap<String, String>> errors) {
+    private TreeMap<Range, ValidationError> filterOverlappingRanges(TreeMap<Range, ValidationError> errors) {
         Iterator<Range> errorRanges = new ArrayList<>(errors.keySet()).iterator();
         if (!errorRanges.hasNext()) return new TreeMap<>();
         Range currentRange = errorRanges.next();
@@ -96,8 +96,8 @@ public class TabInput {
             Range nextRange = errorRanges.next();
 
             while (nextRange.overlaps(currentRange)) {
-                int currentErrorPriority = Integer.parseInt(errors.get(currentRange).get("priority"));
-                int nextErrorPriority = Integer.parseInt(errors.get(currentRange).get("priority"));
+                int currentErrorPriority = errors.get(currentRange).getPriority();
+                int nextErrorPriority = errors.get(nextRange).getPriority();
                 if (currentErrorPriority>nextErrorPriority) {
                     errors.remove(currentRange);
                     break;
@@ -112,20 +112,11 @@ public class TabInput {
         return errors;
     }
 
-    private TreeMap<Range, HashMap<String,String>> createErrorRangeMap(List<HashMap<String, String>> errors) {
-        TreeMap<Range, HashMap<String,String>> errorMap = new TreeMap<>();
-        Pattern rangePattern = Pattern.compile("\\[\\d+,\\d+\\]");
-        for (HashMap<String, String> error : errors) {
-            Matcher rangeMatcher = rangePattern.matcher(error.get("positions"));
-            while(rangeMatcher.find()) {
-                Matcher startIdxMatcher = Pattern.compile("(?<=\\[)\\d+").matcher(rangeMatcher.group());
-                Matcher endIdxMatcher = Pattern.compile("(?<=,)\\d+").matcher(rangeMatcher.group());
-                startIdxMatcher.find();
-                endIdxMatcher.find();
-                int startIdx = Integer.parseInt(startIdxMatcher.group());
-                int endIdx = Integer.parseInt(endIdxMatcher.group());
-                errorMap.put(new Range(startIdx, endIdx), error);
-            }
+    private TreeMap<Range, ValidationError> createErrorRangeMap(List<ValidationError> errors) {
+        TreeMap<Range, ValidationError> errorMap = new TreeMap<>();
+        for (ValidationError error : errors) {
+            for (Integer[] range : error.getPositions())
+                errorMap.put(new Range(range[0], range[1]), error);
         }
         return errorMap;
     }
@@ -144,7 +135,7 @@ public class TabInput {
         if (rangeIdx<0)
             return "";
         Range range = errorRanges.get(rangeIdx);
-        return ACTIVE_ERRORS.get(range).get("message");
+        return ACTIVE_ERRORS.get(range).getMessage();
     }
 
     private static String getErrorStyleClass(int priority) {
@@ -183,10 +174,8 @@ public class TabInput {
     public boolean goToMeasure(int measureCount) {
         Measure measure = new Score(TEXT_AREA.getText()).getMeasure(measureCount);
         if (measure==null) return false;
-        String linePositions = measure.getLinePositions();
-        Matcher matcher = Pattern.compile("(?<![0-9])[0-9]+(?![0-9])").matcher(linePositions);
-        matcher.find();
-        TEXT_AREA.moveTo(Integer.parseInt(matcher.group()));
+        List<Integer[]> linePositions = measure.getLinePositions();
+        TEXT_AREA.moveTo(linePositions.get(0)[0]);
         TEXT_AREA.requestFollowCaret();
         TEXT_AREA.requestFocus();
         return true;
