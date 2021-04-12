@@ -5,7 +5,6 @@ import converter.Score;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
-import javafx.scene.shape.VLineTo;
 import models.measure.Backup;
 import models.measure.attributes.*;
 import models.measure.barline.BarLine;
@@ -16,7 +15,6 @@ import models.measure.direction.Words;
 import utility.ValidationError;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class GuitarMeasure extends Measure{

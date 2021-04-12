@@ -3,10 +3,8 @@ package models.measure.note;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.Data;
 import models.ScorePartwise;
 
-@Data
 public class Beam {
     @JacksonXmlProperty(isAttribute = true)
     int number;
@@ -32,6 +30,22 @@ public class Beam {
     }
     public Beam(String type, int number) {
         this.type = type;
+        this.number = number;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
         this.number = number;
     }
 }

@@ -4,7 +4,6 @@ import GUI.TabInput;
 import converter.Instrument;
 import converter.Score;
 import converter.note.Note;
-import converter.note.NoteFactory;
 import utility.DrumUtils;
 import utility.ValidationError;
 

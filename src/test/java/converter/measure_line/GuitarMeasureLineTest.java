@@ -1,10 +1,8 @@
 package converter.measure_line;
 
 import converter.note.GuitarNote;
-import converter.note.Note;
-import converter.measure_line.GuitarMeasureLine;
-import converter.measure_line.MeasureLine;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GuitarMeasureLineTest {

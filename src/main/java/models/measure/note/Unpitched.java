@@ -1,9 +1,7 @@
 package models.measure.note;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import lombok.Data;
 
-@Data
 public class Unpitched {
     @JacksonXmlProperty(localName = "display-step")
     String displayStep;
@@ -12,6 +10,22 @@ public class Unpitched {
 
     public Unpitched(String displayStep, int displayOctave) {
         this.displayOctave = displayOctave;
+        this.displayStep = displayStep;
+    }
+
+    public int getDisplayOctave() {
+        return displayOctave;
+    }
+
+    public void setDisplayOctave(int displayOctave) {
+        this.displayOctave = displayOctave;
+    }
+
+    public String getDisplayStep() {
+        return displayStep;
+    }
+
+    public void setDisplayStep(String displayStep) {
         this.displayStep = displayStep;
     }
 }

@@ -2,10 +2,8 @@ package models.measure.note.notations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import lombok.Data;
 import models.ScorePartwise;
 
-@Data
 public class Slur {
     @JacksonXmlProperty(isAttribute = true)
     int number;
@@ -36,5 +34,29 @@ public class Slur {
     public Slur(String type, int number) {
         this.type = type;
         this.number = number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setPlacement(String placement) {
+        this.placement = placement;
+    }
+
+    public String getPlacement() {
+        return placement;
     }
 }

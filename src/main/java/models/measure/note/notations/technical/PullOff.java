@@ -3,10 +3,8 @@ package models.measure.note.notations.technical;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.Data;
 import models.ScorePartwise;
 
-@Data
 public class PullOff {
     @JacksonXmlProperty(isAttribute = true)
     int number;
@@ -37,5 +35,29 @@ public class PullOff {
     public PullOff(String type, int number) {
         this.type = type;
         this.number = number;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

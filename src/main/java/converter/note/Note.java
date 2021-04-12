@@ -2,9 +2,8 @@ package converter.note;
 
 import GUI.TabInput;
 import converter.Instrument;
-import converter.ScoreComponent;
-
 import converter.Score;
+import converter.ScoreComponent;
 import utility.Patterns;
 import utility.ValidationError;
 

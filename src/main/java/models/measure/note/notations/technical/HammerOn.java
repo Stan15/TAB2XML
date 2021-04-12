@@ -3,10 +3,8 @@ package models.measure.note.notations.technical;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.Data;
 import models.ScorePartwise;
 
-@Data
 public class HammerOn {
     @JacksonXmlProperty(isAttribute = true)
     int number;
@@ -37,5 +35,29 @@ public class HammerOn {
     public HammerOn(String type, int number) {
         this.type = type;
         this.number = number;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 }

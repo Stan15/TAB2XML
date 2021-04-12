@@ -1,5 +1,7 @@
 package converter.GuitarConverter;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GuitarConvert {
     protected int measureNumber;

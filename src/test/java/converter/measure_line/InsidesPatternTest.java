@@ -1,8 +1,6 @@
 package converter.measure_line;
 
-import models.measure.Measure;
 import org.junit.jupiter.api.Test;
-
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

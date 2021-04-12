@@ -2,10 +2,10 @@ package converter.note;
 
 import converter.Instrument;
 import models.measure.note.Grace;
+import models.measure.note.notations.Notations;
+import models.measure.note.notations.Slide;
 import models.measure.note.notations.Slur;
 import models.measure.note.notations.technical.*;
-import models.measure.note.notations.*;
-import models.measure.note.notations.Slide;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,9 +2,6 @@ package converter.note;
 
 import converter.Instrument;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class BassNote extends GuitarNote {
 
     public BassNote(String origin, int position, String lineName, int distanceFromMeasureStart) {

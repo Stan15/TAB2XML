@@ -6,14 +6,20 @@ import converter.measure_line.DrumMeasureLine;
 import custom_exceptions.InvalidScoreTypeException;
 import custom_exceptions.MixedScoreTypeException;
 import custom_exceptions.TXMLException;
-import models.*;
+import models.Creator;
+import models.Identification;
+import models.Part;
+import models.ScorePartwise;
 import models.part_list.PartList;
 import models.part_list.ScoreInstrument;
 import models.part_list.ScorePart;
 import utility.DrumUtils;
 import utility.ValidationError;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

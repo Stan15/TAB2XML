@@ -38,17 +38,12 @@ dependencies {
 
     implementation 'org.apache.commons:commons-csv:1.8'
 
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    testCompileOnly 'org.projectlombok:lombok:1.18.16'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
-
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
 
     testImplementation "org.testfx:testfx-core:4.0.16-alpha"
     testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 
-    implementation 'com.github.JensPiegsa:jfugue:5.0.9'
+    //implementation 'com.github.JensPiegsa:jfugue:5.0.9'
 }
 
 test {

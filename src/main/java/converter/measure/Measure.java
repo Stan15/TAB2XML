@@ -10,12 +10,14 @@ import converter.measure_line.DrumMeasureLine;
 import converter.measure_line.GuitarMeasureLine;
 import converter.measure_line.MeasureLine;
 import converter.note.Note;
-import org.apache.xerces.impl.dv.ValidatedInfo;
 import utility.Patterns;
 import utility.Range;
 import utility.ValidationError;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -2,7 +2,6 @@ package converter.note;
 
 import GUI.TabInput;
 import converter.Instrument;
-import converter.measure_line.MeasureLine;
 import models.measure.note.Chord;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
@@ -11,7 +10,6 @@ import utility.ValidationError;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

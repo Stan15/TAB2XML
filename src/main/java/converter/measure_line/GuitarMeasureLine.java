@@ -7,7 +7,10 @@ import converter.note.GuitarNote;
 import converter.note.Note;
 import utility.ValidationError;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GuitarMeasureLine extends MeasureLine {
     public static List<String> NAME_LIST = createLineNameSet();

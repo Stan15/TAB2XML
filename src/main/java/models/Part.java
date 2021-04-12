@@ -1,14 +1,12 @@
 package models;
 
-import models.measure.Measure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import lombok.Data;
+import models.measure.Measure;
 
 import java.util.List;
 
-@Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Part {
     @JacksonXmlProperty(isAttribute = true)
@@ -20,6 +18,22 @@ public class Part {
 
     public Part(String id, List<Measure> measures) {
         this.id = id;
+        this.measures = measures;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public List<Measure> getMeasures() {
+        return measures;
+    }
+
+    public void setMeasures(List<Measure> measures) {
         this.measures = measures;
     }
 }

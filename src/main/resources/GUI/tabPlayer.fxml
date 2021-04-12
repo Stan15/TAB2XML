@@ -3,7 +3,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
-
 <AnchorPane fx:id="tabPlayerPane" maxHeight="269.0" maxWidth="413.0" minHeight="234.0" minWidth="413.0" prefHeight="234.0" prefWidth="413.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.NotePlayer">
    <children>
       <TextArea fx:id="tabPlayerDisplay" layoutX="17.0" layoutY="22.0" prefHeight="154.0" prefWidth="379.0" />

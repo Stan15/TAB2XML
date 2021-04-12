@@ -2,9 +2,7 @@ package models.measure.direction;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.Data;
 
-@Data
 public class Words {
     @JacksonXmlProperty(isAttribute = true, localName = "relative-x")
     double relativeX;
@@ -14,4 +12,28 @@ public class Words {
 
     @JacksonXmlText
     String repeatText;
+
+    public double getRelativeX() {
+        return relativeX;
+    }
+
+    public double getRelativeY() {
+        return relativeY;
+    }
+
+    public String getRepeatText() {
+        return repeatText;
+    }
+
+    public void setRelativeX(double relativeX) {
+        this.relativeX = relativeX;
+    }
+
+    public void setRelativeY(double relativeY) {
+        this.relativeY = relativeY;
+    }
+
+    public void setRepeatText(String repeatText) {
+        this.repeatText = repeatText;
+    }
 }

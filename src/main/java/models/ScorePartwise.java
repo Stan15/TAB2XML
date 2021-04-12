@@ -1,18 +1,15 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import models.part_list.PartList;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import lombok.Data;
-import models.part_list.ScorePart;
+import models.part_list.PartList;
 
 import java.util.List;
 
-@Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JacksonXmlRootElement(localName = "score-partwise")
 @JsonPropertyOrder({"movement-title", "identification"})
@@ -49,5 +46,57 @@ public class ScorePartwise {
 
     public static int getScoreCount() {
         return SCORE_COUNT;
+    }
+
+    public Identification getIdentification() {
+        return identification;
+    }
+
+    public static void setScoreCount(int scoreCount) {
+        SCORE_COUNT = scoreCount;
+    }
+
+    public List<Part> getParts() {
+        return parts;
+    }
+
+    public PartList getPartList() {
+        return partList;
+    }
+
+    public String getMovementTitle() {
+        return movementTitle;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setIdentification(Identification identification) {
+        this.identification = identification;
+    }
+
+    public void setMovementTitle(String movementTitle) {
+        this.movementTitle = movementTitle;
+    }
+
+    public void setPartList(PartList partList) {
+        this.partList = partList;
+    }
+
+    public void setWork(Work work) {
+        this.work = work;
+    }
+
+    public Work getWork() {
+        return work;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setParts(List<Part> parts) {
+        this.parts = parts;
     }
 }

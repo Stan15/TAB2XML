@@ -1,7 +1,5 @@
 package utility;
 
-import java.util.Objects;
-
 public class Range implements Comparable<Range> {
     private int start;
     private int end;
