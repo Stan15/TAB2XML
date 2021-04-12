@@ -6,6 +6,7 @@ import converter.ScoreComponent;
 
 import converter.Score;
 import utility.Patterns;
+import utility.ValidationError;
 
 import java.util.*;
 
@@ -55,16 +56,19 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
         this.voice = voice;
     }
 
-    public List<HashMap<String,String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
         if (!this.origin.equals(this.origin.strip())) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Adding whitespace might result in different timing than you expect.");
-            response.put("positions", "["+this.position+","+(this.position+this.origin.length())+"]");
-            int priority = 3;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Adding whitespace might result in different timing than you expect.",
+                    3,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.position,
+                            this.position+this.origin.length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         return result;
     }

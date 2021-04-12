@@ -7,8 +7,10 @@ import models.measure.note.Chord;
 import models.measure.note.Pitch;
 import models.measure.note.notations.Notations;
 import models.measure.note.notations.technical.Technical;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -47,8 +49,8 @@ public class GuitarNote extends Note {
         this.sign = this.fret+"";
     }
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>(super.validate());
 
         for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
             String resp = noteDecorMap.get(noteDecor);
@@ -70,22 +72,29 @@ public class GuitarNote extends Note {
                 message = message.substring(matcher.end()+2);
             }
 
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", message);
-            response.put("positions", "["+startIdx+","+endIdx+"]");
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    message,
+                    priority,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            startIdx,
+                            endIdx
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         if (this.noteDetails==null) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "this note could not be identified");
-            response.put("positions", "["+this.position+","+this.position+this.origin.length()+"]");
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "this note could not be identified",
+                    1,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.position,
+                            this.position+this.origin.length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         return result;
     }

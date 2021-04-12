@@ -45,10 +45,10 @@ public class FXMLController extends Application {
     private static Window convertWindow = new Stage();
     @FXML public CodeArea TEXT_AREA;
 
-    @FXML private ComboBox errorSensitivity;
-    @FXML private ComboBox cmbNumerator;
-    @FXML private ComboBox cmbDenominator;
-    @FXML private ComboBox cmbScoreType;
+    @FXML private ComboBox<String> errorSensitivity;
+    @FXML private ComboBox<String> cmbNumerator;
+    @FXML private ComboBox<String> cmbDenominator;
+    @FXML private ComboBox<String> cmbScoreType;
     
     @FXML private TextField outputFolderField;
     @FXML private TextField gotoMeasureField;
@@ -425,15 +425,6 @@ public class FXMLController extends Application {
             cmbDenominator.setValue(tsDenominator);
             Score.DEFAULT_BEAT_COUNT = Integer.parseInt(tsNumerator);
             Score.DEFAULT_BEAT_TYPE = Integer.parseInt(tsDenominator);
-        }
-    }
-    TabInput goTo = new TabInput(TEXT_AREA, convertButton);
-    void goToMeasure() {
-        if(true){
-            goToMeasure();
-        }
-        if(false){
-
         }
     }
 

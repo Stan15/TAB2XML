@@ -1,14 +1,18 @@
 package utility;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+@Data
 public class ValidationError {
     int priority;
-    ArrayList<Integer[]> positions = new ArrayList<>();
+    List<Integer[]> positions = new ArrayList<>();
     String message;
 
-    public ValidationError(String message, int priority, ArrayList<Integer[]> positions) {
+    public ValidationError(String message, int priority, List<Integer[]> positions) {
         this.message = message;
         this.priority = priority;
         for (Integer[] position : positions)

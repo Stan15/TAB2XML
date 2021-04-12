@@ -12,6 +12,7 @@ import converter.note.Note;
 import converter.note.NoteFactory;
 import utility.DrumUtils;
 import utility.Patterns;
+import utility.ValidationError;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -132,16 +133,16 @@ public abstract class MeasureLine implements ScoreComponent {
 
     public List<Note> getNoteList() {
         List<Note> noteList = new ArrayList<>();
-        for (HashMap<String, String> error : this.validate()) {
-            if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+        for (ValidationError error : this.validate()) {
+            if (error.getPriority() <= Score.CRITICAL_ERROR_CUTOFF) {
                 return noteList;
             }
         }
         for (Note note : this.noteList) {
-            List<HashMap<String, String>> errors = note.validate();
+            List<ValidationError> errors = note.validate();
             boolean criticalError = false;
-            for (HashMap<String, String> error : errors) {
-                if (Integer.parseInt(error.get("priority")) <= Score.CRITICAL_ERROR_CUTOFF) {
+            for (ValidationError error : errors) {
+                if (error.getPriority() <= Score.CRITICAL_ERROR_CUTOFF) {
                     criticalError = true;
                     break;
                 }
@@ -176,36 +177,45 @@ public abstract class MeasureLine implements ScoreComponent {
      * found in the root string from which it was derived (i.e Score.ROOT_STRING).
      * This value is formatted as such: "[startIndex,endIndex];[startIndex,endIndex];[startInde..."
      */
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
         if (name==null) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "invalid measure line name.");
-            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "invalid measure line name.",
+                    1,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.position,
+                            this.position+this.line.length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         Matcher matcher = Pattern.compile(MeasureLine.INSIDES_PATTERN).matcher("|"+line+"|");
         if (!matcher.find() || !matcher.group().equals(this.line.strip())) {     // "|"+name because the MeasureLine.INSIDES_PATTERN expects a newline, space, or | to come before
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "invalid measure line.");
-            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "invalid measure line.",
+                    1,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.position,
+                            this.position+this.line.length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         if (this.line.length()-this.line.replaceAll("\s", "").length() != 0) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Adding whitespace might result in different timing than you expect.");
-            response.put("positions", "["+this.position+","+(this.position+this.line.length())+"]");
-            int priority = 3;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Adding whitespace might result in different timing than you expect.",
+                    3,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.position,
+                            this.position+this.line.length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
 
         return result;

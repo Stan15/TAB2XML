@@ -1,8 +1,10 @@
 package converter.note;
 
 import GUI.TabInput;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,15 +19,19 @@ public class InvalidNote extends Note {
         return null;
     }
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>();
-        HashMap<String, String> response = new HashMap<>();
-        response.put("message", "This annotation is either unsupported or invalid.");
-        response.put("positions", "[" + this.position + "," + (this.position + this.origin.length()) + "]");
-        int priority = 1;
-        response.put("priority", "" + priority);
-        if (TabInput.ERROR_SENSITIVITY >= priority)
-            result.add(response);
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>();
+
+        ValidationError error = new ValidationError(
+                "This annotation is either unsupported or invalid.",
+                1,
+                new ArrayList<>(Collections.singleton(new Integer[]{
+                        this.position,
+                        this.position+this.origin.length()
+                }))
+        );
+        if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+            result.add(error);
         return result;
     }
 }

@@ -7,8 +7,10 @@ import converter.ScoreComponent;
 import converter.measure.Measure;
 import utility.Patterns;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -59,36 +61,49 @@ public class Repeat extends Instruction {
         this.setHasBeenApplied(this.startApplied && this.endApplied);
     }
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>(super.validate());
         result.addAll(validateSelf());
         if ((!this.startApplied && this.endApplied)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "This repeat was only partially applied for some reason.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            int priority = 1;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "This repeat was not fully applied.",
+                    1,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         return result;
     }
 
-    private List<HashMap<String, String>> validateSelf() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    private List<ValidationError> validateSelf() {
+        List<ValidationError> result = new ArrayList<>();
         if (!(this.getRelativeRange() instanceof Top)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Repeats should only be applied to the top of measures.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "3");
-            result.add(response);
+            ValidationError error = new ValidationError(
+                    "Repeats should only be applied to the top of measures.",
+                    3,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         if (this.repeatCount>MAX_REPEATS) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "only up to "+MAX_REPEATS+" repeats recommended.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            response.put("priority", "3");
-            result.add(response);
+            ValidationError error = new ValidationError(
+                    "only up to "+MAX_REPEATS+" repeats recommended.",
+                    3,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         return result;
     }

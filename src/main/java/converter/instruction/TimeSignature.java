@@ -6,8 +6,10 @@ import converter.MeasureGroup;
 import converter.ScoreComponent;
 import converter.measure.Measure;
 import utility.Range;
+import utility.ValidationError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -49,40 +51,49 @@ public class TimeSignature extends Instruction {
         }
     }
 
-    public List<HashMap<String, String>> validate() {
-        List<HashMap<String, String>> result = new ArrayList<>(super.validate());
+    public List<ValidationError> validate() {
+        List<ValidationError> result = new ArrayList<>(super.validate());
         result.addAll(validateSelf());
         return result;
     }
 
-    private List<HashMap<String, String>> validateSelf() {
-        List<HashMap<String, String>> result = new ArrayList<>();
+    private List<ValidationError> validateSelf() {
+        List<ValidationError> result = new ArrayList<>();
         if (!(this.getRelativeRange() instanceof Top)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Time signatures should only be applied to the top of measures.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            int priority = 3;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Time signatures should only be applied to the top of measures.",
+                    3,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
             return result;
         }
         if (beatCount<=0 || beatType<=0) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Invalid beat " + (this.beatCount<=0?"count" : "type") + " value.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Invalid beat " + (this.beatCount<=0?"count" : "type") + " value.",
+                    2,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }else if (!isValid(this.beatCount, this.beatType)) {
-            HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Unsupported time signature.");
-            response.put("positions", "["+this.getPosition()+","+(this.getPosition()+this.getContent().length())+"]");
-            int priority = 2;
-            response.put("priority", ""+priority);
-            if (TabInput.ERROR_SENSITIVITY>=priority)
-                result.add(response);
+            ValidationError error = new ValidationError(
+                    "Unsupported time signature.",
+                    2,
+                    new ArrayList<>(Collections.singleton(new Integer[]{
+                            this.getPosition(),
+                            this.getPosition()+this.getContent().length()
+                    }))
+            );
+            if (TabInput.ERROR_SENSITIVITY>= error.getPriority())
+                result.add(error);
         }
         return result;
     }
