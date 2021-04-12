@@ -4,6 +4,7 @@ import converter.measure.Measure;
 import converter.note.Note;
 import custom_exceptions.InvalidInputException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import utility.Parser;
 
@@ -14,6 +15,11 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ScoreTest {
+
+    @BeforeEach
+    void init() {
+        Score.INSTRUMENT_MODE = Instrument.AUTO;
+    }
 
     /**
      * Test for Score Class.
