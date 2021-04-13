@@ -72,6 +72,10 @@ public abstract class Note implements Comparable<Note>, ScoreComponent {
         return result;
     }
 
+    public void setDurationRatio(double durationRatio) {
+        this.durationRatio = durationRatio;
+    }
+
 
     /**
      * TODO REMOVE THE TRY CATCH AND HANDLE THIS PROPERLY

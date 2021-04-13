@@ -128,8 +128,8 @@ public class NoteFactory {
 
     private HashMap<String, String> getPatternPackage(String origin) {
         HashMap<String, String> patternPackage = new HashMap<>();
-        Matcher guitarMatcher = Pattern.compile("^"+GUITAR_NOTE_GROUP_PATTERN+"$").matcher(origin);
-        Matcher drumMatcher = Pattern.compile("^"+DRUM_NOTE_GROUP_PATTERN+"$").matcher(origin);
+//        Matcher guitarMatcher = Pattern.compile("^"+GUITAR_NOTE_GROUP_PATTERN+"$").matcher(origin);
+//        Matcher drumMatcher = Pattern.compile("^"+DRUM_NOTE_GROUP_PATTERN+"$").matcher(origin);
         if (this.instrument == Instrument.GUITAR || this.instrument == Instrument.BASS) {
             patternPackage.put("instrument", "guitar");
             patternPackage.put("note-group-pattern", GUITAR_NOTE_GROUP_PATTERN);
@@ -162,7 +162,7 @@ public class NoteFactory {
             else if (origin.strip().equalsIgnoreCase("f"))
                 noteList.addAll(createFlam(origin, position, distanceFromMeasureStart));
             else if (origin.strip().equalsIgnoreCase("d"))
-                noteList.addAll(createFlam(origin, position, distanceFromMeasureStart));
+                noteList.addAll(createDrag(origin, position, distanceFromMeasureStart));
             else
                 noteList.add(new InvalidNote(origin, position, lineName, distanceFromMeasureStart));
             return noteList;
@@ -190,6 +190,20 @@ public class NoteFactory {
         List<Note> notes = new ArrayList<>();
         notes.add(graceNote);
         notes.add(gracePair);
+        return notes;
+    }
+
+    private List<Note> createDrag(String origin, int position, int distanceFromMeasureStart) {
+        Note note1 = createDrumNote(origin, position, distanceFromMeasureStart);
+        Note note2 = createDrumNote(origin, position, distanceFromMeasureStart);
+        note2.addDecor((noteModel) -> {
+            noteModel.setChord(null);
+            return true;
+        }, "success");
+        List<Note> notes = new ArrayList<>();
+        notes.add(note1);
+        notes.add(note2);
+        slur(note1, note2);
         return notes;
     }
 

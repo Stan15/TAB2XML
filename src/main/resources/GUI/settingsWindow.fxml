@@ -24,6 +24,7 @@
                <String fx:value="Level 1 - Minimal Error Checking" />
                <String fx:value="Level 2 - Standard Error Checking" />
                <String fx:value="Level 3 - Advanced Error Checking" />
+               <String fx:value="Level 4 - Detailed Error Checking" />
            </FXCollections>
        </items>
    </ComboBox>

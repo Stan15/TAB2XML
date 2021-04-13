@@ -299,8 +299,9 @@ public abstract class Measure implements ScoreComponent {
 
             double durationRatio = ((double)(nextChordDistance-currentChordDistance))/maxMeasureLineLen;
             for (Note note : chord) {
-                note.durationRatio = durationRatio;
+                note.setDurationRatio(durationRatio);
             }
+            //0.11..., 0.5882
         }
         //handle last chord, as it is a special case (it has no next chord)
         if (!chordList.isEmpty()) {
@@ -309,8 +310,9 @@ public abstract class Measure implements ScoreComponent {
 
             double durationRatio = ((double)(maxMeasureLineLen-currentChordDistance))/maxMeasureLineLen;
             for (Note note : chord) {
-                note.durationRatio = durationRatio;
+                note.setDurationRatio(durationRatio);
             }
+            //0.176,
         }
     }
     public List<List<List<Note>>> getVoiceSortedChordList() {

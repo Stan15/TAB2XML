@@ -347,7 +347,13 @@ public class FXMLController extends Application {
     @FXML
     private void handleGotoMeasure() {
         int measureNumber = Integer.parseInt( gotoMeasureField.getText() );
-        new TabInput(TEXT_AREA, convertButton).goToMeasure(measureNumber);
+        if (!new TabInput(TEXT_AREA, convertButton).goToMeasure(measureNumber)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Measure "+measureNumber+" could not be found.");
+            alert.setHeaderText(null);
+            alert.show();
+        }
+
     }
 
     private void initializeTextArea() {

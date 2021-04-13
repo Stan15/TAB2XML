@@ -17,14 +17,6 @@ public class Parser {
         SCORE = new Score(rootString);
     }
 
-    public Parser(Path filePath) {
-        try {
-            String rootString = Files.readString(filePath).replace("\r\n","\n");
-            SCORE = new Score(rootString);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     public static String parse(Score score) {
         if(score.ROOT_STRING.isBlank()){
             return "";

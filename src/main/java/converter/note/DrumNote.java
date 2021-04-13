@@ -26,6 +26,14 @@ public class DrumNote extends Note{
             this.voice = 2;
     }
 
+    @Override
+    public void setDurationRatio(double durationRatio) {
+        if (this.origin.strip().equalsIgnoreCase("d"))
+            this.durationRatio = durationRatio/2;
+        else
+            this.durationRatio = durationRatio;
+    }
+
     /**
      * gets the type of this model depending on what you need
      *  like notes, duration of notes, which drum part,
@@ -45,7 +53,7 @@ public class DrumNote extends Note{
         noteModel.setStem(this.lineName.strip().equalsIgnoreCase("BD") ? "down" : "up");
         String noteHead = this.origin.strip();
         if (!(noteHead.equalsIgnoreCase("f") || noteHead.equalsIgnoreCase("d")))
-            noteModel.setNotehead(noteHead);
+            noteModel.setNotehead(noteHead.toLowerCase());
         for (NoteFactory.NoteDecor noteDecor : this.noteDecorMap.keySet()) {
             if (noteDecorMap.get(noteDecor).equals("success"))
                 noteDecor.applyTo(noteModel);

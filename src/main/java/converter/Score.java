@@ -219,8 +219,6 @@ public class Score implements ScoreComponent {
     public List<ValidationError> validate() {
         List<ValidationError> result = new ArrayList<>();
 
-        StringBuilder errorRanges = new StringBuilder();
-
         int prevEndIdx = 0;
         ArrayList<Integer[]> positions = new ArrayList<>();
         for (MeasureCollection msurCollction : this.measureCollectionList) {
@@ -231,13 +229,13 @@ public class Score implements ScoreComponent {
             prevEndIdx = msurCollction.endIndex;
         }
 
+
         String restOfDocument = ROOT_STRING.substring(prevEndIdx);
         if (!restOfDocument.isBlank()) {
-            if (!errorRanges.isEmpty()) errorRanges.append(";");
-            errorRanges.append("["+prevEndIdx+","+(prevEndIdx+restOfDocument.length())+"]");
+            positions.add(new Integer[]{prevEndIdx, prevEndIdx+restOfDocument.length()});
         }
 
-        if (!errorRanges.isEmpty()) {
+        if (!positions.isEmpty()) {
             ValidationError error = new ValidationError(
                     "This text can't be understood.",
                     4,

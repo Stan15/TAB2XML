@@ -2,7 +2,6 @@ package converter;
 
 import converter.measure.Measure;
 import converter.note.Note;
-import custom_exceptions.InvalidInputException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import utility.Parser;
@@ -31,7 +30,7 @@ public class ScoreTest {
      * is separated by a blank line.
      */
     @Test
-    void test_Score_getStringFragments() throws InvalidInputException {
+    void test_Score_getStringFragments() {
         String s = "abcd";
         Score test = new Score (s);
 
