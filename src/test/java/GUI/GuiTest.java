@@ -10,6 +10,7 @@ import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.base.NodeMatchers;
 import org.testfx.matcher.control.LabeledMatchers;
 
 import java.io.IOException;
@@ -35,7 +36,14 @@ public class GuiTest {
     @Test
     public void testEmptyInput(FxRobot robot) {
         robot.clickOn("#convertButton");
-        FxAssert.verifyThat("#convertButton", LabeledMatchers.hasText("Convert"));
+        FxAssert.verifyThat("#convertButton", NodeMatchers.isDisabled());
+    }
+
+    @Test
+    public void invalidInput(FxRobot robot) {
+        robot.clickOn("#TEXT_AREA");
+        robot.write("this text is not  a valid measure", 0);
+        FxAssert.verifyThat("#convertButton", NodeMatchers.isDisabled());
     }
 }
 
