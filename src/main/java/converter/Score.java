@@ -92,6 +92,16 @@ public class Score implements ScoreComponent {
         return null;
     }
 
+    public List<Measure> getMeasureList() {
+        List<Measure> measureList = new ArrayList<>();
+        for (MeasureCollection mCol : this.measureCollectionList) {
+            for (MeasureGroup mGroup : mCol.getMeasureGroupList()) {
+                measureList.addAll(mGroup.getMeasureList());
+            }
+        }
+        return measureList;
+    }
+
     public int getErrorLevel() {
         List<ValidationError> errors = this.validate();
         if (errors.isEmpty()) return 0;

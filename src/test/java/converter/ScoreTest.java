@@ -57,25 +57,45 @@ public class ScoreTest {
     @Test
     void repeatInlineTest() {
         int expectedRepeatCount = 5;
-        String inlineRepeatMeasure = """
-                e||--------------------"""+expectedRepeatCount+"""
-                |
+        String[] inlineRepeatMeasures = {
+                """
+                e||--------------------5|
                 B||---3----------------||
                 G||*------------------*||
                 D||*----5-------------*||
                 A||-------------8------||
                 E||--------------------||
-                """;
-        Score score = new Score(inlineRepeatMeasure);
-        assertEquals(1, score.measureCollectionList.size(), "one measure was expected but found "+score.measureCollectionList.size()+".");
-        Measure measure = score.getMeasure(1);
-        assertTrue(measure.isRepeatEnd());
-        assertTrue(measure.isRepeatStart());
-        List<Note> noteList = measure.getSortedNoteList();
-        assertEquals(3, noteList.size(), "three notes were expected in the following measure, but found "+noteList.size()+"."
-                +"\n\tMeasure:\n\t\t"+inlineRepeatMeasure+"\n");
-        Matcher matcher = Pattern.compile("<words[^>]*>[^<0-9]*"+expectedRepeatCount+"[^<0-9]*</words>").matcher(Parser.parse(score));
-        assertTrue(matcher.find(), "repeat count not properly detected and applied");
+                """,
+
+                """
+                e||--------------------5|
+                B||*--3--------8------*||
+                G||*------------------*||
+                D||-----5--------------||
+                """,
+
+                """
+                CC||--------------------5|
+                HH||---x----------------||
+                SD||*------------------*||
+                HT||*----o-------------*||
+                MT||-------------o------||
+                BD||--------------------||
+                """
+        };
+
+        for (String inlineRepeatMeasure : inlineRepeatMeasures) {
+            Score score = new Score(inlineRepeatMeasure);
+            assertEquals(1, score.measureCollectionList.size(), "one measure was expected but found " + score.measureCollectionList.size() + ".");
+            Measure measure = score.getMeasure(1);
+            assertTrue(measure.isRepeatEnd());
+            assertTrue(measure.isRepeatStart());
+            List<Note> noteList = measure.getSortedNoteList();
+            assertEquals(3, noteList.size(), "three notes were expected in the following measure, but found " + noteList.size() + "."
+                    + "\nMeasure:\n" + inlineRepeatMeasure);
+            Matcher matcher = Pattern.compile("<words[^>]*>[^<0-9]*" + expectedRepeatCount + "[^<0-9]*</words>").matcher(Parser.parse(score));
+            assertTrue(matcher.find(), "repeat count not properly detected and applied");
+        }
     }
 
     @Test
@@ -161,53 +181,127 @@ public class ScoreTest {
 
     }
 
-//    @Test
-//    void timeSigFirstMeasureTest() {
-//        String[] measureStrings = {
-//                """
-//                e|--------------------| e|--------------------| e|--------------------| e|--------------------|
-//                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
-//                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
-//                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
-//                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
-//                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
-//                """,
-//
-//                """
-//                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
-//                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
-//                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
-//                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
-//                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
-//                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
-//                """,
-//
-//                """
-//                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
-//                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
-//                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
-//                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
-//                """,
-//
-//        };
-//        for (String measureString : measureStrings) {
-//            String[] repeatMeasures = {
-//                    "3/4\n"+measureString,
-//            };
-//
-//            for (String repeatMeasure : repeatMeasures) {
-//                Score score = new Score(repeatMeasure);
-//                assertEquals(1, score.measureCollectionList.size(), "one measure was expected but found "+score.measureCollectionList.size()+".");
-//                Measure measure = score.getMeasure(1);
-//                assertTrue(measure.isRepeatEnd());
-//                assertTrue(measure.isRepeatStart());
-//                List<Note> noteList = measure.getSortedNoteList();
-//                assertEquals(3, noteList.size(), "three notes were expected in the following measure, but found "+noteList.size()+".");
-//                Matcher matcher = Pattern.compile("<words[^>]*>[^<0-9]*"+5+"[^<0-9]*</words>").matcher(Parser.parse(score));
-//                assertTrue(matcher.find(), "repeat count not properly detected and applied");
-//            }
-//        }
-//
-//    }
+    @Test
+    void timeSigFirstMeasureTest() {
+        String[] measureStrings = {
+                //------------------------Guitar measures
+                    //time signature altered at the start of measure group
+                """
+                3/4                                               2/4
+                e|--------------------| e|--------------------| e|--------------------| e|--------------------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
+                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
+                """,
+                    //altered in the middle / altered in the end
+                """
+                                            3/4                                          2/4
+                e|--------------------| e|--------------------| e|--------------------| e|--------------------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
+                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
+                """,
+                    //one altered immediately after another
+                """
+                                        3/4                         2/4
+                e|--------------------| e|--------------------| e|--------------------| e|--------------------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                A|-------------8------| A|-------------8------| A|-------------8------| A|-------------8------|
+                E|--------------------| E|--------------------| E|--------------------| E|--------------------|
+                """,
+
+
+
+                //-----------------------------Drums
+                    //time signature altered at the start of measure group
+                """
+                3/4                                               2/4
+                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
+                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
+                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
+                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
+                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
+                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
+                """,
+                    //altered in the middle / altered in the end
+                """
+                                            3/4                                             2/4
+                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
+                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
+                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
+                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
+                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
+                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
+                """,
+                    //one altered immediately after another
+                """
+                                            3/4                         2/4
+                CC|--------------------| CC|--------------------| CC|--------------------| CC|--------------------|
+                HH|---x----------------| HH|---x----------------| HH|---x----------------| HH|---x----------------|
+                SD|--------------------| SD|--------------------| SD|--------------------| SD|--------------------|
+                HT|-----o--------------| HT|-----o--------------| HT|-----o--------------| HT|-----o--------------|
+                MT|-------------O------| MT|-------------O------| MT|-------------O------| MT|-------------O------|
+                BD|--------------------| BD|--------------------| BD|--------------------| BD|--------------------|
+                """,
+
+
+
+                //---------------------------------Bass
+                //time signature altered at the start of measure group
+                """
+                3/4                                               2/4
+                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                """,
+                    //altered in the middle / altered in the end
+                """
+                                            3/4                                             2/4
+                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                """,
+                    //one altered immediately after another
+                """
+                                            3/4                         2/4
+                e|------------8-------| e|------------8-------| e|------------8-------| e|------------8-------|
+                B|---3----------------| B|---3----------------| B|---3----------------| B|---3----------------|
+                G|--------------------| G|--------------------| G|--------------------| G|--------------------|
+                D|-----5--------------| D|-----5--------------| D|-----5--------------| D|-----5--------------|
+                """,
+        };
+
+        Score.DEFAULT_BEAT_TYPE = 4;
+        Score.DEFAULT_BEAT_COUNT = 4;
+        String[][] expectedTimeSigGroups = {
+                {"3/4", "3/4", "2/4", "2/4"},
+                {"4/4", "3/4", "3/4", "2/4"},
+                {"4/4", "3/4", "2/4", "2/4"}
+        };
+
+        for (int i=0; i<measureStrings.length; i++) {
+            Score score = new Score(measureStrings[i]);
+            List<Measure> measureList = score.getMeasureList();
+            String[] expectedTimeSigs = expectedTimeSigGroups[i%3];
+            for (int j=0; j<measureList.size(); j++) {
+                Measure measure = measureList.get(j);
+                assertTrue(j<expectedTimeSigs.length, "More measures were detected in the following group than was expected.\nMeasure Group:\n"+measureStrings[i]);
+                String expectedTimeSig = expectedTimeSigs[j];
+                String actualTimeSig = measure.getBeatCount()+"/"+measure.getBeatType();
+                assertEquals(expectedTimeSig, actualTimeSig,
+                        "Measure "+j+" in the following measure group was expected to have time signature "+expectedTimeSig+", but time signature "+actualTimeSig+ " was found."
+                        +"\nMeasure Group:\n"+measureStrings[i]);
+            }
+        }
+
+    }
 
 }

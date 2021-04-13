@@ -29,7 +29,7 @@ public class SplashFXMLController implements Initializable {
     }
 
     class SplashScreen extends Thread {
-        long duration = 500;
+        long duration = 530;
         long progressUnits = 1;
         @Override
         public void run() {

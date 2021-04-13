@@ -18,6 +18,15 @@
     background-color: #000000;
 }
 
+.splash-screen {
+    -fx-background-image: url("/image_assets/loading_page_background.jpg");
+    -fx-background-size: 600px 450px;
+}
+
+.loading-bar {
+    -fx-border-style: none;
+}
+
 .progress-bar .bar {
     -fx-padding: 1px;
     -fx-background-color: black;
