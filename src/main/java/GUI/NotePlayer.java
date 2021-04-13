@@ -11,7 +11,14 @@ import javafx.scene.control.TextArea;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 //import nu.xom.ParsingException;
+import nu.xom.ParsingException;
 import org.fxmisc.richtext.CodeArea;
+import org.jfugue.integration.MusicXmlParser;
+import org.jfugue.pattern.Pattern;
+import org.jfugue.player.ManagedPlayer;
+import org.jfugue.player.Player;
+import org.staccato.StaccatoParserListener;
+import utility.Parser;
 //import org.jfugue.integration.MusicXmlParser;
 //import org.jfugue.pattern.Pattern;
 //import org.jfugue.player.ManagedPlayer;
@@ -22,13 +29,16 @@ import org.fxmisc.richtext.CodeArea;
 //import javax.sound.midi.InvalidMidiDataException;
 //import javax.sound.midi.MidiUnavailableException;
 //import javax.xml.parsers.ParserConfigurationException;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class NotePlayer {
-    //private static ManagedPlayer PLAYER = new ManagedPlayer();
+    private static ManagedPlayer PLAYER = new ManagedPlayer();
     private static Stage STAGE;
     private static String DISPLAY_TEXT;
     @FXML
@@ -55,7 +65,7 @@ public class NotePlayer {
             DISPLAY_TEXT = "Select a measure to play it.";
         else if (scoreTmp.measureCollectionList.isEmpty())
             DISPLAY_TEXT = "No measure detected in selection.";
-        else if (!scoreTmp.isGuitar(true) && !scoreTmp.isBass(true))
+        else if (scoreTmp.isDrum(false) && !(scoreTmp.isGuitar(false)||scoreTmp.isBass(false)))
             DISPLAY_TEXT = "Only guitar and bass measures can be played.";
         else {
             DISPLAY_TEXT = scoreTmp.toString();
@@ -69,15 +79,14 @@ public class NotePlayer {
             STAGE.setTitle("Note Player");
             STAGE.initModality(Modality.APPLICATION_MODAL);
             STAGE.initOwner(MainApp.STAGE);
-            //STAGE.setOnCloseRequest(e -> NotePlayer.kill());
+            STAGE.setOnCloseRequest(e -> NotePlayer.kill());
 
             Parent root = FXMLLoader.load(NotePlayer.class.getClassLoader().getResource("GUI/tabPlayer.fxml"));
             Scene scene = new Scene(root);
             STAGE.setScene(scene);
-            STAGE.setMinHeight(270);
-            STAGE.setMaxHeight(270);
-            STAGE.setMinWidth(430);
-            STAGE.setMaxWidth(430);
+            STAGE.setHeight(270);
+            STAGE.setWidth(430);
+            STAGE.setResizable(false);
             STAGE.show();
         } catch (IOException e) {
             Logger logger = Logger.getLogger(getClass().getName());
@@ -88,47 +97,49 @@ public class NotePlayer {
     @FXML
     public void exit() {
         STAGE.close();
+        kill();
     }
 
-    public static boolean play(Score score) {// throws ParserConfigurationException, MidiUnavailableException, URISyntaxException, ParsingException, IOException, InvalidMidiDataException {
-//        if (!score.isGuitar(false) && !score.isBass(false)) return false;
-//        MusicXmlParser parser = new MusicXmlParser();
-//        StaccatoParserListener listener = new StaccatoParserListener();
-//        parser.addParserListener(listener);
-//        parser.parse(Parser.parse(score));
-//        final Pattern musicXMLPattern = listener.getPattern().setInstrument("Guitar");
-//        PLAYER = new ManagedPlayer();
-//        PLAYER.start(new Player().getSequence(musicXMLPattern));
+    public static boolean play(Score score) throws ParserConfigurationException, MidiUnavailableException, URISyntaxException, ParsingException, IOException, InvalidMidiDataException {
+        if (SCORE.isDrum(false) && !(SCORE.isGuitar(false)||SCORE.isBass(false))) return false;
+        MusicXmlParser parser = new MusicXmlParser();
+        StaccatoParserListener listener = new StaccatoParserListener();
+        parser.addParserListener(listener);
+        parser.parse(Parser.parse(score));
+        final Pattern musicXMLPattern = listener.getPattern().setInstrument("Guitar");
+        PLAYER = new ManagedPlayer();
+        PLAYER.start(new Player().getSequence(musicXMLPattern));
         return true;
     }
 
     public static void kill() {
-//        PLAYER.finish();
+        PLAYER.seek(PLAYER.getTickLength());
+        PLAYER.finish();
     }
 
     @FXML
     public void play() {
-//        try {
-//            if (PLAYER.isFinished() || !PLAYER.isStarted()) {
-//                play(SCORE);
-//                seekSlider.setMax(PLAYER.getTickLength());
-//                seekSlider.setValue(0);
-//            } else if (PLAYER.isPaused())
-//                PLAYER.resume();
-//            seekSlider.setValue(PLAYER.getTickLength());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            tabPlayerDisplay.setText("Measure could not be played.");
-//            disableControls();
-//            kill();
-//        }
+        try {
+            if (PLAYER.isFinished() || !PLAYER.isStarted()) {
+                play(SCORE);
+                seekSlider.setMax(PLAYER.getTickLength());
+                seekSlider.setValue(0);
+            } else if (PLAYER.isPaused())
+                PLAYER.resume();
+            seekSlider.setValue(PLAYER.getTickLength());
+        } catch (Exception e) {
+            e.printStackTrace();
+            tabPlayerDisplay.setText("Measure could not be played.");
+            disableControls();
+            kill();
+        }
 
     }
 
     @FXML
     public void pause() {
-//        if (!PLAYER.isPaused())
-//            PLAYER.pause();
+        if (!PLAYER.isPaused())
+            PLAYER.pause();
     }
 
     public void initialize() {

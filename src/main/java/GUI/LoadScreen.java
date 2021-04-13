@@ -1,11 +1,14 @@
 package GUI;
 
+import javafx.scene.control.ProgressBar;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class LoadScreen {
     JFrame body; JLabel wallpaper = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("image_assets/loading_page_background.jpg")));
     JProgressBar bar = new JProgressBar();
+
 
     public void insertBar() {
         bar.setValue(0);

@@ -5,31 +5,30 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 
 public class MainApp extends Application {
 
     public static Stage STAGE;
+    public static Stage SPLASH_STAGE;
 
     @Override
     public void start(Stage stage) throws Exception {
-        STAGE = stage;
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GUI/scene.fxml"));
+        SPLASH_STAGE = stage;
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GUI/splashScreen.fxml"));
         Scene scene = new Scene(root);
-        STAGE.setOnCloseRequest(e -> stop());
-
         scene.getStylesheets().add(getClass().getClassLoader().getResource("GUI/styles.css").toExternalForm());
 
+        SPLASH_STAGE.initStyle(StageStyle.UNDECORATED);
+        stage.setResizable(false);
+
         stage.setTitle("TAB 2 XML");
-        stage.setMinWidth(700);
-        stage.setMinHeight(500);
         stage.setScene(scene);
-        LoadScreen.run();
         stage.show();
     }
 
-    @Override
-    public void stop() {
+    public static void exit() {
         TabInput.executor.shutdown();
         NotePlayer.kill();
     }

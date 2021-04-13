@@ -17,6 +17,12 @@
 .tool-bar {
     background-color: #000000;
 }
+
+.progress-bar .bar {
+    -fx-padding: 1px;
+    -fx-background-color: black;
+}
+
 #borderPane, #menuBar, #convertPane, #settingsPane, #timeSignaturePane, #tabPlayerPane {
     -fx-background-color: rgb(50,50,50);
 
