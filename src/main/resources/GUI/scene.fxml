@@ -59,14 +59,14 @@
                           <FXCollections fx:factory="observableArrayList">
                               <String fx:value="Auto" />
                               <String fx:value="Guitar" />
-                              <String fx:value="Drum" />
+                              <String fx:value="Drum" fx:id="drumItem"/>
                               <String fx:value="Bass" />
                           </FXCollections>
                       </items>
                   </ComboBox>
                   <Label layoutX="266.0" layoutY="20.0" text="Go-to Measure" />
                   <TextField fx:id="gotoMeasureField" layoutX="355.0" layoutY="16.0" prefHeight="25.0" prefWidth="55.0" />
-                  <Button layoutX="417.0" layoutY="16.0" mnemonicParsing="false" onAction="#handleGotoMeasure" text="Go" />
+                  <Button layoutX="417.0" layoutY="16.0" mnemonicParsing="false" fx:id="gotoMeasureButton" onAction="#handleGotoMeasure" text="Go" />
                     </children>
                 </AnchorPane>
             </children>

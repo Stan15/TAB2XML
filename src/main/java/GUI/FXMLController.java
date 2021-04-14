@@ -31,6 +31,8 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 public class FXMLController extends Application {
+    public static CodeArea TEXT_AREA_ALIAS ;
+
     Preferences p = Preferences.userNodeForPackage(MainApp.class);
     private static File saveFile;
     private static boolean isEditingSavedFile;
@@ -40,7 +42,7 @@ public class FXMLController extends Application {
 
 
     private static Window convertWindow = new Stage();
-    @FXML public CodeArea TEXT_AREA;
+    @FXML public CodeArea TEXT_AREA = new CodeArea();
 
     @FXML private ComboBox<String> errorSensitivity;
     @FXML private ComboBox<String> cmbNumerator;
@@ -333,6 +335,7 @@ public class FXMLController extends Application {
 
     @FXML 
     public void initialize() {
+        TEXT_AREA_ALIAS = TEXT_AREA;
         initializeTextArea();
         initializeSettings();
     }
