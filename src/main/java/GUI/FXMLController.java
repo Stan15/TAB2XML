@@ -42,7 +42,7 @@ public class FXMLController extends Application {
 
 
     private static Window convertWindow = new Stage();
-    @FXML public CodeArea TEXT_AREA = new CodeArea();
+    @FXML public CodeArea TEXT_AREA;
 
     @FXML private ComboBox<String> errorSensitivity;
     @FXML private ComboBox<String> cmbNumerator;
