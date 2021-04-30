@@ -229,9 +229,6 @@ Note: System does not guarantee an accurate output if measure collections do not
 line dividing’s, and if they do not have clear line names specified. (i.e string names/drum names).
 
 
-Note: Information of other instruments will be updated gradually.
-
-
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
