@@ -2,8 +2,6 @@
 
 ## Demo
 Before we get down to business, here is a quick video demo of what our applicaiton can do.<br/>
-[![a demo of converting tablature text file into a playable MusicXML format](http://img.youtube.com/vi/QMvCKka3bOA/0.jpg)](http://www.youtube.com/watch?v=QMvCKka3bOA "Tablature editor and Tab to MusicXML converter")<br/><br/>
-
 
 [![Application Demo Video Thumbnail](https://user-images.githubusercontent.com/47716543/172286999-4a7945ce-dda1-4ddc-8e3a-09e2660dc0bb.png)](https://www.youtube.com/watch?v=QMvCKka3bOA)
 https://www.youtube.com/watch?v=QMvCKka3bOA
